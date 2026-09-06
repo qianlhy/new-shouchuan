@@ -4,10 +4,13 @@
       <view class="banner-deco d1" />
       <view class="banner-deco d2" />
       <view class="banner-deco d3" />
+      <view class="banner-deco d4" />
       <view class="banner-content">
+        <text class="banner-en">INSPIRATION SQUARE</text>
         <text class="banner-title">灵感广场</text>
         <text class="banner-sub">发现心动，遇见灵感的你。</text>
       </view>
+      <image class="banner-star" src="/static/icons/sparkles.png" mode="aspectFit" />
     </view>
 
     <view class="tabs">
@@ -183,7 +186,10 @@ onShow(() => {
 
 .page {
   min-height: 100vh;
-  background: $page-bg;
+  background:
+    radial-gradient(ellipse 80% 40% at 15% -5%, rgba(183, 148, 255, 0.28), transparent 55%),
+    radial-gradient(ellipse 60% 30% at 90% 0%, rgba(221, 200, 255, 0.4), transparent 50%),
+    linear-gradient(180deg, #FBF7FF 0%, #F3EBFF 30%, #FBF7FF 100%);
   padding: 24rpx 28rpx 160rpx;
   box-sizing: border-box;
 }
@@ -192,7 +198,7 @@ onShow(() => {
   position: relative;
   overflow: hidden;
   border-radius: 32rpx;
-  padding: 48rpx 40rpx;
+  padding: 44rpx 40rpx 48rpx;
   background: $gradient-banner;
   box-shadow: $shadow-card;
   margin-bottom: 28rpx;
@@ -201,26 +207,54 @@ onShow(() => {
 .banner-deco {
   position: absolute;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.28);
+}
+.d1 {
+  width: 200rpx; height: 200rpx; right: -50rpx; top: -60rpx;
+  background: radial-gradient(circle, rgba(183, 148, 255, 0.55) 0%, rgba(221, 200, 255, 0.15) 60%, transparent 75%);
+}
+.d2 {
+  width: 120rpx; height: 120rpx; right: 90rpx; bottom: -40rpx;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.22) 0%, transparent 70%);
+}
+.d3 {
+  width: 56rpx; height: 56rpx; left: 36rpx; bottom: 28rpx;
+  background: rgba(255, 255, 255, 0.55);
+}
+.d4 {
+  width: 90rpx; height: 90rpx; left: -20rpx; top: 20rpx;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.7) 0%, transparent 70%);
 }
 
-.d1 { width: 160rpx; height: 160rpx; right: -30rpx; top: -40rpx; }
-.d2 { width: 90rpx; height: 90rpx; right: 120rpx; bottom: -20rpx; }
-.d3 { width: 40rpx; height: 40rpx; left: 40rpx; bottom: 30rpx; opacity: 0.7; }
-
 .banner-content { position: relative; z-index: 1; }
+.banner-en {
+  display: block;
+  font-size: 20rpx;
+  letter-spacing: 2rpx;
+  color: $primary-light;
+  margin-bottom: 8rpx;
+  font-weight: 600;
+}
 .banner-title {
   display: block;
   font-size: 44rpx;
   font-weight: 700;
-  color: #3B2A7A;
+  color: $text-on-soft;
   letter-spacing: 2rpx;
 }
 .banner-sub {
   display: block;
   margin-top: 12rpx;
   font-size: 24rpx;
-  color: rgba(59, 42, 122, 0.72);
+  color: rgba(74, 58, 120, 0.65);
+}
+.banner-star {
+  position: absolute;
+  right: 40rpx;
+  top: 44rpx;
+  width: 48rpx;
+  height: 48rpx;
+  opacity: 0.85;
+  z-index: 1;
 }
 
 .tabs {
@@ -282,7 +316,7 @@ onShow(() => {
   font-size: 24rpx;
 }
 .at { color: $primary; font-weight: 700; margin-right: 4rpx; }
-.name { color: $text-sub; }
+.name { color: $primary; }
 
 .wish-row {
   display: flex;

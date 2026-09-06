@@ -317,7 +317,10 @@ function onVip() {
 
 .page {
   padding: 24rpx 28rpx 160rpx;
-  background: $page-bg;
+  background:
+    radial-gradient(ellipse 80% 40% at 10% -10%, rgba(183, 148, 255, 0.28), transparent 55%),
+    radial-gradient(ellipse 70% 35% at 95% 8%, rgba(221, 200, 255, 0.45), transparent 50%),
+    linear-gradient(180deg, #FBF7FF 0%, #F3EBFF 38%, #FBF7FF 100%);
   min-height: 100vh;
   box-sizing: border-box;
 }
@@ -326,11 +329,11 @@ function onVip() {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: $gradient-banner;
+  background: transparent;
   border-radius: 32rpx;
-  padding: 34rpx 32rpx;
-  box-shadow: $shadow-card;
-  margin-bottom: 20rpx;
+  padding: 20rpx 8rpx 28rpx;
+  margin-bottom: 8rpx;
+  box-shadow: none;
 }
 .user-info { display: flex; align-items: center; gap: 22rpx; }
 .avatar {
@@ -340,8 +343,8 @@ function onVip() {
   border-radius: 50%;
   border: 4rpx solid rgba(255,255,255,0.55);
 }
-.nickname { font-size: 34rpx; font-weight: 700; color: #2F2460; margin-bottom: 8rpx; }
-.welcome { font-size: 24rpx; color: rgba(47, 36, 96, 0.7); }
+.nickname { font-size: 34rpx; font-weight: 700; color: $text-main; margin-bottom: 8rpx; }
+.welcome { font-size: 24rpx; color: $text-sub; }
 .edit-btn {
   margin: 0;
   padding: 0 24rpx;
@@ -352,11 +355,14 @@ function onVip() {
   font-size: 24rpx;
   font-weight: 600;
   border-radius: 28rpx;
-  border: none;
+  border: 1rpx solid rgba(139, 92, 246, 0.18);
+  box-shadow: 0 6rpx 16rpx rgba(139, 92, 246, 0.08);
 }
 .edit-btn::after { border: none; }
 
 .vip-card {
+  position: relative;
+  overflow: hidden;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -365,9 +371,21 @@ function onVip() {
   padding: 28rpx 32rpx;
   margin-bottom: 20rpx;
   box-shadow: $shadow-card;
-  border: 1rpx solid $border-soft;
+  border: 1rpx solid rgba(139, 92, 246, 0.12);
 }
-.vip-title { display: block; font-size: 30rpx; font-weight: 700; color: $primary; margin-bottom: 14rpx; }
+.vip-card::after {
+  content: '';
+  position: absolute;
+  right: -20rpx;
+  top: -30rpx;
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(183, 148, 255, 0.45) 0%, transparent 70%);
+  pointer-events: none;
+}
+.vip-left { position: relative; z-index: 1; }
+.vip-title { display: block; font-size: 30rpx; font-weight: 700; color: $text-on-soft; margin-bottom: 14rpx; }
 .vip-btn {
   display: inline-flex;
   padding: 10rpx 22rpx;
@@ -376,10 +394,12 @@ function onVip() {
   color: #fff;
   font-size: 22rpx;
   font-weight: 600;
+  box-shadow: $shadow-btn;
 }
-.vip-crown-img {
-  width: 72rpx;
-  height: 72rpx;
+.vip-card .xy-icon {
+  position: relative;
+  z-index: 1;
+  opacity: 0.85;
 }
 .ui-icon {
   width: 44rpx;
@@ -389,14 +409,17 @@ function onVip() {
   width: 84rpx;
   height: 84rpx;
   border-radius: 50%;
-  background: $primary-soft;
+  background: $icon-orb;
   color: $primary;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
+  box-shadow: inset 0 0 0 1rpx rgba(139, 92, 246, 0.06);
 }
-.icon-box.soft { background: #F3EEFF; }
+.icon-box.soft {
+  background: radial-gradient(circle at 40% 35%, #FBF7FF 0%, #F0E6FF 50%, #E6D8FF 100%);
+}
 .order-text { font-size: 22rpx; color: $text-sub; }
 
 .panel {
@@ -460,10 +483,11 @@ function onVip() {
   width: 80rpx;
   height: 80rpx;
   border-radius: 50%;
-  background: $primary-soft;
+  background: $icon-orb;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: inset 0 0 0 1rpx rgba(139, 92, 246, 0.06);
 }
 
 .logout-section { margin-top: 12rpx; }

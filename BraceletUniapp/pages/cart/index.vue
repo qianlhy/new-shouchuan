@@ -10,7 +10,7 @@
     <template v-else>
       <view v-if="!items.length" class="empty">
         <view class="empty-orb">
-          <view class="empty-cart-icon" />
+          <image class="empty-cart-img" src="/static/icons/shopping-cart.png" mode="aspectFit" />
         </view>
         <text class="empty-text">购物车空空如也</text>
         <button class="go-shop" @click="goShop">去逛逛</button>
@@ -254,7 +254,15 @@ if (typeof window !== 'undefined') {
 </script>
 
 <style>
-.page { padding-bottom: 160rpx; background: #F7F4FC; min-height: 100vh; box-sizing: border-box; }
+.page {
+  padding-bottom: 160rpx;
+  min-height: 100vh;
+  box-sizing: border-box;
+  background:
+    radial-gradient(ellipse 80% 40% at 20% 0%, rgba(183, 148, 255, 0.26), transparent 55%),
+    radial-gradient(ellipse 60% 30% at 90% 10%, rgba(221, 200, 255, 0.35), transparent 50%),
+    linear-gradient(180deg, #FBF7FF 0%, #F3EBFF 40%, #FBF7FF 100%);
+}
 
 /* 登录提示样式 */
 .login-prompt {
@@ -276,7 +284,7 @@ if (typeof window !== 'undefined') {
   margin-bottom: 48rpx;
 }
 .login-prompt .login-btn {
-  background: linear-gradient(135deg, #8B6CFF, #6B4EFF);
+  background: linear-gradient(90deg, #B794FF, #8B5CF6 55%, #7C3AED);
   color: #fff;
   border-radius: 999rpx;
   padding: 0 64rpx;
@@ -285,7 +293,7 @@ if (typeof window !== 'undefined') {
   font-size: 32rpx;
   font-weight: 600;
   border: none;
-  box-shadow: 0 8rpx 24rpx rgba(107,78,255,.28);
+  box-shadow: 0 10rpx 24rpx rgba(139, 92, 246, 0.32);
 }
 
 .empty {
@@ -300,36 +308,24 @@ if (typeof window !== 'undefined') {
   width: 220rpx;
   height: 220rpx;
   border-radius: 50%;
-  background: #EDE7FF;
+  background: radial-gradient(circle at 40% 35%, #F8F3FF 0%, #EDE4FF 55%, #E4D6FF 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 28rpx;
+  box-shadow: 0 12rpx 32rpx rgba(90, 50, 160, 0.08);
 }
-.empty-cart-icon {
+.empty-cart-img {
   width: 88rpx;
-  height: 72rpx;
-  border: 6rpx solid #4A3A78;
-  border-radius: 12rpx;
-  position: relative;
-}
-.empty-cart-icon::before {
-  content: '';
-  position: absolute;
-  left: 12rpx;
-  right: 12rpx;
-  top: 18rpx;
-  height: 6rpx;
-  background: #8B6CFF;
-  box-shadow: 0 16rpx 0 #8B6CFF;
+  height: 88rpx;
 }
 .empty-text {
   font-size: 28rpx;
-  color: #8A8399;
+  color: #8B849C;
   margin-bottom: 28rpx;
 }
 .go-shop {
-  background: linear-gradient(135deg, #8B6CFF, #6B4EFF);
+  background: linear-gradient(90deg, #B794FF, #8B5CF6 55%, #7C3AED);
   color: #fff;
   border-radius: 999rpx;
   padding: 0 56rpx;
@@ -337,7 +333,7 @@ if (typeof window !== 'undefined') {
   line-height: 80rpx;
   font-size: 28rpx;
   font-weight: 600;
-  box-shadow: 0 8rpx 24rpx rgba(107,78,255,.28);
+  box-shadow: 0 10rpx 24rpx rgba(139, 92, 246, 0.32);
   border: none;
 }
 .go-shop::after { border: none; }
@@ -371,5 +367,5 @@ if (typeof window !== 'undefined') {
 .bar { position: fixed; left: 0; right: 0; bottom: 0; background: #ffffff; padding: 12rpx 24rpx calc(12rpx + env(safe-area-inset-bottom)); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -6rpx 12rpx rgba(0,0,0,0.04); }
 .total { color: #333; font-size: 28rpx; }
 .money { color: #e54d42; font-weight: 700; }
-.checkout { background: linear-gradient(135deg, #8B6CFF, #6B4EFF); color: #fff; border-radius: 999rpx; padding: 0 28rpx; height: 72rpx; line-height: 72rpx; font-weight: 600; box-shadow: 0 8rpx 20rpx rgba(107,78,255,.28); }
+.checkout { background: linear-gradient(90deg, #B794FF, #8B5CF6 55%, #7C3AED); color: #fff; border-radius: 999rpx; padding: 0 28rpx; height: 72rpx; line-height: 72rpx; font-weight: 600; box-shadow: 0 10rpx 24rpx rgba(139,92,246,.32); }
 </style>

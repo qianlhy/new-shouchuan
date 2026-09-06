@@ -36,6 +36,7 @@ export default {
 @import './static/iconfont/xyicon.css';
 
 page {
+  background: linear-gradient(180deg, #FBF7FF 0%, #F5EEFF 42%, #FBF7FF 100%);
   background-color: $page-bg;
   color: $text-main;
   font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;

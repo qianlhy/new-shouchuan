@@ -58,7 +58,9 @@
         <view class="card-badge">MUST-HAVE</view>
         <text class="card-title">优选商城</text>
         <text class="card-subtitle">许愿严选成品手串</text>
-        <view class="card-orb alt" />
+        <view class="cart-glow">
+          <image class="cart-glow-icon" src="/static/icons/shopping-cart-white.png" mode="aspectFit" />
+        </view>
       </view>
     </view>
 
@@ -71,8 +73,8 @@
         :autoplay="true"
         :interval="4000"
         :duration="500"
-        indicator-active-color="#6B4EFF"
-        indicator-color="rgba(107,78,255,0.25)"
+        indicator-active-color="#8B5CF6"
+        indicator-color="rgba(139,92,246,0.25)"
       >
         <swiper-item v-for="(item, index) in banners" :key="item.id || index">
           <image
@@ -280,7 +282,10 @@ onMounted(() => {
 
 .page {
   min-height: 100vh;
-  background: $page-bg;
+  background:
+    radial-gradient(ellipse 85% 42% at 0% 0%, rgba(183, 148, 255, 0.26), transparent 55%),
+    radial-gradient(ellipse 70% 36% at 100% 5%, rgba(221, 200, 255, 0.4), transparent 52%),
+    linear-gradient(180deg, #FBF7FF 0%, #F3EBFF 36%, #FBF7FF 100%);
   padding: 24rpx 28rpx 160rpx;
   box-sizing: border-box;
 }
@@ -319,7 +324,7 @@ onMounted(() => {
   gap: 16rpx;
 }
 .guide-item {
-  background: #FBF9FF;
+  background: linear-gradient(160deg, #FFFFFF 0%, #F8F3FF 100%);
   border-radius: 20rpx;
   padding: 22rpx;
   display: flex;
@@ -333,7 +338,7 @@ onMounted(() => {
   width: 52rpx;
   height: 52rpx;
   border-radius: 16rpx;
-  background: $primary-soft;
+  background: $icon-orb;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -371,7 +376,7 @@ onMounted(() => {
   height: 56rpx;
   margin: 0 auto 10rpx;
   border-radius: 50%;
-  background: $primary-soft;
+  background: $icon-orb;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -395,11 +400,15 @@ onMounted(() => {
   padding: 28rpx 24rpx;
   box-shadow: $shadow-card;
 }
-.diy-card { background: linear-gradient(160deg, #F1EBFF 0%, #E0D4FF 100%); }
-.select-card { background: linear-gradient(160deg, #EEE8FF 0%, #D8CCFF 100%); }
+/* 撞色：左浅紫实心块 / 右白底 */
+.diy-card { background: $gradient-diy; }
+.select-card {
+  background: #FFFFFF;
+  border: 1rpx solid $border-soft;
+}
 .card-badge {
   font-size: 18rpx;
-  color: rgba(59, 42, 122, 0.55);
+  color: rgba(74, 58, 120, 0.5);
   letter-spacing: 1rpx;
   margin-bottom: 12rpx;
 }
@@ -407,14 +416,14 @@ onMounted(() => {
   display: block;
   font-size: 34rpx;
   font-weight: 700;
-  color: #3B2A7A;
+  color: $text-on-soft;
 }
 .card-subtitle {
   display: block;
   margin-top: 10rpx;
   font-size: 22rpx;
-  color: rgba(59, 42, 122, 0.7);
-  max-width: 80%;
+  color: rgba(74, 58, 120, 0.65);
+  max-width: 78%;
 }
 .card-orb {
   position: absolute;
@@ -423,9 +432,35 @@ onMounted(() => {
   width: 140rpx;
   height: 140rpx;
   border-radius: 50%;
-  background: rgba(107, 78, 255, 0.18);
+  background: radial-gradient(circle, rgba(183, 148, 255, 0.55) 0%, rgba(139, 92, 246, 0.12) 55%, transparent 72%);
 }
-.card-orb.alt { background: rgba(90, 63, 232, 0.16); }
+.cart-glow {
+  position: absolute;
+  right: 18rpx;
+  bottom: 18rpx;
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 24rpx;
+  background: $gradient-primary;
+  box-shadow: 0 12rpx 28rpx rgba(139, 92, 246, 0.38);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cart-glow::before {
+  content: '';
+  position: absolute;
+  inset: -18rpx;
+  border-radius: 36rpx;
+  background: radial-gradient(circle, rgba(183, 148, 255, 0.45) 0%, transparent 70%);
+  z-index: 0;
+}
+.cart-glow-icon {
+  width: 44rpx;
+  height: 44rpx;
+  position: relative;
+  z-index: 1;
+}
 
 .banner-section { margin-bottom: 24rpx; }
 .banner-swiper {
