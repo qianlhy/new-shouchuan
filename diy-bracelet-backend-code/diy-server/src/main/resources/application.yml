@@ -1,0 +1,99 @@
+server:
+  port: 8080
+  address: 0.0.0.0  # 监听所有网络接口，允许通过局域网IP访问
+
+spring:
+  profiles:
+    active: dev
+#    todo 上线的时候改成dev
+  main:
+    allow-circular-references: true
+  datasource:
+    druid:
+      driver-class-name: ${sky.datasource.driver-class-name}
+      url: jdbc:mysql://${sky.datasource.host}:${sky.datasource.port}/${sky.datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+      username: ${sky.datasource.username}
+      password: ${sky.datasource.password}
+      # 连接池配置
+      initial-size: 5
+      min-idle: 5
+      max-active: 20
+      max-wait: 60000
+      # 连接检测配置
+      validation-query: SELECT 1
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      # 连接回收配置
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      max-evictable-idle-time-millis: 900000
+      # 连接超时配置
+      query-timeout: 30
+      transaction-query-timeout: 30
+      remove-abandoned: true
+      remove-abandoned-timeout: 180
+      log-abandoned: true
+  redis:
+    host: ${sky.redis.host}
+    port: ${sky.redis.port}
+    #password: ${sky.redis.password}
+    database:  ${sky.redis.database}
+mybatis:
+  #mapper配置文件
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.diy.entity
+  configuration:
+    map-underscore-to-camel-case: true
+  #开启驼峰命名
+
+logging:
+  level:
+    com:
+      diy:
+        mapper: info
+        service: info
+        controller: info
+        utils: info
+    org:
+      springframework:
+        web: info
+
+diy:
+  jwt:
+    # 设置jwt签名加密时使用的秘钥
+    admin-secret-key: itcast
+    # 设置jwt过期时间
+    admin-ttl: 720000000
+    # 设置前端传递过来的令牌名称
+    admin-token-name: authentication
+    user-secret-key: itcast
+    user-ttl: 720000000
+    user-token-name: authentication
+  alioss:
+    endpoint: ${sky.alioss.endpoint}
+    access-key-id: ${sky.alioss.access-key-id}
+    access-key-secret: ${sky.alioss.access-key-secret}
+    bucket-name: ${sky.alioss.bucket-name}
+  wxcloud:
+    storage:
+      bucket-name: ${sky.wxcloud.storage.bucket-name}
+      region: ${sky.wxcloud.storage.region}
+      secret-id: ${sky.wxcloud.storage.secret-id:}
+      secret-key: ${sky.wxcloud.storage.secret-key:}
+  wechat:
+    appid: ${sky.wechat.appid:wxe37829cb3b650c0a}
+    secret: ${sky.wechat.secret:61800e62f7eef0480c7df6ca4f423a3d}
+    mchid: ${sky.wechat.mchid:1749753904}
+    mchSerialNo: ${sky.wechat.mchSerialNo:29F4A26030CA3FDB18CAE2B320ACF062C079A16E}
+    privateKeyFilePath: ${sky.wechat.privateKeyFilePath:/app/certs/apiclient_key.pem}
+    apiV3Key: ${sky.wechat.apiV3Key:72946185039274610582947105382619}
+    weChatPayPublicKeyId: ${sky.wechat.weChatPayPublicKeyId:PUB_KEY_ID_0117497539042026090500381936001602}
+    weChatPayPublicKeyPath: ${sky.wechat.weChatPayPublicKeyPath:/app/certs/pub_key.pem}
+    wechatPayCertFilePath: ${sky.wechat.wechatPayCertFilePath:}
+    notifyUrl: ${sky.wechat.notifyUrl:https://xuyuan.baibaiyeye.com.cn/notify/paySuccess}
+    refundNotifyUrl: ${sky.wechat.refundNotifyUrl:https://xuyuan.baibaiyeye.com.cn/notify/refundSuccess}
+  # 快递100配置
+  kuaidi100:
+    key: ${sky.kuaidi100.key:AQtFRFEE8459}
+    customer: ${sky.kuaidi100.customer:964095869D796B32D82C1FF95E4F8BA0}

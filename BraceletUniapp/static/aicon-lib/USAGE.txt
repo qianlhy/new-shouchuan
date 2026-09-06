@@ -1,0 +1,5 @@
+﻿图标库使用说明
+1. 全量 SVG：C:\Users\Administrator\Desktop\2026年1月7日\新一轮\Aicon\lucide-svg
+2. 已导出 PNG：C:\Users\Administrator\Desktop\2026年1月7日\新一轮\Aicon\png
+3. 项目内使用：BraceletUniapp/static/icons/*.png
+4. 新增图标：改 Aicon/tools/export-icons.js 的 ICONS 映射，然后 node export-icons.js

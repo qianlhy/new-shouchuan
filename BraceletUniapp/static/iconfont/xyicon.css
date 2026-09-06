@@ -1,0 +1,43 @@
+@font-face {
+  font-family: "xyicon";
+  src: url('/static/iconfont/xyicon.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+.xy {
+  font-family: "xyicon" !important;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.xy-badge-percent:before{content:"\ea01";}
+.xy-circle-check:before{content:"\ea02";}
+.xy-circle-help:before{content:"\ea03";}
+.xy-crown:before{content:"\ea04";}
+.xy-eye:before{content:"\ea05";}
+.xy-gem:before{content:"\ea06";}
+.xy-gift:before{content:"\ea07";}
+.xy-headphones:before{content:"\ea08";}
+.xy-heart:before{content:"\ea09";}
+.xy-house:before{content:"\ea0a";}
+.xy-info:before{content:"\ea0b";}
+.xy-layout-grid:before{content:"\ea0c";}
+.xy-map-pin:before{content:"\ea0d";}
+.xy-message-circle:before{content:"\ea0e";}
+.xy-package:before{content:"\ea0f";}
+.xy-palette:before{content:"\ea10";}
+.xy-pencil:before{content:"\ea11";}
+.xy-refresh-cw:before{content:"\ea12";}
+.xy-settings:before{content:"\ea13";}
+.xy-shield-check:before{content:"\ea14";}
+.xy-shopping-bag:before{content:"\ea15";}
+.xy-shopping-cart:before{content:"\ea16";}
+.xy-sparkles:before{content:"\ea17";}
+.xy-star:before{content:"\ea18";}
+.xy-truck:before{content:"\ea19";}
+.xy-user:before{content:"\ea1a";}
+.xy-wallet:before{content:"\ea1b";}

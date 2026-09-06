@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  # Spring Boot 应用
+  diy-bangle-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: diy-bangle-app
+    ports:
+      - "8080:8080"
+    environment:
+      # 指定使用 dev 环境配置
+      SPRING_PROFILES_ACTIVE: dev
+      # 数据库配置 - 微信云托管内网MySQL 5.7
+      SKY_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SKY_DATASOURCE_HOST: localhost
+      SKY_DATASOURCE_PORT: 3306
+      SKY_DATASOURCE_DATABASE: diy_bangle
+      SKY_DATASOURCE_USERNAME: ${DB_USERNAME:-diy_bangle}
+      SKY_DATASOURCE_PASSWORD: ${DB_PASSWORD:-fLW5yPWwnxXmGYpj}
+      # Redis 配置 - 微信云托管需要配置实际的Redis地址
+      # SKY_REDIS_HOST: ${REDIS_HOST:-localhost}
+      # SKY_REDIS_PORT: ${REDIS_PORT:-6379}
+      # SKY_REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      # SKY_REDIS_DATABASE: 0
+      # 微信支付配置
+      SKY_WECHAT_APPID: ${WECHAT_APPID:-wxe37829cb3b650c0a}
+      SKY_WECHAT_SECRET: ${WECHAT_SECRET:-61800e62f7eef0480c7df6ca4f423a3d}
+      SKY_WECHAT_MCHID: ${WECHAT_MCHID:-1749753904}
+      SKY_WECHAT_MCHSERIALNO: ${WECHAT_MCH_SERIAL_NO:-29F4A26030CA3FDB18CAE2B320ACF062C079A16E}
+      # 重要：强制使用容器内证书路径，覆盖application-dev.yml中的本地路径
+      SKY_WECHAT_PRIVATEKEYFILEPATH: /app/certs/apiclient_key.pem
+      SKY_WECHAT_APIV3KEY: ${WECHAT_API_V3_KEY:-72946185039274610582947105382619}
+      # 微信支付公钥配置（手动实现公钥验签）
+      SKY_WECHAT_WECHATPAYPUBLICKEYID: ${WECHAT_PAY_PUBLIC_KEY_ID:-PUB_KEY_ID_0117497539042026090500381936001602}
+      # 重要：强制使用容器内公钥路径，覆盖application-dev.yml中的本地路径
+      SKY_WECHAT_WECHATPAYPUBLICKEYPATH: /app/certs/pub_key.pem
+      SKY_WECHAT_NOTIFYURL: ${WECHAT_NOTIFY_URL:-https://xuyuan.baibaiyeye.com.cn/notify/paySuccess}
+      SKY_WECHAT_REFUNDNOTIFYURL: ${WECHAT_REFUND_NOTIFY_URL:-https://xuyuan.baibaiyeye.com.cn/notify/refundSuccess}
+    volumes:
+      # 持久化上传文件
+      - ./uploads:/app/uploads
+    restart: unless-stopped
+    networks:
+      - diy-network
+
+networks:
+  diy-network:
+    driver: bridge
