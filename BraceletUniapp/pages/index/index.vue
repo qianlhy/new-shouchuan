@@ -1,33 +1,39 @@
 <template>
   <view class="page">
-    <!-- 购买须知 -->
-    <view class="guide-card">
-      <view class="guide-head">
-        <view>
-          <text class="guide-title">水晶购买须知</text>
-          <text class="guide-sub">买前必看 · CRYSTAL GUIDE</text>
+    <!-- 购买须知：撞色紫底（对标灵感广场，内容直接落在紫底上） -->
+    <view class="guide-wrap">
+      <view class="guide-deco d1" />
+      <view class="guide-deco d2" />
+      <view class="guide-deco d3" />
+      <view class="guide-deco d4" />
+      <view class="guide-inner">
+        <view class="guide-head">
+          <view>
+            <text class="guide-title">水晶购买须知</text>
+            <text class="guide-sub">买前必看 · CRYSTAL GUIDE</text>
+          </view>
+          <text class="guide-more" @click="goAbout">全部 ›</text>
         </view>
-        <text class="guide-more" @click="goAbout">全部 ></text>
+        <view class="guide-grid">
+          <view class="guide-item" @click="goAbout">
+            <view class="guide-icon"><image class="xy-icon" src="/static/icons/shield-check.png" mode="aspectFit" style="width:32rpx;height:32rpx" /></view>
+            <text>售后范围</text>
+          </view>
+          <view class="guide-item" @click="goAbout">
+            <view class="guide-icon"><image class="xy-icon" src="/static/icons/truck.png" mode="aspectFit" style="width:32rpx;height:32rpx" /></view>
+            <text>物流运输</text>
+          </view>
+          <view class="guide-item" @click="goAbout">
+            <view class="guide-icon"><image class="xy-icon" src="/static/icons/gem.png" mode="aspectFit" style="width:32rpx;height:32rpx" /></view>
+            <text>天然材质</text>
+          </view>
+          <view class="guide-item" @click="goAbout">
+            <view class="guide-icon"><image class="xy-icon" src="/static/icons/circle-help.png" mode="aspectFit" style="width:32rpx;height:32rpx" /></view>
+            <text>常见问题</text>
+          </view>
+        </view>
+        <text class="guide-note">注：购买前请先阅读相关须知内容</text>
       </view>
-      <view class="guide-grid">
-        <view class="guide-item" @click="goAbout">
-          <view class="guide-icon"><image class="xy-icon" src="/static/icons/shield-check.png" mode="aspectFit" style="width:32rpx;height:32rpx" /></view>
-          <text>售后范围</text>
-        </view>
-        <view class="guide-item" @click="goAbout">
-          <view class="guide-icon"><image class="xy-icon" src="/static/icons/truck.png" mode="aspectFit" style="width:32rpx;height:32rpx" /></view>
-          <text>物流运输</text>
-        </view>
-        <view class="guide-item" @click="goAbout">
-          <view class="guide-icon"><image class="xy-icon" src="/static/icons/gem.png" mode="aspectFit" style="width:32rpx;height:32rpx" /></view>
-          <text>天然材质</text>
-        </view>
-        <view class="guide-item" @click="goAbout">
-          <view class="guide-icon"><image class="xy-icon" src="/static/icons/circle-help.png" mode="aspectFit" style="width:32rpx;height:32rpx" /></view>
-          <text>常见问题</text>
-        </view>
-      </view>
-      <text class="guide-note">注：购买前请先阅读相关须知内容</text>
     </view>
 
     <!-- 中部入口 -->
@@ -290,41 +296,87 @@ onMounted(() => {
   box-sizing: border-box;
 }
 
-.guide-card {
-  background: $card-bg;
+.guide-wrap {
+  position: relative;
+  overflow: hidden;
   border-radius: 32rpx;
-  padding: 28rpx;
-  box-shadow: $shadow-card;
-  border: 1rpx solid $border-soft;
+  padding: 36rpx 28rpx 28rpx;
   margin-bottom: 20rpx;
+  background: $gradient-banner;
+  box-shadow: $shadow-card;
+}
+.guide-deco {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+.guide-wrap .d1 {
+  width: 220rpx;
+  height: 220rpx;
+  right: -50rpx;
+  top: -60rpx;
+  background: radial-gradient(circle, rgba(183, 148, 255, 0.55) 0%, rgba(221, 200, 255, 0.15) 60%, transparent 75%);
+}
+.guide-wrap .d2 {
+  width: 140rpx;
+  height: 140rpx;
+  right: 80rpx;
+  bottom: -40rpx;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.22) 0%, transparent 70%);
+}
+.guide-wrap .d3 {
+  width: 56rpx;
+  height: 56rpx;
+  left: 36rpx;
+  bottom: 36rpx;
+  background: rgba(255, 255, 255, 0.55);
+}
+.guide-wrap .d4 {
+  width: 90rpx;
+  height: 90rpx;
+  left: -20rpx;
+  top: 20rpx;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.7) 0%, transparent 70%);
+}
+
+.guide-inner {
+  position: relative;
+  z-index: 1;
 }
 .guide-head {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20rpx;
+  margin-bottom: 22rpx;
 }
 .guide-title {
   display: block;
   font-size: 34rpx;
   font-weight: 700;
-  color: $text-main;
+  color: $text-on-soft;
+  letter-spacing: 1rpx;
 }
 .guide-sub {
   display: block;
-  margin-top: 6rpx;
+  margin-top: 8rpx;
   font-size: 20rpx;
-  color: $text-hint;
+  color: rgba(74, 58, 120, 0.55);
   letter-spacing: 1rpx;
 }
-.guide-more { font-size: 24rpx; color: $primary; }
+.guide-more {
+  font-size: 24rpx;
+  color: $primary;
+  font-weight: 600;
+  padding-top: 6rpx;
+}
 .guide-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16rpx;
 }
 .guide-item {
-  background: linear-gradient(160deg, #FFFFFF 0%, #F8F3FF 100%);
+  background: rgba(255, 255, 255, 0.88);
   border-radius: 20rpx;
   padding: 22rpx;
   display: flex;
@@ -332,7 +384,8 @@ onMounted(() => {
   gap: 14rpx;
   font-size: 26rpx;
   color: $text-main;
-  border: 1rpx solid $border-soft;
+  border: 1rpx solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 6rpx 16rpx rgba(90, 50, 160, 0.06);
 }
 .guide-icon {
   width: 52rpx;
@@ -352,7 +405,8 @@ onMounted(() => {
   display: block;
   margin-top: 18rpx;
   font-size: 22rpx;
-  color: $primary-light;
+  color: rgba(74, 58, 120, 0.55);
+  text-align: center;
 }
 
 .mid-row {
