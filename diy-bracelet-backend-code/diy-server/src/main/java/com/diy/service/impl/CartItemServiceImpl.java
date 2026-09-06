@@ -4,7 +4,9 @@ import com.diy.context.BaseContext;
 import com.diy.dto.AddToCartDTO;
 import com.diy.dto.DeleteFromCartDTO;
 import com.diy.dto.ShoppingCartDTO;
+import com.diy.dto.UpdateDiyCartDTO;
 import com.diy.entity.CartItem;
+import com.diy.exception.BaseException;
 import com.diy.mapper.ShoppingCartMapper;
 import com.diy.service.CartItemService;
 import com.diy.vo.CartItemListVO;
@@ -236,5 +238,27 @@ public class CartItemServiceImpl implements CartItemService {
             shoppingCartMapper.deleteById(existingItem.getId());
             log.info("成功删除购物车商品，购物车项ID: {}", existingItem.getId());
         }
+    }
+
+    @Override
+    public void updateDiy(UpdateDiyCartDTO updateDiyCartDTO) {
+        Long userId = BaseContext.getCurrentId();
+        Long id = updateDiyCartDTO.getId();
+        String diyData = updateDiyCartDTO.getDiyData();
+        if (id == null || diyData == null || diyData.trim().isEmpty()) {
+            throw new BaseException("参数不完整");
+        }
+        CartItem existing = shoppingCartMapper.getById(id);
+        if (existing == null || !userId.equals(existing.getUserId())) {
+            throw new BaseException("购物车项不存在");
+        }
+        if (existing.getProductId() == null || existing.getProductId() >= 0) {
+            throw new BaseException("仅支持更新DIY设计");
+        }
+        int rows = shoppingCartMapper.updateDiyData(id, userId, diyData);
+        if (rows <= 0) {
+            throw new BaseException("更新失败");
+        }
+        log.info("更新DIY购物车设计成功, cartId={}, userId={}", id, userId);
     }
 }

@@ -1036,15 +1036,15 @@ export default {
 .diy-info-inline {
   margin-top: 8px;
   padding: 10px 12px;
-  background: #f0f9ff;
+  background: #F3EBFF;
   border-radius: 4px;
-  border-left: 3px solid #409eff;
+  border-left: 3px solid #8B5CF6;
 }
 
 .diy-badge {
   display: inline-block;
   padding: 2px 8px;
-  background: #409eff;
+  background: #8B5CF6;
   color: #fff;
   font-size: 11px;
   border-radius: 3px;
@@ -1064,7 +1064,7 @@ export default {
 }
 
 .diy-detail-item i {
-  color: #409eff;
+  color: #8B5CF6;
   margin-right: 3px;
 }
 
@@ -1072,7 +1072,7 @@ export default {
 .diy-beads-list {
   margin-top: 8px;
   padding-top: 8px;
-  border-top: 1px dashed #b3d8ff;
+  border-top: 1px dashed #C4B5FD;
 }
 
 .diy-beads-title {
@@ -1093,7 +1093,7 @@ export default {
   align-items: center;
   padding: 4px 10px;
   background: #fff;
-  border: 1px solid #409eff;
+  border: 1px solid #8B5CF6;
   color: #303133;
   border-radius: 4px;
   font-size: 12px;
@@ -1102,7 +1102,7 @@ export default {
 .bead-count {
   margin-left: 4px;
   padding: 1px 6px;
-  background: #409eff;
+  background: #8B5CF6;
   color: #fff;
   border-radius: 3px;
   font-size: 11px;
@@ -1123,7 +1123,7 @@ export default {
     color: #303133;
     margin-bottom: 15px;
     padding-left: 10px;
-    border-left: 4px solid #409eff;
+    border-left: 4px solid #8B5CF6;
   }
 
   .diy-image-section {
@@ -1210,7 +1210,7 @@ export default {
         height: 24px;
         line-height: 24px;
         text-align: center;
-        background: #409eff;
+        background: #8B5CF6;
         color: #fff;
         border-radius: 50%;
         font-size: 12px;

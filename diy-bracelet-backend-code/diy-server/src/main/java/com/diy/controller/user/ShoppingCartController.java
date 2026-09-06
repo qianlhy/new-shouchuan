@@ -112,4 +112,16 @@ public class ShoppingCartController {
         
         return Result.success();
     }
+
+    /**
+     * 更新 DIY 购物车设计（重新设计后保存）
+     */
+    @PostMapping("/updateDiy")
+    @ApiOperation("更新DIY购物车设计")
+    public Result updateDiy(
+            @ApiParam("更新DIY参数") @RequestBody com.diy.dto.UpdateDiyCartDTO updateDiyCartDTO) {
+        log.info("更新DIY购物车设计, cartId={}", updateDiyCartDTO.getId());
+        cartItemService.updateDiy(updateDiyCartDTO);
+        return Result.success();
+    }
 }

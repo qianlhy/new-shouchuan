@@ -34,6 +34,7 @@
           <view v-else class="diy-info">
             <text class="diy-quantity">数量: {{ i.quantity }}</text>
             <text v-if="i.diySize" class="diy-size">手围: {{ i.diySize }}cm</text>
+            <view class="diy-edit-btn" @click.stop="reeditDiy(i)">重新设计</view>
           </view>
         </view>
         <view class="remove" :class="{disabled: updating || deleting}" @click="removeItem(i)">×</view>
@@ -78,6 +79,26 @@ function goToLogin() {
 
 function goShop() {
   uni.switchTab({ url: '/pages/square/index' })
+}
+
+/** 从购物车重新打开 DIY 制作台并回填设计 */
+function reeditDiy(item) {
+  if (!item || !item.isDiy) return
+  if (!item.diyData) {
+    uni.showToast({ title: '无法读取设计数据', icon: 'none' })
+    return
+  }
+  try {
+    uni.setStorageSync('diy_edit_cart', {
+      cartItemId: item.id,
+      productId: item.productId,
+      diyData: item.diyData
+    })
+    uni.switchTab({ url: '/pages/design/index' })
+  } catch (e) {
+    console.error('跳转重新设计失败', e)
+    uni.showToast({ title: '打开失败', icon: 'none' })
+  }
 }
 
 async function load() {
@@ -360,9 +381,18 @@ if (typeof window !== 'undefined') {
 /* DIY商品样式 */
 .diy-item { background: linear-gradient(135deg, #FBF9FF, #ffffff); border: 2rpx solid #E0D4FF; }
 .diy-badge { position: absolute; top: 8rpx; left: 8rpx; background: linear-gradient(135deg, #6B4EFF, #8B6CFF); color: #fff; font-size: 20rpx; padding: 4rpx 12rpx; border-radius: 8rpx; font-weight: 600; }
-.diy-info { margin-top: 10rpx; display: flex; flex-direction: column; gap: 4rpx; }
+.diy-info { margin-top: 10rpx; display: flex; flex-direction: column; gap: 4rpx; align-items: flex-start; }
 .diy-quantity { font-size: 24rpx; color: #666; }
 .diy-size { font-size: 22rpx; color: #999; }
+.diy-edit-btn {
+  margin-top: 8rpx;
+  padding: 6rpx 18rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(90deg, #B794FF, #8B5CF6 55%, #7C3AED);
+  color: #fff;
+  font-size: 22rpx;
+  font-weight: 600;
+}
 
 .bar { position: fixed; left: 0; right: 0; bottom: 0; background: #ffffff; padding: 12rpx 24rpx calc(12rpx + env(safe-area-inset-bottom)); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -6rpx 12rpx rgba(0,0,0,0.04); }
 .total { color: #333; font-size: 28rpx; }

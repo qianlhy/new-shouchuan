@@ -71,12 +71,10 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, reactive } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { getProductList } from '../../api/index.js'
+import { getProductList, getWishCounts, getMyWishes, toggleWish, isLoggedIn } from '../../api/index.js'
 import { resolveImageUrl } from '../../utils/imageHelper.js'
-
-const WANT_KEY = 'xy_square_wanted'
 
 const tabs = [
   { key: 'latest', label: '最新' },
@@ -87,12 +85,15 @@ const tabs = [
 const activeTab = ref('latest')
 const loading = ref(false)
 const products = ref([])
-const wantedIds = ref([])
+const wantedIds = ref([])          // 当前用户已想要的商品ID
+// 众筹进度：{ [productId]: { wantCount, goalCount, achieved } }
+const wishMap = reactive({})
 
 const displayList = computed(() => {
   let list = [...products.value]
   if (activeTab.value === 'hot') {
-    list.sort((a, b) => (b.sales || b.id || 0) - (a.sales || a.id || 0))
+    // 热门：按想要人数排序
+    list.sort((a, b) => (wishMap[b.id]?.wantCount || 0) - (wishMap[a.id]?.wantCount || 0))
   } else if (activeTab.value === 'designer') {
     const filtered = list.filter((p) => {
       const name = `${p.title || ''}${p.categoryName || ''}${p.name || ''}`
@@ -106,35 +107,49 @@ const displayList = computed(() => {
 })
 
 function mapCard(p) {
-  const status = Number(p.status ?? 1)
-  const achieved = status === 1
-  const price = Number(p.price || 0).toFixed(2)
-  const wantCount = (wantedIds.value.includes(p.id) ? 1 : 0) + (p.id % 37)
-  const goal = 100
-  const progress = achieved ? 100 : Math.min(99, wantCount)
+  const wish = wishMap[p.id] || {}
+  const goal = wish.goalCount || 100
+  const wantCount = wish.wantCount || 0
+  const achieved = !!wish.achieved
+  const progress = achieved ? 100 : Math.min(99, Math.round((wantCount / goal) * 100))
   return {
     id: p.id,
     title: p.name || p.title || '未命名手作',
     author: '许愿手作',
     imageUrl: resolveImageUrl(p.image || p.imageUrl || p.coverImage || ''),
-    price,
+    price: Number(p.price || 0).toFixed(2),
     achieved,
     progressPercent: progress,
-    progressText: achieved ? `${goal}/${goal}` : `${progress}/${goal}`,
+    progressText: achieved ? `${goal}/${goal}` : `${wantCount}/${goal}`,
     raw: p
   }
 }
 
-function loadWanted() {
+async function loadWishData(ids) {
+  // 公开：批量众筹进度
   try {
-    wantedIds.value = uni.getStorageSync(WANT_KEY) || []
+    const counts = await getWishCounts(ids)
+    counts.forEach((c) => {
+      wishMap[c.productId] = {
+        wantCount: c.wantCount || 0,
+        goalCount: c.goalCount || 100,
+        achieved: !!c.achieved
+      }
+    })
   } catch (e) {
+    console.error('众筹进度加载失败', e)
+  }
+  // 登录用户：我想要的列表，用于标记按钮态
+  if (isLoggedIn()) {
+    try {
+      const mine = await getMyWishes()
+      wantedIds.value = mine.map((m) => m.id)
+    } catch (e) {
+      console.error('我的想要加载失败', e)
+    }
+  } else {
     wantedIds.value = []
   }
-}
-
-function saveWanted() {
-  uni.setStorageSync(WANT_KEY, wantedIds.value)
 }
 
 async function loadProducts() {
@@ -142,6 +157,8 @@ async function loadProducts() {
   try {
     const list = await getProductList()
     products.value = Array.isArray(list) ? list : []
+    const ids = products.value.map((p) => p.id).filter(Boolean)
+    await loadWishData(ids)
   } catch (e) {
     console.error('广场加载失败', e)
     products.value = []
@@ -163,20 +180,35 @@ function goBuy(item) {
   uni.navigateTo({ url: `/pages/product/detail?id=${item.id}` })
 }
 
-function toggleWant(item) {
-  const idx = wantedIds.value.indexOf(item.id)
-  if (idx >= 0) {
-    wantedIds.value.splice(idx, 1)
-    uni.showToast({ title: '已取消想要', icon: 'none' })
-  } else {
-    wantedIds.value.push(item.id)
-    uni.showToast({ title: '已加入想要', icon: 'none' })
+async function toggleWant(item) {
+  if (!isLoggedIn()) {
+    uni.showToast({ title: '请先登录', icon: 'none' })
+    setTimeout(() => uni.reLaunch({ url: '/pages/index/index?login=1' }), 1200)
+    return
   }
-  saveWanted()
+  try {
+    const res = await toggleWish(item.id)
+    // 用后端返回的真实进度更新
+    wishMap[item.id] = {
+      wantCount: res.wantCount || 0,
+      goalCount: res.goalCount || 100,
+      achieved: !!res.achieved
+    }
+    const idx = wantedIds.value.indexOf(item.id)
+    if (res.wanted) {
+      if (idx < 0) wantedIds.value.push(item.id)
+      uni.showToast({ title: '已加入心愿', icon: 'none' })
+    } else {
+      if (idx >= 0) wantedIds.value.splice(idx, 1)
+      uni.showToast({ title: '已取消心愿', icon: 'none' })
+    }
+  } catch (e) {
+    console.error('操作失败', e)
+    uni.showToast({ title: '操作失败', icon: 'none' })
+  }
 }
 
 onShow(() => {
-  loadWanted()
   loadProducts()
 })
 </script>

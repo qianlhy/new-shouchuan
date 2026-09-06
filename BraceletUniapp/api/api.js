@@ -149,6 +149,16 @@ export function deleteCartItem(productId, id = null) {
 }
 
 /**
+ * 更新 DIY 购物车设计（重新设计后保存到原购物车项）
+ * @param {Number} id 购物车项ID
+ * @param {String} diyData DIY设计JSON字符串
+ * @returns {Promise}
+ */
+export function updateDiyCart(id, diyData) {
+  return post(API_PATHS.CART_UPDATE_DIY, { id, diyData })
+}
+
+/**
  * 清空购物车
  * @returns {Promise}
  */
@@ -546,6 +556,49 @@ export const loginWithWeixinCode = (code, profile) => wechatLogin(code, profile)
 export const designCategoryList = getDiyCategoryList
 export const designProductList = getDiyMaterialList
 export const designOrderCreate = createDiyOrder
+
+// ==================== 心愿众筹模块（广场） ====================
+
+/**
+ * 切换「想要」状态
+ * @param {Number} productId 商品ID
+ * @returns {Promise} { productId, wantCount, goalCount, achieved, wanted }
+ */
+export function toggleWish(productId) {
+  return post(API_PATHS.WISH_TOGGLE, { productId })
+}
+
+/**
+ * 批量查询众筹进度（公开，无需登录）
+ * @param {Array<Number>} ids 商品ID数组
+ * @returns {Promise} [{ productId, wantCount, goalCount, achieved }]
+ */
+export function getWishCounts(ids = []) {
+  const idStr = Array.isArray(ids) ? ids.join(',') : String(ids || '')
+  if (!idStr) return Promise.resolve([])
+  return get(API_PATHS.WISH_COUNTS, { ids: idStr }, false)
+    .then(res => (Array.isArray(res) ? res : (res.data || [])))
+}
+
+/**
+ * 我想要的商品列表（我的收藏）
+ * @returns {Promise} [{ id, title, coverImage, price, wantCount, goalCount, achieved }]
+ */
+export function getMyWishes() {
+  return get(API_PATHS.WISH_MINE, {})
+    .then(res => (Array.isArray(res) ? res : (res.data || [])))
+}
+
+// ==================== 会员中心模块 ====================
+
+/**
+ * 获取当前用户会员信息（由订单实付金额计算）
+ * @returns {Promise} { level, levelName, totalSpent, points, orderCount, nextThreshold, nextLevelName, progressPercent }
+ */
+export function getMemberInfo() {
+  return get(API_PATHS.MEMBER_INFO, {})
+    .then(res => res || null)
+}
 
 // ==================== 客服模块 ====================
 

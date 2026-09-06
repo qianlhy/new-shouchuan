@@ -26,6 +26,10 @@ addAddress,
     getShopStatus, loginWithWeixinCode, orderCreate, orderDetail, orderList, orderPay, payOrder, productDetail, productList, refundOrder, reminderOrder, repetitionOrder, setDefaultAddress, subCartItem,
     // 订单
     submitOrder, updateOrderAddress, uploadFile,
+    // 心愿众筹 & 会员
+    toggleWish, getWishCounts, getMyWishes, getMemberInfo,
+    // DIY 购物车更新
+    updateDiyCart,
     // 登录
     wechatLogin
 } from './api.js'

@@ -1,0 +1,162 @@
+/* 许愿手作 · 管理端紫主题（对齐小程序 #8B5CF6） */
+:root {
+  --xy-primary: #8B5CF6;
+  --xy-primary-deep: #7C3AED;
+  --xy-primary-light: #A78BFA;
+  --xy-primary-soft: #F3EBFF;
+  --xy-primary-soft-2: #EDE4FF;
+  --xy-gradient: linear-gradient(90deg, #B794FF 0%, #8B5CF6 55%, #7C3AED 100%);
+  --xy-sidebar: #2A2140;
+  --xy-sidebar-dark: #1F1830;
+  --xy-page-bg: #F7F4FC;
+  --xy-text: #2A2140;
+}
+
+/* ========== Element UI Primary Override ========== */
+.el-button--primary {
+  background-color: var(--xy-primary);
+  border-color: var(--xy-primary);
+}
+.el-button--primary:focus,
+.el-button--primary:hover {
+  background: var(--xy-primary-light);
+  border-color: var(--xy-primary-light);
+}
+.el-button--primary:active,
+.el-button--primary.is-active {
+  background: var(--xy-primary-deep);
+  border-color: var(--xy-primary-deep);
+}
+.el-button--primary.is-disabled,
+.el-button--primary.is-disabled:hover,
+.el-button--primary.is-disabled:focus,
+.el-button--primary.is-disabled:active {
+  background-color: #c4b5fd;
+  border-color: #c4b5fd;
+}
+.el-button--primary.is-plain {
+  color: var(--xy-primary);
+  background: var(--xy-primary-soft);
+  border-color: #c4b5fd;
+}
+.el-button--primary.is-plain:hover,
+.el-button--primary.is-plain:focus {
+  background: var(--xy-primary);
+  border-color: var(--xy-primary);
+  color: #fff;
+}
+
+.el-link--primary { color: var(--xy-primary); }
+.el-link--primary:hover { color: var(--xy-primary-light); }
+
+.el-checkbox__input.is-checked .el-checkbox__inner,
+.el-checkbox__input.is-indeterminate .el-checkbox__inner {
+  background-color: var(--xy-primary);
+  border-color: var(--xy-primary);
+}
+.el-checkbox__input.is-checked + .el-checkbox__label,
+.el-radio__input.is-checked + .el-radio__label { color: var(--xy-primary); }
+.el-radio__input.is-checked .el-radio__inner {
+  border-color: var(--xy-primary);
+  background: var(--xy-primary);
+}
+
+.el-switch.is-checked .el-switch__core {
+  border-color: var(--xy-primary);
+  background-color: var(--xy-primary);
+}
+
+.el-input__inner:focus,
+.el-textarea__inner:focus {
+  border-color: var(--xy-primary);
+}
+.el-select .el-input.is-focus .el-input__inner,
+.el-select .el-input__inner:focus {
+  border-color: var(--xy-primary);
+}
+.el-select-dropdown__item.selected { color: var(--xy-primary); }
+
+.el-pagination.is-background .el-pager li:not(.disabled).active {
+  background-color: var(--xy-primary);
+}
+.el-pagination button:hover,
+.el-pager li:hover { color: var(--xy-primary); }
+.el-pager li.active { color: var(--xy-primary); }
+
+.el-tabs__item.is-active { color: var(--xy-primary); }
+.el-tabs__item:hover { color: var(--xy-primary-light); }
+.el-tabs__active-bar { background-color: var(--xy-primary); }
+.el-tabs__nav-wrap::after { background-color: var(--xy-primary-soft-2); }
+
+.el-menu-item.is-active {
+  color: var(--xy-primary) !important;
+}
+.el-submenu__title:hover,
+.el-menu-item:hover {
+  background-color: rgba(139, 92, 246, 0.12) !important;
+}
+
+.el-tag--primary {
+  background-color: var(--xy-primary-soft);
+  border-color: #c4b5fd;
+  color: var(--xy-primary-deep);
+}
+.el-tag.el-tag--primary.el-tag--dark {
+  background-color: var(--xy-primary);
+  border-color: var(--xy-primary);
+  color: #fff;
+}
+
+.el-progress-bar__inner {
+  background-color: var(--xy-primary);
+}
+.el-loading-spinner .path {
+  stroke: var(--xy-primary);
+}
+.el-loading-spinner .el-loading-text {
+  color: var(--xy-primary);
+}
+
+.el-date-table td.current:not(.disabled) span,
+.el-date-table td.today span,
+.el-date-table td.available:hover {
+  color: var(--xy-primary);
+}
+.el-date-table td.current:not(.disabled) span {
+  background-color: var(--xy-primary);
+  color: #fff;
+}
+
+.el-slider__bar { background-color: var(--xy-primary); }
+.el-slider__button { border-color: var(--xy-primary); }
+
+.el-dialog__headerbtn:hover .el-dialog__close { color: var(--xy-primary); }
+
+.el-upload:hover .el-upload-dragger,
+.el-upload-dragger:hover {
+  border-color: var(--xy-primary);
+}
+
+.el-table th.el-table__cell {
+  background-color: #faf8ff !important;
+  color: var(--xy-text);
+}
+.el-table--enable-row-hover .el-table__body tr:hover > td.el-table__cell {
+  background-color: var(--xy-primary-soft) !important;
+}
+
+.el-message-box__status.el-icon-success,
+.el-message-box__status.el-icon-info {
+  color: var(--xy-primary);
+}
+
+a { color: var(--xy-primary); }
+a:hover { color: var(--xy-primary-light); }
+
+html, body, #app {
+  height: 100%;
+  margin: 0;
+  background: var(--xy-page-bg);
+  color: var(--xy-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+}

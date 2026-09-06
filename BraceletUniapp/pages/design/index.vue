@@ -19,7 +19,7 @@
             :disabled="!beads.length"
             @click="addToCartFromDesign"
           >
-            加入购物车
+            {{ editingCartItemId ? '保存修改' : '加入购物车' }}
           </button>
           <button
             class="checkout-btn"
@@ -141,6 +141,7 @@
             @click="switchCategory(cat.keyCode)"
           >
             <text>{{ cat.name }}</text>
+            <view v-if="cat.keyCode === IN_USE_KEY && beads.length" class="cat-badge">{{ uniqueInUseCount }}</view>
           </view>
         </scroll-view>
         <!-- 搜索框 -->
@@ -216,7 +217,7 @@
             <text>加载中</text>
           </view>
           <view v-else-if="!goods.length" class="state-box">
-            <text>暂无商品</text>
+            <text>{{ activeCategory === IN_USE_KEY ? '画布上还没有珠子' : '暂无商品' }}</text>
           </view>
           <view v-else class="product-list">
             <view 
@@ -238,8 +239,8 @@
                   @load="g.loaded = true"
                 />
               </view>
-                <view class="p-stock">
-                  库存{{ g.stock }}
+                <view class="p-stock" :class="{ 'in-use-stock': g.usedCount }">
+                  {{ g.usedCount ? `已用${g.usedCount}` : `库存${g.stock}` }}
                 </view>
               </view>
               <text class="p-name">{{ g.title }}</text>
@@ -458,7 +459,8 @@ import {
 addToCart,
 designCategoryList,
 designProductList,
-uploadFile
+uploadFile,
+updateDiyCart
 } from '../../api/api.js'
 import { isLoggedIn } from '../../api/index.js'
 import { updateCartBadgeNow } from '../../utils/cartBadge.js'
@@ -481,6 +483,10 @@ const activeColor = ref('')
 const goods = ref([])
 const allGoods = ref([]) // 用于前端分页的完整数据缓存
 const loading = ref(false)
+// 正在重新设计的购物车项 ID（从购物车「重新设计」进入）
+const editingCartItemId = ref(null)
+const IN_USE_KEY = '__in_use__'
+const DIY_EDIT_STORAGE_KEY = 'diy_edit_cart'
 
 // 搜索相关
 const searchKeyword = ref('')
@@ -578,11 +584,24 @@ function cancelPendingAdd() {
   return didCancel
 }
 
-// 过滤绳子分类
-const displayCategories = computed(() => categories.value.filter(c => c.keyCode !== 'rope'))
+// 过滤绳子分类，并在最前插入「正在使用」
+const displayCategories = computed(() => {
+  const list = categories.value.filter(c => c.keyCode !== 'rope')
+  return [{ keyCode: IN_USE_KEY, name: '正在使用', children: [] }, ...list]
+})
+
+// 正在使用的不重复材料数（用于角标）
+const uniqueInUseCount = computed(() => {
+  const set = new Set()
+  beads.value.forEach(b => {
+    if (b.productId != null) set.add(String(b.productId))
+  })
+  return set.size
+})
 
 // 获取当前选中主分类的子分类列表
 const currentSubCategories = computed(() => {
+  if (activeCategory.value === IN_USE_KEY) return []
   const current = categories.value.find(c => c.keyCode === activeCategory.value)
   return current && Array.isArray(current.children) ? current.children : []
 })
@@ -1522,21 +1541,48 @@ async function doAddToCartFromDesign() {
       beads: beadsWithPosition  // 带位置的珠子数据
     })
 
-    uni.showLoading({ title: '加入中...', mask: true })
+    uni.showLoading({ title: editingCartItemId.value ? '保存中...' : '加入中...', mask: true })
 
-    // 6. 调用API添加DIY设计到购物车
+    // 6. 调用API：重新设计则更新原购物车项，否则新增
+    if (editingCartItemId.value) {
+      await updateDiyCart(editingCartItemId.value, diyData)
+      uni.hideLoading()
+      uni.showToast({ title: '设计已更新', icon: 'success' })
+      updateCartBadgeNow()
+      editingCartItemId.value = null
+      uni.showModal({
+        title: '保存成功',
+        content: '已更新购物车中的设计。要清空画布再写一个新的吗？',
+        confirmText: '再写一个',
+        cancelText: '继续编辑',
+        success: (res) => {
+          if (res.confirm) clearDesignSilent()
+        }
+      })
+      return
+    }
+
     await addToCart(0, 1, diyData)
 
     uni.hideLoading()
-    uni.showToast({ title: '已加入购物车', icon: 'success' })
-
-    // 更新购物车角标
     updateCartBadgeNow()
+
+    uni.showModal({
+      title: '已加入购物车',
+      content: '要清空画布再写一个新设计吗？',
+      confirmText: '再写一个',
+      cancelText: '继续编辑',
+      success: (res) => {
+        if (res.confirm) {
+          clearDesignSilent()
+        }
+      }
+    })
 
   } catch (e) {
     uni.hideLoading()
     console.error('加入购物车失败:', e)
-    uni.showToast({ title: e.message || '加入失败', icon: 'none' })
+    uni.showToast({ title: e.message || e.msg || '加入失败', icon: 'none' })
   }
 }
 
@@ -1613,6 +1659,94 @@ function switchCategory(key) {
   goods.value = []
   allGoods.value = []
   loadProducts()
+}
+
+/** 从当前 beads 构建「正在使用」商品列表 */
+function buildInUseGoods() {
+  const map = new Map()
+  beads.value.forEach(b => {
+    if (b.productId == null) return
+    const key = String(b.productId)
+    if (!map.has(key)) {
+      map.set(key, {
+        id: b.productId,
+        title: b.title || b.name || '珠子',
+        price: b.price,
+        size: b.size,
+        color: b.color || '#f5f5f5',
+        imageUrl: b.imageUrl,
+        stock: 99,
+        usedCount: 1,
+        loaded: true
+      })
+    } else {
+      map.get(key).usedCount++
+    }
+  })
+  return Array.from(map.values())
+}
+
+function refreshInUseGoodsIfNeeded() {
+  if (activeCategory.value === IN_USE_KEY) {
+    goods.value = buildInUseGoods()
+    allGoods.value = []
+    totalPages.value = 1
+    page.value = 1
+  }
+}
+
+/** 静默清空画布（再写一个 / 保存修改后） */
+function clearDesignSilent() {
+  beads.value.forEach(b => {
+    if (b.productId) updateStock(b.productId, 1)
+  })
+  beads.value = []
+  maxRadiusHistory.value = 0
+  editingCartItemId.value = null
+  refreshInUseGoodsIfNeeded()
+}
+
+/** 从购物车 diyData 回填到画布 */
+function restoreFromDiyData(diyInfo) {
+  if (!diyInfo) return
+  if (diyInfo.size != null) {
+    selectedSize.value = Number(diyInfo.size)
+    uni.setStorageSync('diy_selected_size', selectedSize.value)
+  }
+  const list = Array.isArray(diyInfo.beads) ? diyInfo.beads : []
+  beads.value = list.map(b => ({
+    _id: `b_${++beadIdCounter}`,
+    productId: b.productId,
+    title: b.title || b.name || '珠子',
+    name: b.name || b.title || '珠子',
+    price: b.price,
+    size: b.size,
+    color: b.color || '#e8e8e8',
+    imageUrl: resolveImageUrl(b.imageUrl || ''),
+    loadFailed: false,
+    isNew: false
+  }))
+  maxRadiusHistory.value = 0
+  // 切到「正在使用」方便查看
+  activeCategory.value = IN_USE_KEY
+  activeColor.value = ''
+  goods.value = buildInUseGoods()
+}
+
+function tryConsumeEditPayload() {
+  try {
+    const raw = uni.getStorageSync(DIY_EDIT_STORAGE_KEY)
+    if (!raw) return
+    uni.removeStorageSync(DIY_EDIT_STORAGE_KEY)
+    const payload = typeof raw === 'string' ? JSON.parse(raw) : raw
+    if (!payload || !payload.diyData) return
+    const diyInfo = typeof payload.diyData === 'string' ? JSON.parse(payload.diyData) : payload.diyData
+    editingCartItemId.value = payload.cartItemId || null
+    restoreFromDiyData(diyInfo)
+    uni.showToast({ title: '已载入设计，可继续修改', icon: 'none' })
+  } catch (e) {
+    console.error('回填DIY设计失败', e)
+  }
 }
 
 // 切换子分类 (原 switchColor)
@@ -1795,6 +1929,16 @@ function clearSearch() {
 
 // 加载商品
 async function loadProducts(isLoadMore = false) {
+  // 「正在使用」：本地从 beads 汇总，不走接口
+  if (activeCategory.value === IN_USE_KEY) {
+    goods.value = buildInUseGoods()
+    allGoods.value = []
+    totalPages.value = 1
+    page.value = 1
+    loading.value = false
+    return
+  }
+
   const requestSeq = ++productRequestSeq
   
   // 如果是加载更多且正在使用前端分页
@@ -2312,7 +2456,17 @@ onMounted(() => {
 
 onShow(() => {
   ensureInit()
+  // 从购物车「重新设计」进入时回填
+  tryConsumeEditPayload()
 })
+
+// 珠子变化时，若当前在「正在使用」则刷新列表
+watch(
+  () => beads.value.length,
+  () => {
+    refreshInUseGoodsIfNeeded()
+  }
+)
 </script>
 
 <style lang="scss">
@@ -2763,14 +2917,16 @@ onShow(() => {
 }
 
 .cat-tab {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6rpx;
   padding: 0 30rpx;
   font-size: 28rpx;
   color: #999;
   position: relative;
   
   &.active {
-    color: #333;
+    color: #8B5CF6;
     font-weight: bold;
     font-size: 30rpx;
     
@@ -2782,10 +2938,26 @@ onShow(() => {
       transform: translateX(-50%);
       width: 40rpx;
       height: 6rpx;
-      background: #6B4EFF;
+      background: #8B5CF6;
       border-radius: 4rpx;
     }
   }
+}
+
+.cat-badge {
+  min-width: 28rpx;
+  height: 28rpx;
+  padding: 0 8rpx;
+  border-radius: 999rpx;
+  background: #8B5CF6;
+  color: #fff;
+  font-size: 18rpx;
+  line-height: 28rpx;
+  text-align: center;
+}
+
+.in-use-stock {
+  background: rgba(139, 92, 246, 0.85) !important;
 }
 
 .section-body {

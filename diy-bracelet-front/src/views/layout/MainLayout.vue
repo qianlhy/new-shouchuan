@@ -1,16 +1,23 @@
 <template>
   <div class="main-layout">
     <div class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">愿</div>
+        <div class="brand-text">
+          <div class="brand-name">许愿手作</div>
+          <div class="brand-sub">后台管理</div>
+        </div>
+      </div>
       <div class="user-info">
-        <el-avatar :size="40" :src="userInfo.avatar"></el-avatar>
+        <el-avatar :size="36" :src="userInfo.avatar"></el-avatar>
         <span class="username">{{ userInfo.displayName }}</span>
       </div>
       <el-menu
         :default-active="activeMenu"
         class="menu"
-        background-color="#304156"
-        text-color="#bfcbd9"
-        active-text-color="#409EFF"
+        background-color="#2A2140"
+        text-color="#C4B5FD"
+        active-text-color="#FFFFFF"
         router>
         <el-menu-item index="/home/welcome">
           <i class="el-icon-s-home"></i>
@@ -66,7 +73,12 @@ export default {
         displayName: localStorage.getItem('username') || '管理员',
         avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
       },
-      activeMenu: '/home/welcome'
+      activeMenu: this.$route.path || '/home/welcome'
+    }
+  },
+  watch: {
+    '$route.path' (val) {
+      this.activeMenu = val
     }
   },
   methods: {
@@ -83,37 +95,89 @@ export default {
 .main-layout {
   display: flex;
   height: 100vh;
+  text-align: left;
 }
 
 .sidebar {
-  width: 200px;
-  background-color: #304156;
+  width: 220px;
+  background: linear-gradient(180deg, #2A2140 0%, #1F1830 100%);
   color: #fff;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 22px 18px 16px;
+  border-bottom: 1px solid rgba(196, 181, 253, 0.15);
+}
+
+.brand-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #B794FF, #8B5CF6 55%, #7C3AED);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(139, 92, 246, 0.35);
+}
+
+.brand-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.brand-sub {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #A78BFA;
 }
 
 .user-info {
-  padding: 20px;
+  padding: 16px 18px;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid #1f2d3d;
+  border-bottom: 1px solid rgba(196, 181, 253, 0.12);
 }
 
 .username {
   margin-left: 10px;
   font-size: 14px;
+  color: #EDE4FF;
 }
 
 .menu {
   border-right: none;
+  flex: 1;
+}
+
+.menu >>> .el-menu-item.is-active {
+  background: linear-gradient(90deg, rgba(139, 92, 246, 0.45), rgba(139, 92, 246, 0.12)) !important;
+  border-right: 3px solid #A78BFA;
+}
+
+.menu >>> .el-menu-item i {
+  color: inherit;
+  margin-right: 6px;
 }
 
 .main-content {
   flex: 1;
   padding: 20px;
-  background-color: #f0f2f5;
+  background: linear-gradient(180deg, #FBF7FF 0%, #F3EBFF 40%, #F7F4FC 100%);
   overflow: auto;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .footer {
@@ -122,7 +186,6 @@ export default {
   text-align: center;
   color: #909399;
   font-size: 12px;
-  background-color: #f0f2f5;
 }
 
 .beian-link {
@@ -131,7 +194,7 @@ export default {
 }
 
 .beian-link:hover {
-  color: #409EFF;
+  color: #8B5CF6;
   text-decoration: underline;
 }
 </style>

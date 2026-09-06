@@ -75,4 +75,16 @@ public interface OrderMapper {
      * 依据动态条件统计数量
      */
     Integer countByMap(Map map);
+
+    /**
+     * 统计某用户的累计实付金额（已支付/已发货/已完成）
+     */
+    @Select("select coalesce(sum(amount),0) from `order` where user_id=#{userId} and status in (1,2,3)")
+    java.math.BigDecimal sumPaidAmountByUser(Long userId);
+
+    /**
+     * 统计某用户的有效订单数（已支付/已发货/已完成）
+     */
+    @Select("select count(*) from `order` where user_id=#{userId} and status in (1,2,3)")
+    Integer countPaidByUser(Long userId);
 }

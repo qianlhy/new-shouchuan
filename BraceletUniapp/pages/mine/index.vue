@@ -15,10 +15,17 @@
 
     <view class="vip-card" @click="onVip">
       <view class="vip-left">
-        <text class="vip-title">会员中心</text>
-        <view class="vip-btn">{{ user ? '查看会员权益 >' : '登录查看会员权益 >' }}</view>
+        <text class="vip-title">{{ member ? member.levelName : '会员中心' }}</text>
+        <text v-if="member" class="vip-desc">累计消费 ¥{{ member.totalSpent }} · 成长值 {{ member.points }}</text>
+        <view v-if="member && member.nextLevelName" class="vip-progress">
+          <view class="vip-progress-track">
+            <view class="vip-progress-fill" :style="{ width: member.progressPercent + '%' }" />
+          </view>
+          <text class="vip-progress-text">距 {{ member.nextLevelName }} 还差 ¥{{ member.nextThreshold }}</text>
+        </view>
+        <view class="vip-btn">{{ user ? '查看会员权益 ›' : '登录查看会员权益 ›' }}</view>
       </view>
-      <image class="xy-icon" src="/static/icons/crown.png" mode="aspectFit" style="width:56rpx;height:56rpx" />
+      <image class="xy-icon vip-crown" src="/static/icons/crown.png" mode="aspectFit" />
     </view>
 
     <view class="panel order-panel">
@@ -31,28 +38,28 @@
       <view class="order-grid">
         <view class="order-item" @click.stop="goOrders(0)">
           <view class="icon-box">
-            <image class="xy-icon" src="/static/icons/wallet.png" mode="aspectFit" style="width:40rpx;height:40rpx" />
+            <image class="xy-icon ui-icon" src="/static/icons/wallet.png" mode="aspectFit" />
             <view class="badge" v-if="count.s0">{{ count.s0 }}</view>
           </view>
           <text class="order-text">待付款</text>
         </view>
         <view class="order-item" @click.stop="goOrders(1)">
           <view class="icon-box">
-            <image class="xy-icon" src="/static/icons/package.png" mode="aspectFit" style="width:40rpx;height:40rpx" />
+            <image class="xy-icon ui-icon" src="/static/icons/package.png" mode="aspectFit" />
             <view class="badge" v-if="count.s1">{{ count.s1 }}</view>
           </view>
           <text class="order-text">待发货</text>
         </view>
         <view class="order-item" @click.stop="goOrders(2)">
           <view class="icon-box">
-            <image class="xy-icon" src="/static/icons/truck.png" mode="aspectFit" style="width:40rpx;height:40rpx" />
+            <image class="xy-icon ui-icon" src="/static/icons/truck.png" mode="aspectFit" />
             <view class="badge" v-if="count.s2">{{ count.s2 }}</view>
           </view>
           <text class="order-text">待收货</text>
         </view>
         <view class="order-item" @click.stop="goOrders(3)">
           <view class="icon-box">
-            <image class="xy-icon" src="/static/icons/circle-check.png" mode="aspectFit" style="width:40rpx;height:40rpx" />
+            <image class="xy-icon ui-icon" src="/static/icons/circle-check.png" mode="aspectFit" />
             <view class="badge" v-if="count.s3">{{ count.s3 }}</view>
           </view>
           <text class="order-text">已完成</text>
@@ -65,20 +72,20 @@
         <text class="panel-title">创作专区</text>
       </view>
       <view class="order-grid">
-        <view class="order-item" @click="goDesign">
-          <view class="icon-box soft"><image class="xy-icon" src="/static/icons/sparkles.png" mode="aspectFit" style="width:40rpx;height:40rpx" /></view>
+        <view class="order-item" @click="goCreator">
+          <view class="icon-box soft"><image class="xy-icon ui-icon" src="/static/icons/sparkles.png" mode="aspectFit" /></view>
           <text class="order-text">创作者中心</text>
         </view>
         <view class="order-item" @click="goDesign">
-          <view class="icon-box soft"><image class="xy-icon" src="/static/icons/palette.png" mode="aspectFit" style="width:40rpx;height:40rpx" /></view>
+          <view class="icon-box soft"><image class="xy-icon ui-icon" src="/static/icons/palette.png" mode="aspectFit" /></view>
           <text class="order-text">我的设计</text>
         </view>
-        <view class="order-item" @click="goSquare">
-          <view class="icon-box soft"><image class="xy-icon" src="/static/icons/heart.png" mode="aspectFit" style="width:40rpx;height:40rpx" /></view>
+        <view class="order-item" @click="goCollect">
+          <view class="icon-box soft"><image class="xy-icon ui-icon" src="/static/icons/heart.png" mode="aspectFit" /></view>
           <text class="order-text">我的收藏</text>
         </view>
         <view class="order-item" @click="goSquare">
-          <view class="icon-box soft"><image class="xy-icon" src="/static/icons/layout-grid.png" mode="aspectFit" style="width:40rpx;height:40rpx" /></view>
+          <view class="icon-box soft"><image class="xy-icon ui-icon" src="/static/icons/layout-grid.png" mode="aspectFit" /></view>
           <text class="order-text">灵感广场</text>
         </view>
       </view>
@@ -90,19 +97,19 @@
       </view>
       <view class="func-grid">
         <view class="func-item" @click="goAddress">
-          <view class="func-icon"><image class="xy-icon" src="/static/icons/map-pin.png" mode="aspectFit" style="width:40rpx;height:40rpx" /></view>
+          <view class="func-icon"><image class="xy-icon ui-icon" src="/static/icons/map-pin.png" mode="aspectFit" /></view>
           <text>收货地址</text>
         </view>
         <view class="func-item" @click="contact">
-          <view class="func-icon"><image class="xy-icon" src="/static/icons/headphones.png" mode="aspectFit" style="width:40rpx;height:40rpx" /></view>
+          <view class="func-icon"><image class="xy-icon ui-icon" src="/static/icons/headphones.png" mode="aspectFit" /></view>
           <text>联系客服</text>
         </view>
         <view class="func-item" @click="goSetting">
-          <view class="func-icon"><image class="xy-icon" src="/static/icons/settings.png" mode="aspectFit" style="width:40rpx;height:40rpx" /></view>
+          <view class="func-icon"><image class="xy-icon ui-icon" src="/static/icons/settings.png" mode="aspectFit" /></view>
           <text>设置</text>
         </view>
         <view class="func-item" @click="about">
-          <view class="func-icon"><image class="xy-icon" src="/static/icons/info.png" mode="aspectFit" style="width:40rpx;height:40rpx" /></view>
+          <view class="func-icon"><image class="xy-icon ui-icon" src="/static/icons/info.png" mode="aspectFit" /></view>
           <text>关于我们</text>
         </view>
       </view>
@@ -147,15 +154,36 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { orderList, userGet, logout, loginWithWeixinCode } from '../../api/index.js'
+import { orderList, userGet, logout, loginWithWeixinCode, getMemberInfo } from '../../api/index.js'
 
 const count = ref({ s0: 0, s1: 0, s2: 0, s3: 0 })
 const showQR = ref(false)
 const qrUrl = '/static/CustomerService/714966e4f87775b79a26b9002c0606d1.jpg'
 const user = ref(null)
+const member = ref(null)
 const showEditProfile = ref(false)
 const tempAvatarUrl = ref('')
 const tempNickName = ref('')
+
+async function loadMember() {
+  if (!user.value) {
+    member.value = null
+    return
+  }
+  try {
+    const info = await getMemberInfo()
+    if (info) {
+      member.value = {
+        ...info,
+        totalSpent: Number(info.totalSpent || 0).toFixed(2),
+        nextThreshold: info.nextThreshold != null ? Number(info.nextThreshold).toFixed(0) : null
+      }
+    }
+  } catch (e) {
+    console.error('加载会员信息失败:', e)
+    member.value = null
+  }
+}
 
 async function loadOrders() {
   if (!user.value) {
@@ -184,11 +212,15 @@ async function loadOrders() {
 onMounted(() => {
   user.value = userGet()
   loadOrders()
+  loadMember()
 })
 
 onShow(() => {
   user.value = userGet()
-  setTimeout(loadOrders, 300)
+  setTimeout(() => {
+    loadOrders()
+    loadMember()
+  }, 300)
 })
 
 function handleLogin() {
@@ -210,6 +242,7 @@ function handleLogin() {
               }
               uni.showToast({ title: '登录成功', icon: 'success' })
               loadOrders()
+              loadMember()
             } else {
               throw new Error(res.msg || '登录失败')
             }
@@ -306,9 +339,35 @@ function goDesign() {
 function goSquare() {
   uni.switchTab({ url: '/pages/square/index' })
 }
+function goCollect() {
+  uni.navigateTo({ url: '/pages/collect/index' })
+}
+function goCreator() {
+  uni.navigateTo({ url: '/pages/creator/index' })
+}
 function onVip() {
   if (!user.value) return handleLogin()
-  uni.showToast({ title: '会员权益即将开放', icon: 'none' })
+  const m = member.value
+  if (!m) {
+    uni.showToast({ title: '会员信息加载中', icon: 'none' })
+    return
+  }
+  const benefits = [
+    '普通会员：基础购物权益',
+    '银卡会员：满 ¥500 · 专属客服',
+    '金卡会员：满 ¥2000 · 优先发货',
+    '黑钻会员：满 ¥5000 · 生日礼遇 + 新品优先'
+  ]
+  const tip = m.nextLevelName
+    ? `当前：${m.levelName}（成长值 ${m.points}）\n距 ${m.nextLevelName} 还需累计消费 ¥${m.nextThreshold}`
+    : `当前：${m.levelName}（已是最高等级，成长值 ${m.points}）`
+  uni.showModal({
+    title: '会员权益',
+    content: `${tip}\n\n${benefits.join('\n')}`,
+    showCancel: false,
+    confirmColor: '#8B5CF6',
+    confirmText: '知道了'
+  })
 }
 </script>
 
@@ -385,7 +444,23 @@ function onVip() {
   pointer-events: none;
 }
 .vip-left { position: relative; z-index: 1; }
-.vip-title { display: block; font-size: 30rpx; font-weight: 700; color: $text-on-soft; margin-bottom: 14rpx; }
+.vip-title { display: block; font-size: 30rpx; font-weight: 700; color: $text-on-soft; margin-bottom: 10rpx; }
+.vip-desc { display: block; font-size: 22rpx; color: rgba(74, 58, 120, 0.7); margin-bottom: 12rpx; }
+.vip-progress { margin-bottom: 14rpx; }
+.vip-progress-track {
+  width: 320rpx;
+  max-width: 60vw;
+  height: 10rpx;
+  border-radius: 999rpx;
+  background: rgba(139, 92, 246, 0.15);
+  overflow: hidden;
+}
+.vip-progress-fill {
+  height: 100%;
+  border-radius: 999rpx;
+  background: $gradient-primary;
+}
+.vip-progress-text { display: block; margin-top: 6rpx; font-size: 20rpx; color: rgba(74, 58, 120, 0.6); }
 .vip-btn {
   display: inline-flex;
   padding: 10rpx 22rpx;
@@ -396,18 +471,22 @@ function onVip() {
   font-weight: 600;
   box-shadow: $shadow-btn;
 }
-.vip-card .xy-icon {
+.vip-card .xy-icon,
+.vip-crown {
   position: relative;
   z-index: 1;
-  opacity: 0.85;
+  opacity: 0.9;
+  width: 56rpx;
+  height: 56rpx;
 }
 .ui-icon {
-  width: 44rpx;
-  height: 44rpx;
+  width: 46rpx;
+  height: 46rpx;
+  display: block;
 }
 .icon-box {
-  width: 84rpx;
-  height: 84rpx;
+  width: 88rpx;
+  height: 88rpx;
   border-radius: 50%;
   background: $icon-orb;
   color: $primary;
@@ -480,8 +559,8 @@ function onVip() {
   color: $text-sub;
 }
 .func-icon {
-  width: 80rpx;
-  height: 80rpx;
+  width: 84rpx;
+  height: 84rpx;
   border-radius: 50%;
   background: $icon-orb;
   display: flex;

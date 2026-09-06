@@ -1,7 +1,7 @@
 <template>
   <div class="welcome-container">
     <div class="welcome-header">
-      <h2>欢迎使用DIY手链后台管理系统</h2>
+      <h2>欢迎使用许愿手作后台管理</h2>
       <p class="welcome-subtitle">{{ greeting }}，{{ userInfo.displayName || '管理员' }}</p>
     </div>
 
@@ -164,7 +164,7 @@ export default {
 
 .welcome-header h2 {
   font-size: 28px;
-  color: #303133;
+  color: #2A2140;
   margin-bottom: 10px;
 }
 
@@ -192,7 +192,7 @@ export default {
 
 .stats-item i {
   font-size: 48px;
-  color: #409EFF;
+  color: #8B5CF6;
 }
 
 .stats-info {
@@ -231,7 +231,7 @@ export default {
 }
 
 .tips-card {
-  background-color: #f5f7fa;
+  background-color: #F3EBFF;
 }
 
 .tips-card ul {

@@ -1,16 +1,23 @@
 <template>
   <div class="login-container">
+    <div class="login-bg-orb o1"></div>
+    <div class="login-bg-orb o2"></div>
+    <div class="login-bg-orb o3"></div>
     <div class="login-box">
-      <h2>DIY手链后台管理系统</h2>
+      <div class="login-brand">
+        <div class="login-mark">愿</div>
+        <h2>许愿手作</h2>
+        <p class="login-sub">后台管理系统</p>
+      </div>
       <el-form :model="loginForm" :rules="rules" ref="loginForm" label-width="80px">
         <el-form-item label="用户名" prop="username">
           <el-input v-model="loginForm.username" placeholder="请输入用户名"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input v-model="loginForm.password" type="password" placeholder="请输入密码"></el-input>
+          <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" @keyup.enter.native="handleLogin"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleLogin" :loading="loading">登录</el-button>
+          <el-button type="primary" class="login-btn" @click="handleLogin" :loading="loading">登录</el-button>
         </el-form-item>
       </el-form>
       <div class="footer">
@@ -74,26 +81,88 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-image: url('https://th.bing.com/th/id/R.dde8321f8d2c7aa0ddd046d3c2acf0e5?rik=7PqkkKREs%2foyGg&riu=http%3a%2f%2fi1.hdslb.com%2fbfs%2farchive%2f4f56ef5a820e5e34507c9d0e58258d373ce30399.jpg&ehk=uDlSNddpYQ%2fqfP6V5SNNC2ttaK0rvpjulh0ItqFHWTc%3d&risl=&pid=ImgRaw&r=0');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(145deg, #FBF7FF 0%, #EDE4FF 45%, #D8C4FF 100%);
+}
+
+.login-bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.o1 {
+  width: 420px;
+  height: 420px;
+  right: -80px;
+  top: -100px;
+  background: radial-gradient(circle, rgba(183, 148, 255, 0.55) 0%, transparent 70%);
+}
+.o2 {
+  width: 280px;
+  height: 280px;
+  left: -60px;
+  bottom: 40px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.28) 0%, transparent 70%);
+}
+.o3 {
+  width: 160px;
+  height: 160px;
+  left: 30%;
+  top: 18%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.7) 0%, transparent 70%);
 }
 
 .login-box {
-  width: 400px;
-  padding: 30px;
-  background: #fff;
-  border-radius: 4px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  width: 420px;
+  padding: 36px 34px 28px;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 20px;
+  box-shadow: 0 18px 48px rgba(90, 50, 160, 0.14);
+  border: 1px solid rgba(139, 92, 246, 0.12);
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 1;
+  backdrop-filter: blur(8px);
+  text-align: left;
 }
 
-.login-box h2 {
+.login-brand {
   text-align: center;
-  margin-bottom: 30px;
-  color: #303133;
+  margin-bottom: 28px;
+}
+.login-mark {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 14px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #B794FF, #8B5CF6 55%, #7C3AED);
+  color: #fff;
+  font-size: 24px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 24px rgba(139, 92, 246, 0.35);
+}
+.login-box h2 {
+  margin: 0;
+  font-size: 26px;
+  color: #2A2140;
+  letter-spacing: 2px;
+}
+.login-sub {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #8B849C;
+}
+
+.login-btn {
+  width: 100%;
+  background: linear-gradient(90deg, #B794FF, #8B5CF6 55%, #7C3AED) !important;
+  border: none !important;
+  font-weight: 600;
 }
 
 .footer {
@@ -101,7 +170,7 @@ export default {
   text-align: center;
   color: #909399;
   font-size: 12px;
-  padding-top: 20px;
+  padding-top: 12px;
 }
 
 .beian-link {
@@ -110,7 +179,7 @@ export default {
 }
 
 .beian-link:hover {
-  color: #409EFF;
+  color: #8B5CF6;
   text-decoration: underline;
 }
 </style>

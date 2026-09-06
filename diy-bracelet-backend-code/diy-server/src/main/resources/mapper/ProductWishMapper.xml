@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.diy.mapper.ProductWishMapper">
+
+    <select id="countByProducts" resultType="map">
+        select product_id as productId, count(*) as wantCount
+        from product_wish_record
+        where product_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        group by product_id
+    </select>
+
+    <select id="listWishedProductsByUser" resultType="map">
+        SELECT p.id AS id,
+               p.title AS title,
+               p.cover_image AS coverImage,
+               p.price AS price,
+               (SELECT COUNT(*) FROM product_wish_record r2 WHERE r2.product_id = p.id) AS wantCount
+        FROM product_wish_record r
+        LEFT JOIN product p ON r.product_id = p.id
+        WHERE r.user_id = #{userId}
+        ORDER BY r.create_time DESC
+    </select>
+
+</mapper>

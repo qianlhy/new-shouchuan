@@ -84,7 +84,7 @@ export default {
 
 .el-dropdown-link {
   cursor: pointer;
-  color: #409EFF;
+  color: #8B5CF6;
 }
 
 .el-main {

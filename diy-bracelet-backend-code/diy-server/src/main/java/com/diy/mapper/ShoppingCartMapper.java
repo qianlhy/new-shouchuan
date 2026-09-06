@@ -5,6 +5,8 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
@@ -27,6 +29,15 @@ public interface ShoppingCartMapper {
      */
     @Update("update cart_item set quantity=#{quantity} where id=#{id}")
     void updateQuantityById(CartItem cartItem);
+
+    /**
+     * 更新 DIY 设计数据（重新设计保存）
+     */
+    @Update("update cart_item set diy_data=#{diyData} where id=#{id} and user_id=#{userId}")
+    int updateDiyData(@Param("id") Long id, @Param("userId") Long userId, @Param("diyData") String diyData);
+
+    @Select("select * from cart_item where id=#{id}")
+    CartItem getById(Long id);
 
     /**
      * 插入购物车

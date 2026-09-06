@@ -45,4 +45,9 @@ public interface CartItemService {
      * @param deleteFromCartDTO
      */
     void deleteFromCart(DeleteFromCartDTO deleteFromCartDTO);
+
+    /**
+     * 更新 DIY 购物车项的设计数据（重新设计后保存）
+     */
+    void updateDiy(com.diy.dto.UpdateDiyCartDTO updateDiyCartDTO);
 }

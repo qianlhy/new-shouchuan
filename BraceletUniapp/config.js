@@ -49,6 +49,8 @@ export const API_PATHS = {
   CART_CLEAN: '/user/cart/clean',
   // 减少商品数量
   CART_SUB: '/user/cart/sub',
+  // 更新 DIY 设计（重新设计保存）
+  CART_UPDATE_DIY: '/user/cart/updateDiy',
   
   // ==================== 订单模块 ====================
   // 提交订单
@@ -112,7 +114,19 @@ export const API_PATHS = {
   // 删除地址
   ADDRESS_DELETE: '/user/address/delete',
   // 设置默认地址
-  ADDRESS_SET_DEFAULT: '/user/address/setDefault'
+  ADDRESS_SET_DEFAULT: '/user/address/setDefault',
+
+  // ==================== 心愿众筹模块（广场） ====================
+  // 切换想要状态
+  WISH_TOGGLE: '/user/wish/toggle',
+  // 批量查询众筹进度（公开）
+  WISH_COUNTS: '/user/wish/counts',
+  // 我想要的商品列表（我的收藏）
+  WISH_MINE: '/user/wish/mine',
+
+  // ==================== 会员中心模块 ====================
+  // 获取当前用户会员信息
+  MEMBER_INFO: '/user/member/info'
 }
 
 // 请求超时时间（毫秒）
