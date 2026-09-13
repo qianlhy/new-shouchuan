@@ -22,7 +22,7 @@ export default {
     }
     
     // 默认标题
-    let title = '许愿手作'
+    let title = '祈愿手作'
     
     // 如果是来自于按钮的分享
     if (res.from === 'button') {
@@ -32,6 +32,7 @@ export default {
     return {
       title: title,
       path: '/' + route + queryString,
+      imageUrl: '/static/logo/qiyuan_logo.png',
       success: function() {
         console.log('分享成功')
       },
@@ -54,8 +55,9 @@ export default {
     }
     
     return {
-      title: '许愿手作',
-      query: query
+      title: '祈愿手作',
+      query: query,
+      imageUrl: '/static/logo/qiyuan_logo.png'
     }
   }
 }

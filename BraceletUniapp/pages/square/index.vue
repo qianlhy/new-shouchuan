@@ -115,7 +115,7 @@ function mapCard(p) {
   return {
     id: p.id,
     title: p.name || p.title || '未命名手作',
-    author: '许愿手作',
+    author: '祈愿手作',
     imageUrl: resolveImageUrl(p.image || p.imageUrl || p.coverImage || ''),
     price: Number(p.price || 0).toFixed(2),
     achieved,

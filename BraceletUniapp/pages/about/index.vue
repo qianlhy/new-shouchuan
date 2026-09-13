@@ -2,9 +2,8 @@
   <view class="page">
     <!-- 品牌头部 -->
     <view class="brand-header">
-      <view class="logo">🔮</view>
-      <view class="brand-name">许愿手作</view>
-      <view class="brand-slogan">天然水晶 · 许愿定制</view>
+      <image class="logo" src="/static/logo/qiyuan_logo.png" mode="aspectFit" />
+      <view class="brand-slogan">天然水晶 · 祈愿定制</view>
       <view class="version">v1.0.0</view>
     </view>
 
@@ -77,7 +76,7 @@
 
     <!-- 版权信息 -->
     <view class="footer">
-      <view class="copyright">© 2025 许愿手作</view>
+      <view class="copyright">© 2025 祈愿手作</view>
       <view class="copyright">专注水晶手链定制</view>
     </view>
 
@@ -135,32 +134,37 @@ function callPhone() {
 }
 
 .brand-header {
-  background: linear-gradient(135deg, #E9E0FF, #6B4EFF);
-  padding: 80rpx 24rpx 60rpx;
+  background: linear-gradient(145deg, #FBF7FF 0%, #EDE4FF 45%, #D8C4FF 100%);
+  padding: 72rpx 24rpx 56rpx;
   text-align: center;
 }
 
 .logo {
-  font-size: 120rpx;
-  margin-bottom: 24rpx;
+  width: 280rpx;
+  height: 280rpx;
+  margin: 0 auto 20rpx;
+  display: block;
+  border-radius: 24rpx;
+  background: #fff;
+  box-shadow: 0 12rpx 32rpx rgba(90, 50, 160, 0.12);
 }
 
 .brand-name {
   font-size: 48rpx;
   font-weight: 700;
-  color: #fff;
+  color: #2A2140;
   margin-bottom: 12rpx;
 }
 
 .brand-slogan {
   font-size: 28rpx;
-  color: rgba(255,255,255,0.88);
+  color: rgba(42, 33, 64, 0.72);
   margin-bottom: 16rpx;
 }
 
 .version {
   font-size: 24rpx;
-  color: rgba(255,255,255,0.7);
+  color: rgba(42, 33, 64, 0.5);
 }
 
 .section {

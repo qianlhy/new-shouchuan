@@ -5,8 +5,8 @@
     <div class="login-bg-orb o3"></div>
     <div class="login-box">
       <div class="login-brand">
-        <div class="login-mark">愿</div>
-        <h2>许愿手作</h2>
+        <img class="login-mark" src="/qiyuan_logo.png" alt="祈愿手作" />
+        <h2>祈愿手作</h2>
         <p class="login-sub">后台管理系统</p>
       </div>
       <el-form :model="loginForm" :rules="rules" ref="loginForm" label-width="80px">
@@ -133,18 +133,14 @@ export default {
   margin-bottom: 28px;
 }
 .login-mark {
-  width: 56px;
-  height: 56px;
+  width: 96px;
+  height: 96px;
   margin: 0 auto 14px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #B794FF, #8B5CF6 55%, #7C3AED);
-  color: #fff;
-  font-size: 24px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 10px 24px rgba(139, 92, 246, 0.35);
+  border-radius: 20px;
+  background: #fff;
+  object-fit: contain;
+  box-shadow: 0 10px 24px rgba(139, 92, 246, 0.28);
+  display: block;
 }
 .login-box h2 {
   margin: 0;

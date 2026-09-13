@@ -1,7 +1,7 @@
 <template>
   <div class="welcome-container">
     <div class="welcome-header">
-      <h2>欢迎使用许愿手作后台管理</h2>
+      <h2>欢迎使用祈愿手作后台管理</h2>
       <p class="welcome-subtitle">{{ greeting }}，{{ userInfo.displayName || '管理员' }}</p>
     </div>
 

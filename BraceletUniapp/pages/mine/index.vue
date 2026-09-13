@@ -6,7 +6,7 @@
         <image v-else class="avatar" src="/static/icons/user.png" mode="aspectFit" />
         <view class="text-info">
           <view class="nickname">{{ user ? (user.nickName || '微信用户') : '点击登录' }}</view>
-          <view class="welcome">{{ user ? '欢迎回来，继续你的许愿' : '登录同步设计与订单' }}</view>
+          <view class="welcome">{{ user ? '欢迎回来，继续你的祈愿' : '登录同步设计与订单' }}</view>
         </view>
       </view>
       <button v-if="user" class="edit-btn" @click="openEditProfile">编辑资料</button>

@@ -63,7 +63,7 @@
       <view class="action-card select-card" @click="goProductList">
         <view class="card-badge">MUST-HAVE</view>
         <text class="card-title">优选商城</text>
-        <text class="card-subtitle">许愿严选成品手串</text>
+        <text class="card-subtitle">祈愿严选成品手串</text>
         <view class="cart-glow">
           <image class="cart-glow-icon" src="/static/icons/shopping-cart-white.png" mode="aspectFit" />
         </view>
@@ -115,7 +115,7 @@
           <text class="rec-name">{{ item.name || item.title }}</text>
           <view class="rec-author">
             <text class="at">@</text>
-            <text>许愿手作</text>
+            <text>祈愿手作</text>
           </view>
           <view class="rec-btn" @click.stop="goDetail(item)">查看实物</view>
         </view>
@@ -124,7 +124,7 @@
     </view>
 
     <view class="footer">
-      <text class="footer-text">许愿手作 · 匠心定制</text>
+      <text class="footer-text">祈愿手作 · 匠心定制</text>
     </view>
 
     <!-- 登录弹窗 -->

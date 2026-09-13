@@ -2,9 +2,9 @@
   <div class="main-layout">
     <div class="sidebar">
       <div class="brand">
-        <div class="brand-mark">愿</div>
+        <img class="brand-mark" src="/qiyuan_logo.png" alt="祈愿手作" />
         <div class="brand-text">
-          <div class="brand-name">许愿手作</div>
+          <div class="brand-name">祈愿手作</div>
           <div class="brand-sub">后台管理</div>
         </div>
       </div>
@@ -116,17 +116,13 @@ export default {
 }
 
 .brand-mark {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #B794FF, #8B5CF6 55%, #7C3AED);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 18px;
-  color: #fff;
-  box-shadow: 0 8px 18px rgba(139, 92, 246, 0.35);
+  background: #fff;
+  object-fit: contain;
+  box-shadow: 0 8px 18px rgba(139, 92, 246, 0.28);
+  flex-shrink: 0;
 }
 
 .brand-name {

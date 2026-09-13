@@ -51,8 +51,7 @@
           
           <!-- 中心Logo -->
           <view class="center-logo" :style="{zIndex: 2}">
-            <image class="logo-img" :src="logoPath" mode="widthFix" />
-            <text class="logo-name">许愿手作</text>
+            <image class="logo-img" :src="logoPath" mode="aspectFit" />
           </view>
           
           <!-- 珠子 -->
@@ -471,7 +470,7 @@ const instance = getCurrentInstance()
 
 const isMounted = ref(false)
 const didInit = ref(false)
-const logoPath = '/static/logo/final_logo.jpg'
+const logoPath = '/static/logo/qiyuan_logo.png'
 console.log('Logo Path set to absolute:', logoPath)
 
 // 数据状态
@@ -2250,10 +2249,9 @@ async function generateDesignImage() {
     ctx.arc(centerX, centerY, ropeRadius, 0, 2 * Math.PI)
     ctx.stroke()
     
-    // 6. 绘制 Logo
-    const logoSize = r2p(200)
+    // 6. 绘制 Logo（新 logo 已含品牌文字）
+    const logoSize = r2p(220)
     try {
-      // 尝试加载 Logo
       const logoImg = await loadImage(logoPath)
       if (logoImg) {
         ctx.drawImage(logoImg, centerX - logoSize / 2, centerY - logoSize / 2, logoSize, logoSize)
@@ -2270,7 +2268,7 @@ async function generateDesignImage() {
       ctx.textBaseline = 'middle'
       ctx.fillStyle = '#bfbfbf'
       ctx.font = `${r2p(24)}px sans-serif`
-      ctx.fillText('许愿手作', centerX, centerY)
+      ctx.fillText('祈愿手作', centerX, centerY)
     }
     
     // 7. 绘制顶层珠子 (普通尺寸 < 24mm)
@@ -2638,19 +2636,18 @@ watch(
   align-items: center;
   justify-content: center;
   z-index: 0;
-  opacity: 0.8;
+  opacity: 0.92;
+  width: 220rpx;
+  height: 220rpx;
 }
 
 .logo-img {
-  width: 180rpx;
-  height: 180rpx;
-  margin-bottom: 10rpx;
+  width: 220rpx;
+  height: 220rpx;
 }
 
 .logo-name {
-  font-size: 24rpx;
-  color: #ccc;
-  letter-spacing: 4rpx;
+  display: none;
 }
 
 /* 底部工具栏 */
