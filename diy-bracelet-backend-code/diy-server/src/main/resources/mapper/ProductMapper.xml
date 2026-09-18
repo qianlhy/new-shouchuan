@@ -14,8 +14,14 @@
             <if test="description != null and description != ''">
                 description = #{description},
             </if>
+            <if test="creatorName != null">
+                creator_name = #{creatorName},
+            </if>
             <if test="coverImage != null and coverImage != ''">
                 cover_image = #{coverImage},
+            </if>
+            <if test="diyData != null">
+                diy_data = #{diyData},
             </if>
             <if test="price != null">
                 price = #{price},

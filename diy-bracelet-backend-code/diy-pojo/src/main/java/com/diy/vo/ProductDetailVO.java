@@ -42,9 +42,15 @@ public class ProductDetailVO implements Serializable {
         
         @ApiModelProperty("商品描述")
         private String description;
+
+        @ApiModelProperty("创作者名称")
+        private String creatorName;
         
         @ApiModelProperty("商品封面图")
         private String coverImage;
+
+        @ApiModelProperty("DIY设计模板JSON（有值则可带入制作台）")
+        private String diyData;
 
         @ApiModelProperty("商品详情图列表（不包含封面，按顺序）")
         private List<String> detailImages;

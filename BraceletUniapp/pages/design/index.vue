@@ -1742,7 +1742,10 @@ function tryConsumeEditPayload() {
     const diyInfo = typeof payload.diyData === 'string' ? JSON.parse(payload.diyData) : payload.diyData
     editingCartItemId.value = payload.cartItemId || null
     restoreFromDiyData(diyInfo)
-    uni.showToast({ title: '已载入设计，可继续修改', icon: 'none' })
+    uni.showToast({
+      title: payload.cartItemId ? '已载入设计，可继续修改' : '已带入制作台，可自由改款',
+      icon: 'none'
+    })
   } catch (e) {
     console.error('回填DIY设计失败', e)
   }

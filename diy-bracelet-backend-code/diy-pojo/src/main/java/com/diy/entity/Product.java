@@ -35,8 +35,14 @@ public class Product implements Serializable {
     //商品描述
     private String description;
 
+    //创作者名称（详情页展示，可空）
+    private String creatorName;
+
     //商品封面图
     private String coverImage;
+
+    //DIY设计模板JSON（与购物车 diyData 同结构；有值则详情页可带入制作台）
+    private String diyData;
 
     //商品图片列表（非数据库字段）
     private List<String> images;

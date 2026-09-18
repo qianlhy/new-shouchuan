@@ -38,7 +38,7 @@ public interface ProductMapper {
      * @return 商品详情
      */
     @Select("SELECT p.id, p.category_id, c.name as categoryName, p.title, p.description, " +
-            "p.cover_image, p.price, p.weight, p.stock, p.status, p.create_time " +
+            "p.creator_name, p.cover_image, p.diy_data, p.price, p.weight, p.stock, p.status, p.create_time " +
             "FROM product p LEFT JOIN category c ON p.category_id = c.id WHERE p.id = #{id}")
     Product getById(Long id);
     
@@ -53,8 +53,8 @@ public interface ProductMapper {
      * 插入商品
      * @param product 商品信息
      */
-    @Insert("INSERT INTO product(category_id, title, description, cover_image, price, weight, stock, status, create_time) " +
-            "VALUES(#{categoryId}, #{title}, #{description}, #{coverImage}, #{price}, #{weight}, #{stock}, #{status}, #{createTime})")
+    @Insert("INSERT INTO product(category_id, title, description, creator_name, cover_image, diy_data, price, weight, stock, status, create_time) " +
+            "VALUES(#{categoryId}, #{title}, #{description}, #{creatorName}, #{coverImage}, #{diyData}, #{price}, #{weight}, #{stock}, #{status}, #{createTime})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     void insert(Product product);
     
