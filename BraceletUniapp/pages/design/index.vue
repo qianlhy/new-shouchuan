@@ -706,12 +706,17 @@ function getBeadArcSizeRpx(bead) {
   return base
 }
 
+/** 当前珠子总弧长（rpx） */
+function getTotalBeadArcRpx() {
+  return beads.value.reduce((s, b) => s + getBeadArcSizeRpx(b), 0)
+}
+
 const maxRadiusHistory = ref(0)
 const manualScale = ref(1.0) // 手动缩放比例
 const initialPinchDistance = ref(0) // 初始双指距离
 const startManualScale = ref(1.0) // 缩放开始时的比例
 
-// 动态计算半径
+// 动态计算半径（按手围规格）
 const visualRadius = computed(() => {
   // 严格按照表格规格计算
   // 表格数据显示，绳长大约为 (手围 + 2.4cm)
@@ -724,23 +729,35 @@ const visualRadius = computed(() => {
 const rawLayoutRadius = computed(() => {
   const count = beads.value.length
   if (!count) return visualRadius.value
-  const totalArc = beads.value.reduce((s, b) => s + getBeadArcSizeRpx(b), 0)
+  const totalArc = getTotalBeadArcRpx()
   const minR = totalArc / (2 * Math.PI)
+  // 紧凑模式：半径刚好包住珠子，圆环无缝闭合
+  // 均匀模式：至少按手围半径，多余空隙再均分
+  if (!isAutoArranged.value) {
+    return Math.max(minR, 1)
+  }
   return Math.max(visualRadius.value, minR)
 })
 
 const layoutRadius = computed(() => {
+  if (!isAutoArranged.value) {
+    return rawLayoutRadius.value
+  }
   return Math.max(rawLayoutRadius.value, maxRadiusHistory.value)
 })
 
 watch(rawLayoutRadius, (val) => {
-  if (val > maxRadiusHistory.value) {
+  if (isAutoArranged.value && val > maxRadiusHistory.value) {
     maxRadiusHistory.value = val
   }
 })
 
 watch(selectedSize, () => {
   maxRadiusHistory.value = 0
+})
+
+watch(isAutoArranged, (val) => {
+  if (!val) maxRadiusHistory.value = 0
 })
 
 // 动态缩放画布，确保大尺寸也能完整显示
@@ -758,83 +775,57 @@ const canvasScale = computed(() => {
   return autoScale * manualScale.value
 })
 
-// 计算珠子布局
+// 计算珠子布局（必须闭环，首尾相接无缺口）
 const beadLayouts = computed(() => {
   const count = beads.value.length
   if (!count) return []
   
   const radius = layoutRadius.value
-  const layouts = []
-  
-  // 计算所有珠子的总弧长（不含间隙）
-  let totalBeadArc = 0
-  beads.value.forEach(b => {
-    const s = getBeadArcSizeRpx(b)
-    totalBeadArc += s
-  })
-  
-  // 计算圆周长
-  const circumference = 2 * Math.PI * radius
-  
-  // 确定间隙
-  let gap = 0 // 默认间隙设为0，由 visualRadius 保证不重叠
-  let startAngle = -Math.PI / 2 // 默认从顶部开始
-  
-  if (isAutoArranged.value) {
-    // 均匀分布模式
-    const remainingArc = circumference - totalBeadArc
-    
-    // 计算有效间隙数量：只有 珠子-珠子 之间才分配间隙
-    // 吊坠和配饰前后都紧贴，不分配间隙
-    let validGapCount = 0
-    
-    if (count > 0) {
-        for (let i = 0; i < count; i++) {
-            const curr = beads.value[i]
-            const next = beads.value[(i + 1) % count]
-            // 如果当前和下一个都不是吊坠且都不是配饰，则需要分配间隙
-            const currIsSpecial = isPendant(curr) || isSpacerOrSeparator(curr)
-            const nextIsSpecial = isPendant(next) || isSpacerOrSeparator(next)
-            if (!currIsSpecial && !nextIsSpecial) {
-                validGapCount++
-            }
-        }
-    }
-    
-    if (validGapCount > 0) {
-        gap = remainingArc / validGapCount
-    } else {
-        gap = 0
-    }
-  }
-  
-  // 布局计算
-  let currentAngle = startAngle
-  
-  for (let i = 0; i < count; i++) {
-    if (i === 0) {
-      layouts.push({ angle: currentAngle })
-    } else {
-      const prevBead = beads.value[i-1]
-      const currBead = beads.value[i]
-      const prevSize = getBeadArcSizeRpx(prevBead)
-      const currSize = getBeadArcSizeRpx(currBead)
-      
-      // 判断是否需要添加间隙
-      // 只有当前一个不是吊坠且不是配饰，且当前也不是吊坠且不是配饰时，才应用 gap
-      const prevIsSpecial = isPendant(prevBead) || isSpacerOrSeparator(prevBead)
-      const currIsSpecial = isPendant(currBead) || isSpacerOrSeparator(currBead)
-      const applyGap = (!prevIsSpecial && !currIsSpecial) ? gap : 0
+  if (radius <= 0) return []
 
-      // 累加角度
-      // 使用弧长计算角度：arc = r1 + r2 + gap
-      const arc = (prevSize / 2) + (currSize / 2) + applyGap
-      const theta = arc / radius
-      currentAngle += theta
-      layouts.push({ angle: currentAngle })
-    }
+  const sizes = beads.value.map(b => getBeadArcSizeRpx(b))
+  const totalBeadArc = sizes.reduce((s, v) => s + v, 0)
+  const circumference = 2 * Math.PI * radius
+  let remainingArc = circumference - totalBeadArc
+
+  // 哪些相邻对可以分间隙（吊坠/配饰两侧紧贴）
+  const gapFlags = []
+  let validGapCount = 0
+  for (let i = 0; i < count; i++) {
+    const curr = beads.value[i]
+    const next = beads.value[(i + 1) % count]
+    const currIsSpecial = isPendant(curr) || isSpacerOrSeparator(curr)
+    const nextIsSpecial = isPendant(next) || isSpacerOrSeparator(next)
+    const canGap = !currIsSpecial && !nextIsSpecial
+    gapFlags.push(canGap)
+    if (canGap) validGapCount++
   }
-  
+
+  // 剩余弧长必须均分到可间隙处，否则首尾对不齐会出现缺口
+  let gap = 0
+  if (remainingArc > 0.5 && validGapCount > 0) {
+    gap = remainingArc / validGapCount
+  } else if (remainingArc < -0.5) {
+    // 珠子总长略超圆周时，靠半径已放大；这里不再制造负间隙
+    gap = 0
+  }
+
+  // 每段：从当前珠心到下一珠心的弧长（含最后一颗回到第一颗）
+  const segmentArcs = []
+  for (let i = 0; i < count; i++) {
+    const next = (i + 1) % count
+    const applyGap = gapFlags[i] ? gap : 0
+    segmentArcs.push(sizes[i] / 2 + sizes[next] / 2 + applyGap)
+  }
+
+  const startAngle = -Math.PI / 2
+  let currentAngle = startAngle
+  const layouts = []
+  for (let i = 0; i < count; i++) {
+    layouts.push({ angle: currentAngle })
+    currentAngle += segmentArcs[i] / radius
+  }
+
   return layouts
 })
 
@@ -929,8 +920,9 @@ function toggleAutoArrange() {
   if (!beads.value.length) return
   vibrate()
   isAutoArranged.value = !isAutoArranged.value
+  if (!isAutoArranged.value) maxRadiusHistory.value = 0
   uni.showToast({ 
-    title: isAutoArranged.value ? '已均匀排列' : '已紧凑排列', 
+    title: isAutoArranged.value ? '已均匀排列' : '已紧凑闭合', 
     icon: 'none' 
   })
 }
@@ -2098,8 +2090,7 @@ async function generateDesignImage() {
     })
 
     if (!canvas) {
-        // 返回 Logo 路径作为替补，确保流程走通
-        return logoPath
+        throw new Error('导出画布未就绪，请重试')
     }
 
     const ctx = canvas.getContext('2d')
@@ -2130,15 +2121,33 @@ async function generateDesignImage() {
     const centerX = width / 2
     const centerY = height / 2
     
-    // 辅助函数：加载图片
+    // 辅助函数：加载图片（远程先下载到本地，避免 canvas 跨域空白）
     const loadImage = (src) => {
       return new Promise((resolve) => {
-        const img = canvas.createImage()
-        img.src = src
-        img.onload = () => resolve(img)
-        img.onerror = (e) => {
-          console.error('Canvas图片加载失败:', src, e)
+        if (!src) {
           resolve(null)
+          return
+        }
+        const draw = (path) => {
+          const img = canvas.createImage()
+          img.onload = () => resolve(img)
+          img.onerror = (e) => {
+            console.error('Canvas图片加载失败:', path, e)
+            resolve(null)
+          }
+          img.src = path
+        }
+        if (/^https?:\/\//i.test(src)) {
+          uni.downloadFile({
+            url: src,
+            success: (res) => {
+              if (res.statusCode === 200 && res.tempFilePath) draw(res.tempFilePath)
+              else resolve(null)
+            },
+            fail: () => resolve(null)
+          })
+        } else {
+          draw(src)
         }
       })
     }

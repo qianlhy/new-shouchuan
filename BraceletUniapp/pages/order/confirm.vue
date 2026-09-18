@@ -119,7 +119,8 @@ import { resolveImageUrl } from '../../utils/imageHelper.js'
 const cartItems = ref([])
 const selectedAddress = ref(null)
 const submitting = ref(false)
-const orderMode = ref('cart') // cart or diy
+const orderMode = ref('cart') // cart | diy | direct | selected
+const selectedCartItemIds = ref([])
 const diyItems = ref([])
 const designImage = ref('')
 const remark = ref('')
@@ -202,6 +203,27 @@ onLoad(async (options) => {
       }
     } catch (e) {
       console.error('获取购买商品失败', e)
+    }
+  } else if (options.mode === 'selected') {
+    orderMode.value = 'selected'
+    try {
+      const ids = uni.getStorageSync('checkout_selected_ids') || []
+      const selected = uni.getStorageSync('checkout_selected_items') || []
+      selectedCartItemIds.value = Array.isArray(ids) ? ids : []
+      cartItems.value = (Array.isArray(selected) ? selected : []).map(item => {
+        const imageUrl = resolveImageUrl(item.coverImage || item.imageUrl || item.image || '')
+        return {
+          ...item,
+          imageUrl,
+          image: imageUrl
+        }
+      })
+      if (!cartItems.value.length) {
+        uni.showToast({ title: '未选择商品', icon: 'none' })
+        setTimeout(() => uni.navigateBack(), 1200)
+      }
+    } catch (e) {
+      console.error('获取勾选结算数据失败', e)
     }
   } else {
     await loadCartItems()
@@ -361,6 +383,30 @@ async function submitOrder() {
         remark: remark.value || '直接购买订单',
         shippingFee: shippingFee.value
       })
+    } else if (orderMode.value === 'selected') {
+      // 勾选结算：把选中的购物车项ID传给后端
+      const ids = selectedCartItemIds.value.length
+        ? selectedCartItemIds.value
+        : cartItems.value.map(i => i.id).filter(id => id != null)
+      if (!ids.length) {
+        throw new Error('请选择要结算的商品')
+      }
+      res = await orderCreate({
+        addressId: selectedAddress.value.id,
+        receiverName: selectedAddress.value.name,
+        receiverPhone: selectedAddress.value.phone,
+        receiverProvince: selectedAddress.value.province,
+        receiverCity: selectedAddress.value.city,
+        receiverDistrict: selectedAddress.value.district,
+        receiverDetail: selectedAddress.value.detail,
+        remark: remark.value || '购物车勾选结算',
+        shippingFee: shippingFee.value,
+        cartItemIds: ids
+      })
+      try {
+        uni.removeStorageSync('checkout_selected_ids')
+        uni.removeStorageSync('checkout_selected_items')
+      } catch (e) {}
     } else {
       res = await orderCreate({
         addressId: selectedAddress.value.id,

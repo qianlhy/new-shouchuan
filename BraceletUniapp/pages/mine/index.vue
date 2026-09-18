@@ -130,21 +130,21 @@
 
     <view v-if="showEditProfile" class="mask" @click="showEditProfile=false">
       <view class="edit-modal" @click.stop>
-        <view class="modal-title">编辑资料</view>
+        <view class="modal-title">{{ user ? '编辑资料' : '微信登录' }}</view>
         <view class="form-item">
           <view class="label">头像</view>
           <button class="avatar-btn" open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
-            <image class="avatar-preview" :src="tempAvatarUrl || user.avatarUrl || '/static/icons/user.png'" mode="aspectFit" />
-            <view class="avatar-tip">点击选择头像</view>
+            <image class="avatar-preview" :src="tempAvatarUrl || (user && user.avatarUrl) || '/static/icons/user.png'" mode="aspectFill" />
+            <view class="avatar-tip">点击选择微信头像</view>
           </button>
         </view>
         <view class="form-item">
           <view class="label">昵称</view>
-          <input class="nickname-input" type="nickname" v-model="tempNickName" placeholder="请输入昵称" :maxlength="20" />
+          <input class="nickname-input" type="nickname" v-model="tempNickName" placeholder="点击填写微信昵称" :maxlength="20" />
         </view>
         <view class="modal-btns">
           <button class="cancel-btn" @click="cancelEdit">取消</button>
-          <button class="save-btn" @click="saveProfile">保存</button>
+          <button class="save-btn" @click="user ? saveProfile() : confirmLogin()">{{ user ? '保存' : '确认登录' }}</button>
         </view>
       </view>
     </view>
@@ -224,45 +224,48 @@ onShow(() => {
 })
 
 function handleLogin() {
-  uni.showLoading({ title: '正在登录...' })
-  uni.login({
-    provider: 'weixin',
-    success: (loginRes) => {
-      uni.getUserProfile({
-        desc: '用于完善会员资料',
-        success: async (profileRes) => {
-          try {
-            const res = await loginWithWeixinCode(loginRes.code, profileRes.userInfo)
-            if (res && res.token) {
-              user.value = {
-                id: res.id,
-                nickName: res.nickname,
-                avatarUrl: res.avatar,
-                openid: res.openid
-              }
-              uni.showToast({ title: '登录成功', icon: 'success' })
-              loadOrders()
-              loadMember()
-            } else {
-              throw new Error(res.msg || '登录失败')
-            }
-          } catch (e) {
-            uni.showToast({ title: '登录失败: ' + (e.message || '未知错误'), icon: 'none' })
-          } finally {
-            uni.hideLoading()
-          }
-        },
-        fail: () => {
-          uni.hideLoading()
-          uni.showToast({ title: '用户取消授权', icon: 'none' })
-        }
+  tempAvatarUrl.value = ''
+  tempNickName.value = ''
+  showEditProfile.value = true
+}
+
+async function confirmLogin() {
+  const profile = {
+    nickName: (tempNickName.value || '').trim() || '微信用户',
+    avatarUrl: tempAvatarUrl.value || ''
+  }
+  uni.showLoading({ title: '正在登录...', mask: true })
+  try {
+    const loginRes = await new Promise((resolve, reject) => {
+      uni.login({
+        provider: 'weixin',
+        success: resolve,
+        fail: reject
       })
-    },
-    fail: () => {
-      uni.hideLoading()
-      uni.showToast({ title: '启动登录失败', icon: 'none' })
+    })
+    if (!loginRes || !loginRes.code) {
+      throw new Error('获取微信登录码失败')
     }
-  })
+    const res = await loginWithWeixinCode(loginRes.code, profile)
+    if (!res || !res.token) {
+      throw new Error((res && res.msg) || '登录失败')
+    }
+    user.value = {
+      id: res.id,
+      nickName: res.nickname || profile.nickName,
+      avatarUrl: res.avatar || profile.avatarUrl,
+      openid: res.openid
+    }
+    showEditProfile.value = false
+    uni.showToast({ title: '登录成功', icon: 'success' })
+    loadOrders()
+    loadMember()
+  } catch (e) {
+    console.error('登录失败', e)
+    uni.showToast({ title: e.message || e.msg || '登录失败', icon: 'none' })
+  } finally {
+    uni.hideLoading()
+  }
 }
 
 function handleLogout() {

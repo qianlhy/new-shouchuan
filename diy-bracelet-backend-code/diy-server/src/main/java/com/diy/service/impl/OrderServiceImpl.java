@@ -203,6 +203,21 @@ public class OrderServiceImpl implements OrderService {
             throw new OrderBusinessException(MessageConstant.SHOPPING_CART_IS_NULL);
         }
 
+        // 勾选结算：只处理选中的购物车项
+        java.util.Set<Long> selectedIdSet = null;
+        if (ordersSubmitDTO != null && ordersSubmitDTO.getCartItemIds() != null
+                && !ordersSubmitDTO.getCartItemIds().isEmpty()) {
+            selectedIdSet = new java.util.HashSet<>(ordersSubmitDTO.getCartItemIds());
+            final java.util.Set<Long> idFilter = selectedIdSet;
+            cartItems = cartItems.stream()
+                    .filter(ci -> ci.getId() != null && idFilter.contains(ci.getId()))
+                    .collect(java.util.stream.Collectors.toList());
+            if (cartItems.isEmpty()) {
+                throw new OrderBusinessException("请选择要结算的商品");
+            }
+            log.info("勾选结算商品数量: {}", cartItems.size());
+        }
+
         BigDecimal totalAmount = BigDecimal.ZERO;
         List<OrderItem> orderItems = new ArrayList<>();
 
@@ -334,8 +349,18 @@ public class OrderServiceImpl implements OrderService {
             throw e;
         }
 
-        shoppingCartMapper.deleteByUserId(userId);
-        log.info("清空购物车成功");
+        // 勾选结算只删除已下单项，保留未勾选；否则清空整车
+        if (selectedIdSet != null) {
+            for (CartItem ordered : cartItems) {
+                if (ordered.getId() != null) {
+                    shoppingCartMapper.deleteById(ordered.getId());
+                }
+            }
+            log.info("勾选结算后删除已结算项数量: {}", cartItems.size());
+        } else {
+            shoppingCartMapper.deleteByUserId(userId);
+            log.info("清空购物车成功");
+        }
 
         OrderCreateVO.Order orderVO = OrderCreateVO.Order.builder()
                 .orderId(orderId)

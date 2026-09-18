@@ -35,4 +35,7 @@ public class OrdersSubmitDTO implements Serializable {
     
     // 运费（可选，新疆西藏等偏远地区需要加运费）
     private java.math.BigDecimal shippingFee;
+
+    // 勾选结算的购物车项ID列表（为空则结算全部）
+    private java.util.List<Long> cartItemIds;
 }

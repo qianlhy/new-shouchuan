@@ -26,11 +26,12 @@ export function wechatLogin(code, profile = {}) {
       if (res && res.token) {
         try {
           uni.setStorageSync(STORAGE_TOKEN_KEY, res.token)
+          // 后端若未回写头像/昵称，保留用户刚选的资料
           uni.setStorageSync(STORAGE_USER_KEY, {
             id: res.id,
             openid: res.openid,
-            nickName: res.nickname,
-            avatarUrl: res.avatar
+            nickName: res.nickname || profile.nickName || '微信用户',
+            avatarUrl: res.avatar || profile.avatarUrl || ''
           })
         } catch (e) {
           console.error('保存登录信息失败:', e)

@@ -17,33 +17,53 @@
       </view>
 
       <view v-else class="list">
-      <view v-for="i in items" :key="i.id" class="row" :class="{updating: updating, deleting: deleting, 'diy-item': i.isDiy}">
+      <view
+        v-for="i in items"
+        :key="i.id"
+        class="row"
+        :class="{ 'is-diy': i.isDiy, 'is-off': !i.checked }"
+        @click="toggleItem(i)"
+      >
+        <view class="check" :class="{ on: i.checked }" @click.stop="toggleItem(i)">
+          <text v-if="i.checked">✓</text>
+        </view>
         <view class="thumb">
-          <image v-if="i.imageUrl" :src="i.imageUrl" mode="aspectFill" class="thumb-img" />
+          <image
+            v-if="i.imageUrl"
+            class="thumb-img"
+            :src="i.imageUrl"
+            mode="aspectFill"
+          />
+          <view v-else class="thumb-placeholder">珠</view>
           <view v-if="i.isDiy" class="diy-badge">DIY</view>
         </view>
         <view class="meta">
           <view class="title">{{ i.title }}</view>
           <view class="price">¥{{ i.price }}</view>
-          <!-- DIY商品不显示数量调整 -->
-          <view v-if="!i.isDiy" class="stepper">
+          <view v-if="!i.isDiy" class="stepper" @click.stop>
             <view class="s-btn" :class="{disabled: updating || deleting}" @click="dec(i)">-</view>
             <input class="ipt" type="number" v-model.number="i.quantity" @blur="apply(i)" :disabled="updating || deleting" />
             <view class="s-btn" :class="{disabled: updating || deleting}" @click="inc(i)">+</view>
           </view>
-          <view v-else class="diy-info">
+          <view v-else class="diy-info" @click.stop>
             <text class="diy-quantity">数量: {{ i.quantity }}</text>
             <text v-if="i.diySize" class="diy-size">手围: {{ i.diySize }}cm</text>
             <view class="diy-edit-btn" @click.stop="reeditDiy(i)">重新设计</view>
           </view>
         </view>
-        <view class="remove" :class="{disabled: updating || deleting}" @click="removeItem(i)">×</view>
+        <view class="remove" :class="{disabled: updating || deleting}" @click.stop="removeItem(i)">×</view>
       </view>
     </view>
 
-    <view v-if="isLoggedIn" class="bar">
+    <view v-if="isLoggedIn && items.length" class="bar">
+      <view class="bar-left" @click="toggleSelectAll">
+        <view class="check" :class="{ on: allChecked }">
+          <text v-if="allChecked">✓</text>
+        </view>
+        <text class="all-label">全选</text>
+      </view>
       <view class="total">合计：<text class="money">¥{{ total }}</text></view>
-      <button class="checkout" :disabled="!items.length" @click="goCheckout">去结算</button>
+      <button class="checkout" :disabled="!selectedCount" @click="goCheckout">去结算({{ selectedCount }})</button>
     </view>
     </template>
   </view>
@@ -62,9 +82,21 @@ const items = ref([])
 const updating = ref(false) // 正在更新中
 const deleting = ref(false) // 正在删除中
 
+const selectedItems = computed(() => items.value.filter(i => i.checked))
+const selectedCount = computed(() => selectedItems.value.length)
+const allChecked = computed(() => items.value.length > 0 && selectedItems.value.length === items.value.length)
 const total = computed(() => {
-  return items.value.reduce((sum, i) => sum + Number(i.price || 0) * Number(i.quantity || 0), 0).toFixed(2)
+  return selectedItems.value.reduce((sum, i) => sum + Number(i.price || 0) * Number(i.quantity || 0), 0).toFixed(2)
 })
+
+function toggleItem (item) {
+  item.checked = !item.checked
+}
+
+function toggleSelectAll () {
+  const next = !allChecked.value
+  items.value.forEach(i => { i.checked = next })
+}
 
 // 检查登录状态
 function checkLoginStatus() {
@@ -116,46 +148,59 @@ async function load() {
     console.log('购物车数据:', res)
     
     let list = res.items || []
-    // 处理图片链接，过滤掉无效商品（没有标题或ID的）
     list = list.map(item => {
+      const isDiy = !!(item.isDiy || item.diy || (item.productId != null && Number(item.productId) < 0) || item.diyData)
       let imageUrl = item.coverImage || item.imageUrl || item.image || ''
       imageUrl = resolveImageUrl(imageUrl)
-      
-      // 处理DIY商品数据
-      if (item.isDiy && item.diyData) {
+      let diySize = item.diySize
+      let diyBeads = []
+      let title = item.title
+      let price = item.price
+
+      if (isDiy && item.diyData) {
         try {
-          const diyInfo = JSON.parse(item.diyData)
-          return {
-            ...item,
-            imageUrl: diyInfo.imageUrl || imageUrl,
-            diySize: diyInfo.size,
-            diyBeads: diyInfo.beads || []
-          }
+          const diyInfo = typeof item.diyData === 'string' ? JSON.parse(item.diyData) : item.diyData
+          diySize = diyInfo.size != null ? diyInfo.size : diySize
+          diyBeads = diyInfo.beads || []
+          if (!title) title = diyInfo.title || 'DIY设计'
+          if (price == null || price === '') price = diyInfo.price
+
+          // 优先用整串设计图；失败再退回珠子实拍
+          const designUrl = diyInfo.imageUrl || ''
+          const beadImg = diyBeads.find(b => b && (b.imageUrl || b.image))
+          const beadUrl = beadImg ? (beadImg.imageUrl || beadImg.image) : ''
+          const isLogoFallback = designUrl && (
+            designUrl.includes('qiyuan_logo') ||
+            designUrl.includes('/static/logo/')
+          )
+          imageUrl = resolveImageUrl((!isLogoFallback && designUrl) ? designUrl : (beadUrl || designUrl || imageUrl))
         } catch (e) {
           console.error('解析DIY数据失败:', e)
         }
       }
-      
-      return { ...item, imageUrl }
-    })
-    // .filter(item => {
-    //   // 过滤掉无效商品：必须有标题
-    //   const hasTitle = item.title && String(item.title).trim() !== ''
-    //   // DIY商品(productId为负数)也是有效的，普通商品需要有有效的productId
-    //   const isDiy = item.isDiy || (item.productId !== undefined && item.productId !== null && item.productId < 0)
-    //   const hasValidId = isDiy || (item.productId !== undefined && item.productId !== null && item.productId > 0)
-    //   return hasTitle && hasValidId
-    // })
-    
+
+      return {
+        ...item,
+        isDiy,
+        checked: true,
+        title: title || (isDiy ? 'DIY设计' : '商品'),
+        price,
+        imageUrl,
+        diySize,
+        diyBeads
+      }
+    }).filter(item => item && (item.id != null || item.productId != null || item.diyData))
+
     items.value = list
-    // 立即更新购物车角标
     updateCartBadgeNow()
   } catch (e) {
     console.error('加载购物车失败:', e)
-    // 如果是401错误，说明token失效
+    items.value = []
     if (e.code === 401) {
       isLoggedIn.value = false
       uni.showToast({ title: '登录已过期，请重新登录', icon: 'none' })
+    } else {
+      uni.showToast({ title: e.msg || '购物车加载失败', icon: 'none' })
     }
   }
 }
@@ -186,14 +231,25 @@ async function removeItem(item) {
   }
 }
 
-// 去结算 - 跳转到订单确认页
+// 去结算 - 只结算勾选商品
 function goCheckout() {
-  if (!items.value || items.value.length === 0) {
-    uni.showToast({ title: '购物车为空', icon: 'none' })
+  const selected = selectedItems.value
+  if (!selected.length) {
+    uni.showToast({ title: '请先勾选要结算的商品', icon: 'none' })
     return
   }
-  
-  uni.navigateTo({ url: '/pages/order/confirm' })
+  const cartItemIds = selected.map(i => i.id).filter(id => id != null)
+  if (!cartItemIds.length) {
+    uni.showToast({ title: '商品数据异常，请刷新购物车', icon: 'none' })
+    return
+  }
+  try {
+    uni.setStorageSync('checkout_selected_ids', cartItemIds)
+    uni.setStorageSync('checkout_selected_items', selected)
+  } catch (e) {
+    console.error('保存勾选结算数据失败', e)
+  }
+  uni.navigateTo({ url: '/pages/order/confirm?mode=selected' })
 }
 
 async function apply(i) {
@@ -359,43 +415,162 @@ if (typeof window !== 'undefined') {
 }
 .go-shop::after { border: none; }
 
-.list { padding: 24rpx; display: flex; flex-direction: column; gap: 16rpx; }
-.row { background: #ffffff; border-radius: 24rpx; padding: 16rpx; display: flex; gap: 16rpx; align-items: center; box-shadow: 0 10rpx 28rpx rgba(75,45,160,0.08); transition: all 0.3s ease; border: 1rpx solid rgba(107,78,255,0.08); }
-.row.updating { opacity: 0.6; }
-.row.deleting { opacity: 0.3; transform: translateX(-20rpx); }
-.thumb { width: 140rpx; height: 140rpx; background: #EDE7FF; border-radius: 16rpx; overflow: hidden; position: relative; }
-.thumb-img { width: 100%; height: 100%; border-radius: 16rpx; }
-.meta { flex: 1; }
-.title { font-size: 28rpx; color: #333; }
-.price { color: #e54d42; font-weight: 700; margin-top: 4rpx; }
-.remove { width: 48rpx; height: 48rpx; line-height: 48rpx; text-align: center; border-radius: 50%; background: #f5f5f5; color: #999; cursor: pointer; transition: all 0.2s ease; }
-.remove:active { background: #e54d42; color: #fff; }
+.list { padding: 24rpx 24rpx 40rpx; display: flex; flex-direction: column; gap: 20rpx; }
+.row {
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 24rpx 20rpx;
+  display: flex;
+  gap: 20rpx;
+  align-items: center;
+  box-shadow: 0 4rpx 16rpx rgba(42, 33, 64, 0.10);
+  border: 2rpx solid #EEE8F8;
+}
+.row.is-off {
+  /* 未勾选只降一点对比，不要整卡发糊 */
+  opacity: 0.92;
+}
+.check {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  border: 3rpx solid #A78BFA;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #fff;
+  font-size: 24rpx;
+  font-weight: 700;
+  background: #FFFFFF;
+}
+.check.on {
+  background: #7C3AED;
+  border-color: #7C3AED;
+}
+.bar-left {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-right: 12rpx;
+}
+.all-label { font-size: 26rpx; color: #2A2140; font-weight: 600; }
+.thumb {
+  width: 160rpx;
+  height: 160rpx;
+  background: #FFFFFF;
+  border-radius: 16rpx;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+  border: 2rpx solid #EDE7F6;
+}
+.thumb-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: #FFFFFF;
+}
+.thumb-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F3EBFF;
+  color: #7C3AED;
+  font-size: 40rpx;
+  font-weight: 700;
+}
+.meta { flex: 1; min-width: 0; }
+.title {
+  font-size: 30rpx;
+  color: #1A1228;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.price {
+  color: #E11D48;
+  font-weight: 800;
+  margin-top: 8rpx;
+  font-size: 34rpx;
+}
+.remove {
+  width: 52rpx;
+  height: 52rpx;
+  line-height: 52rpx;
+  text-align: center;
+  border-radius: 50%;
+  background: #F3F0F8;
+  color: #6B6478;
+  flex-shrink: 0;
+  font-size: 32rpx;
+}
+.remove:active { background: #E11D48; color: #fff; }
 .remove.disabled { opacity: 0.4; pointer-events: none; }
-.stepper { margin-top: 10rpx; display: flex; align-items: center; }
-.s-btn { width: 54rpx; height: 54rpx; display: flex; align-items: center; justify-content: center; background: #f5f5f5; border-radius: 10rpx; font-size: 32rpx; color: #333; cursor: pointer; transition: all 0.2s ease; }
-.s-btn:active { background: #ddd; }
+.stepper { margin-top: 12rpx; display: flex; align-items: center; }
+.s-btn {
+  width: 54rpx;
+  height: 54rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F3F0F8;
+  border-radius: 10rpx;
+  font-size: 32rpx;
+  color: #2A2140;
+}
+.s-btn:active { background: #E8E0F5; }
 .s-btn.disabled { opacity: 0.4; pointer-events: none; }
-.ipt { width: 100rpx; margin: 0 10rpx; text-align: center; height: 54rpx; border: 2rpx solid #eee; border-radius: 10rpx; }
+.ipt {
+  width: 100rpx;
+  margin: 0 10rpx;
+  text-align: center;
+  height: 54rpx;
+  border: 2rpx solid #E8E0F5;
+  border-radius: 10rpx;
+  color: #2A2140;
+}
 .ipt:disabled { background: #f9f9f9; color: #999; }
 
-/* DIY商品样式 */
-.diy-item { background: linear-gradient(135deg, #FBF9FF, #ffffff); border: 2rpx solid #E0D4FF; }
-.diy-badge { position: absolute; top: 8rpx; left: 8rpx; background: linear-gradient(135deg, #6B4EFF, #8B6CFF); color: #fff; font-size: 20rpx; padding: 4rpx 12rpx; border-radius: 8rpx; font-weight: 600; }
-.diy-info { margin-top: 10rpx; display: flex; flex-direction: column; gap: 4rpx; align-items: flex-start; }
-.diy-quantity { font-size: 24rpx; color: #666; }
-.diy-size { font-size: 22rpx; color: #999; }
+.row.is-diy {
+  background: #FFFFFF;
+  border-color: #D8C8FF;
+}
+.diy-badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  background: #7C3AED;
+  color: #fff;
+  font-size: 20rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 0 0 12rpx 0;
+  font-weight: 700;
+}
+.diy-info {
+  margin-top: 10rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+  align-items: flex-start;
+}
+.diy-quantity { font-size: 24rpx; color: #3D3550; font-weight: 500; }
+.diy-size { font-size: 22rpx; color: #6B6478; }
 .diy-edit-btn {
   margin-top: 8rpx;
-  padding: 6rpx 18rpx;
+  padding: 8rpx 22rpx;
   border-radius: 999rpx;
-  background: linear-gradient(90deg, #B794FF, #8B5CF6 55%, #7C3AED);
+  background: #7C3AED;
   color: #fff;
-  font-size: 22rpx;
-  font-weight: 600;
+  font-size: 24rpx;
+  font-weight: 700;
 }
 
-.bar { position: fixed; left: 0; right: 0; bottom: 0; background: #ffffff; padding: 12rpx 24rpx calc(12rpx + env(safe-area-inset-bottom)); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -6rpx 12rpx rgba(0,0,0,0.04); }
-.total { color: #333; font-size: 28rpx; }
+.bar { position: fixed; left: 0; right: 0; bottom: 0; background: #ffffff; padding: 12rpx 24rpx calc(12rpx + env(safe-area-inset-bottom)); display: flex; align-items: center; box-shadow: 0 -6rpx 12rpx rgba(0,0,0,0.04); gap: 12rpx; }
+.total { color: #333; font-size: 26rpx; flex: 1; text-align: right; }
 .money { color: #e54d42; font-weight: 700; }
-.checkout { background: linear-gradient(90deg, #B794FF, #8B5CF6 55%, #7C3AED); color: #fff; border-radius: 999rpx; padding: 0 28rpx; height: 72rpx; line-height: 72rpx; font-weight: 600; box-shadow: 0 10rpx 24rpx rgba(139,92,246,.32); }
+.checkout { background: linear-gradient(90deg, #B794FF, #8B5CF6 55%, #7C3AED); color: #fff; border-radius: 999rpx; padding: 0 28rpx; height: 72rpx; line-height: 72rpx; font-weight: 600; box-shadow: 0 10rpx 24rpx rgba(139,92,246,.32); flex-shrink: 0; }
+.checkout[disabled] { opacity: 0.45; }
 </style>

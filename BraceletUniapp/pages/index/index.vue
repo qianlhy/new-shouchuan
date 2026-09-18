@@ -222,17 +222,23 @@ const skipLogin = () => {
 }
 
 const performLogin = (userInfo) => {
-  userSet(userInfo)
-  user.value = userInfo
   showEditProfile.value = false
   uni.login({
     provider: 'weixin',
     success: async (loginRes) => {
       if (loginRes.code) {
         try {
-          await loginWithWeixinCode(loginRes.code, userInfo)
+          const res = await loginWithWeixinCode(loginRes.code, userInfo)
+          user.value = userGet() || {
+            nickName: (res && res.nickname) || userInfo.nickName,
+            avatarUrl: (res && res.avatar) || userInfo.avatarUrl
+          }
+          uni.showToast({ title: '登录成功', icon: 'success' })
         } catch (e) {
           console.error('后端登录失败', e)
+          userSet(userInfo)
+          user.value = userInfo
+          uni.showToast({ title: '登录异常，请重试', icon: 'none' })
         }
       }
     }

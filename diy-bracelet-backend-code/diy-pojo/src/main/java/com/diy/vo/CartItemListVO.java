@@ -47,6 +47,7 @@ public class CartItemListVO implements Serializable {
         private String coverImage;
 
         @ApiModelProperty("是否是DIY设计")
+        @com.fasterxml.jackson.annotation.JsonProperty("isDiy")
         private Boolean isDiy;
 
         @ApiModelProperty("DIY设计数据（JSON格式）")

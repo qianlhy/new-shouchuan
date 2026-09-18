@@ -27,8 +27,6 @@ import java.util.stream.Collectors;
 public class CartItemServiceImpl implements CartItemService {
     @Autowired
     private ShoppingCartMapper shoppingCartMapper;
-    private static final String IMAGE_URL_PREFEX="https://cloud.xiaotangstory.top";
-
     /**
      * 添加到购物车
      * @param shoppingCartDTO
@@ -59,17 +57,24 @@ public class CartItemServiceImpl implements CartItemService {
         if (isDiyDesign) {
             // DIY设计：每次添加都是新的记录，不合并
             // 使用负数作为product_id，确保唯一性（避免唯一索引冲突）
-            long diyProductId = -System.currentTimeMillis();
+            long diyProductId = -(System.currentTimeMillis() * 1000L + (System.nanoTime() % 1000L));
+            if (diyProductId >= 0) {
+                diyProductId = -1L - (System.nanoTime() % 1_000_000_000L);
+            }
+
+            if (diyData == null || diyData.trim().isEmpty()) {
+                throw new BaseException("DIY设计数据不能为空");
+            }
 
             CartItem newItem = CartItem.builder()
                     .userId(userId)
-                    .productId(diyProductId) // 使用负数，唯一
+                    .productId(diyProductId)
                     .quantity(quantity != null ? quantity : 1)
                     .diyData(diyData)
                     .createTime(LocalDateTime.now())
                     .build();
             shoppingCartMapper.insert(newItem);
-            System.out.println(newItem);
+            log.info("DIY加入购物车成功 userId={}, productId={}", userId, diyProductId);
             return newItem;
         }
         
@@ -122,31 +127,30 @@ public class CartItemServiceImpl implements CartItemService {
     public CartItemListVO listWithProductInfo() {
         Long userId = BaseContext.getCurrentId();
         List<Map<String, Object>> cartItems = shoppingCartMapper.listWithProductInfo(userId);
-        
-        // 转换为VO
+        if (cartItems == null || cartItems.isEmpty()) {
+            return CartItemListVO.builder().items(java.util.Collections.emptyList()).build();
+        }
+
+        // 转换为VO（Map 取值需兼容 Integer/Long/BigInteger，避免强转失败导致整单列表空白）
         List<CartItemListVO.CartItem> items = cartItems.stream().map(map -> {
             CartItemListVO.CartItem item = new CartItemListVO.CartItem();
-            item.setId((Long) map.get("id"));
-            Long productId = (Long) map.get("productId");
+            item.setId(toLong(mapValue(map, "id")));
+            Long productId = toLong(mapValue(map, "productId", "product_id"));
             item.setProductId(productId);
-            item.setQuantity((Integer) map.get("quantity"));
-            
-            // 判断是否是DIY设计（productId为负数表示DIY）
-            boolean isDiy = productId != null && productId < 0;
-            item.setIsDiy(isDiy);
-            
-            if (isDiy) {
-                // DIY设计：从diyData字段解析数据
-                String diyData = (String) map.get("diyData");
-                item.setDiyData(diyData);
+            item.setQuantity(toInteger(mapValue(map, "quantity")));
 
-                // 解析DIY数据获取标题、价格、图片等
+            String diyData = toStringValue(mapValue(map, "diyData", "diy_data"));
+            boolean isDiy = (productId != null && productId < 0)
+                    || (diyData != null && !diyData.trim().isEmpty());
+            item.setIsDiy(isDiy);
+
+            if (isDiy) {
+                item.setDiyData(diyData);
                 if (diyData != null && !diyData.isEmpty()) {
                     try {
                         ObjectMapper mapper = new ObjectMapper();
                         JsonNode root = mapper.readTree(diyData);
 
-                        // 从JSON中读取字段
                         String title = root.has("title") ? root.get("title").asText() : "DIY设计";
                         BigDecimal price = root.has("price") ? new BigDecimal(root.get("price").asText()) : BigDecimal.ZERO;
                         String imageUrl = root.has("imageUrl") ? root.get("imageUrl").asText() : "";
@@ -170,19 +174,82 @@ public class CartItemServiceImpl implements CartItemService {
                     item.setDiySize("");
                 }
             } else {
-                // 普通商品：从product表获取信息
-                item.setTitle((String) map.get("title"));
-                item.setPrice((BigDecimal) map.get("price"));
-                String coverImage = (String) map.get("coverImage");
-                item.setCoverImage(coverImage != null ? IMAGE_URL_PREFEX + coverImage : "");
+                item.setTitle(toStringValue(mapValue(map, "title")));
+                item.setPrice(toBigDecimal(mapValue(map, "price")));
+                // 返回相对路径（如 /admin/common/image/...），由小程序 resolveImageUrl 拼当前域名
+                // 不要再拼旧 OSS 域名 cloud.xiaotangstory.top
+                String coverImage = toStringValue(mapValue(map, "coverImage", "cover_image"));
+                item.setCoverImage(coverImage != null ? coverImage : "");
             }
-            
+
             return item;
         }).collect(Collectors.toList());
-        
+
         return CartItemListVO.builder()
                 .items(items)
                 .build();
+    }
+
+    private static Object mapValue(Map<String, Object> map, String... keys) {
+        if (map == null || keys == null) {
+            return null;
+        }
+        for (String key : keys) {
+            if (key == null) continue;
+            if (map.containsKey(key)) {
+                return map.get(key);
+            }
+            // MyBatis 某些配置下 key 可能被转成全小写
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                if (entry.getKey() != null && entry.getKey().equalsIgnoreCase(key)) {
+                    return entry.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
+    private static Long toLong(Object value) {
+        if (value == null) return null;
+        if (value instanceof Long) return (Long) value;
+        if (value instanceof Integer) return ((Integer) value).longValue();
+        if (value instanceof Short) return ((Short) value).longValue();
+        if (value instanceof java.math.BigInteger) return ((java.math.BigInteger) value).longValue();
+        if (value instanceof BigDecimal) return ((BigDecimal) value).longValue();
+        if (value instanceof Number) return ((Number) value).longValue();
+        String text = String.valueOf(value).trim();
+        if (text.isEmpty() || "null".equalsIgnoreCase(text)) return null;
+        return Long.parseLong(text);
+    }
+
+    private static Integer toInteger(Object value) {
+        if (value == null) return 1;
+        if (value instanceof Integer) return (Integer) value;
+        if (value instanceof Long) return ((Long) value).intValue();
+        if (value instanceof Number) return ((Number) value).intValue();
+        String text = String.valueOf(value).trim();
+        if (text.isEmpty()) return 1;
+        return Integer.parseInt(text);
+    }
+
+    private static BigDecimal toBigDecimal(Object value) {
+        if (value == null) return BigDecimal.ZERO;
+        if (value instanceof BigDecimal) return (BigDecimal) value;
+        if (value instanceof Number) return BigDecimal.valueOf(((Number) value).doubleValue());
+        String text = String.valueOf(value).trim();
+        if (text.isEmpty()) return BigDecimal.ZERO;
+        return new BigDecimal(text);
+    }
+
+    private static String toStringValue(Object value) {
+        if (value == null) return null;
+        if (value instanceof byte[]) {
+            return new String((byte[]) value, java.nio.charset.StandardCharsets.UTF_8);
+        }
+        if (value instanceof char[]) {
+            return new String((char[]) value);
+        }
+        return String.valueOf(value);
     }
 
     /**
