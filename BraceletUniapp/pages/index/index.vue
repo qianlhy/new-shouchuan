@@ -16,19 +16,19 @@
         </view>
         <view class="guide-grid">
           <view class="guide-item" @click="goAbout">
-            <view class="guide-icon"><image class="xy-icon" src="/static/icons/shield-check.png" mode="aspectFit" style="width:32rpx;height:32rpx" /></view>
+            <view class="guide-icon"><image class="xy-icon" src="/static/icons/shield-check-purple.png" mode="aspectFit" style="width:32rpx;height:32rpx" /></view>
             <text>售后范围</text>
           </view>
           <view class="guide-item" @click="goAbout">
-            <view class="guide-icon"><image class="xy-icon" src="/static/icons/truck.png" mode="aspectFit" style="width:32rpx;height:32rpx" /></view>
+            <view class="guide-icon"><image class="xy-icon" src="/static/icons/truck-purple.png" mode="aspectFit" style="width:32rpx;height:32rpx" /></view>
             <text>物流运输</text>
           </view>
           <view class="guide-item" @click="goAbout">
-            <view class="guide-icon"><image class="xy-icon" src="/static/icons/gem.png" mode="aspectFit" style="width:32rpx;height:32rpx" /></view>
+            <view class="guide-icon"><image class="xy-icon" src="/static/icons/gem-purple.png" mode="aspectFit" style="width:32rpx;height:32rpx" /></view>
             <text>天然材质</text>
           </view>
           <view class="guide-item" @click="goAbout">
-            <view class="guide-icon"><image class="xy-icon" src="/static/icons/circle-help.png" mode="aspectFit" style="width:32rpx;height:32rpx" /></view>
+            <view class="guide-icon"><image class="xy-icon" src="/static/icons/circle-help-purple.png" mode="aspectFit" style="width:32rpx;height:32rpx" /></view>
             <text>常见问题</text>
           </view>
         </view>
@@ -39,15 +39,15 @@
     <!-- 中部入口 -->
     <view class="mid-row">
       <view class="mid-item" @click="onLuckyDraw">
-        <view class="mid-icon"><image class="xy-icon" src="/static/icons/gift.png" mode="aspectFit" style="width:34rpx;height:34rpx" /></view>
+        <view class="mid-icon"><image class="xy-icon" src="/static/icons/gift-purple.png" mode="aspectFit" style="width:34rpx;height:34rpx" /></view>
         <text>幸运抽奖</text>
       </view>
       <view class="mid-item" @click="goService">
-        <view class="mid-icon"><image class="xy-icon" src="/static/icons/message-circle.png" mode="aspectFit" style="width:34rpx;height:34rpx" /></view>
+        <view class="mid-icon"><image class="xy-icon" src="/static/icons/message-circle-purple.png" mode="aspectFit" style="width:34rpx;height:34rpx" /></view>
         <text>联系客服</text>
       </view>
       <view class="mid-item" @click="goDesign">
-        <view class="mid-icon"><image class="xy-icon" src="/static/icons/palette.png" mode="aspectFit" style="width:34rpx;height:34rpx" /></view>
+        <view class="mid-icon"><image class="xy-icon" src="/static/icons/palette-purple.png" mode="aspectFit" style="width:34rpx;height:34rpx" /></view>
         <text>我的设计</text>
       </view>
     </view>
@@ -154,6 +154,7 @@ import { ref, onMounted } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { getBannerList, getProductList, userGet, userSet, loginWithWeixinCode } from '../../api/index.js'
 import { resolveImageUrl } from '../../utils/imageHelper.js'
+import { setTabBarSelected } from '../../utils/tabbar.js'
 
 const banners = ref([])
 const recommends = ref([])
@@ -272,6 +273,7 @@ const onLuckyDraw = () => {
 }
 
 onShow(() => {
+  setTabBarSelected(0)
   checkLogin()
   setTimeout(checkLogin, 1000)
 })

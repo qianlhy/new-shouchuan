@@ -75,6 +75,7 @@ import { computed, ref, reactive } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { getProductList, getWishCounts, getMyWishes, toggleWish, isLoggedIn } from '../../api/index.js'
 import { resolveImageUrl } from '../../utils/imageHelper.js'
+import { setTabBarSelected } from '../../utils/tabbar.js'
 
 const tabs = [
   { key: 'latest', label: '最新' },
@@ -209,6 +210,7 @@ async function toggleWant(item) {
 }
 
 onShow(() => {
+  setTabBarSelected(1)
   loadProducts()
 })
 </script>

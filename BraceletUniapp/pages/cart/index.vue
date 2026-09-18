@@ -76,6 +76,7 @@ import { cartDelete, cartList, cartUpdate, isLoggedIn as checkLogin } from '../.
 import { updateCartBadge, updateCartBadgeNow } from '../../utils/cartBadge.js'
 import { debugCartBadge } from '../../utils/debugCartBadge.js'
 import { resolveImageUrl } from '../../utils/imageHelper.js'
+import { setTabBarSelected } from '../../utils/tabbar.js'
 
 const isLoggedIn = ref(false)
 const items = ref([])
@@ -321,6 +322,7 @@ async function dec(i) {
 }
 
 onShow(() => {
+  setTabBarSelected(3)
   load()
 })
 

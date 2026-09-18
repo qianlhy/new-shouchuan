@@ -453,6 +453,7 @@
 <script setup>
 import { onShow } from '@dcloudio/uni-app'
 import { computed, getCurrentInstance, nextTick, onMounted, ref, watch } from 'vue'
+import { setTabBarSelected } from '../../utils/tabbar.js'
 // 直接从 api.js 导入以避免 index.js 可能的重导出问题
 import {
 addToCart,
@@ -2465,6 +2466,7 @@ onMounted(() => {
 })
 
 onShow(() => {
+  setTabBarSelected(2)
   ensureInit()
   // 从购物车「重新设计」进入时回填
   tryConsumeEditPayload()

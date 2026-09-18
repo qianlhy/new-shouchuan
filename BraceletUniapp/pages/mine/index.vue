@@ -37,29 +37,29 @@
       </view>
       <view class="order-grid">
         <view class="order-item" @click.stop="goOrders(0)">
-          <view class="icon-box">
-            <image class="xy-icon ui-icon" src="/static/icons/wallet.png" mode="aspectFit" />
+          <view class="icon-box order-icon">
+            <image class="xy-icon ui-icon" src="/static/icons/wallet-black.png" mode="aspectFit" />
             <view class="badge" v-if="count.s0">{{ count.s0 }}</view>
           </view>
           <text class="order-text">待付款</text>
         </view>
         <view class="order-item" @click.stop="goOrders(1)">
-          <view class="icon-box">
-            <image class="xy-icon ui-icon" src="/static/icons/package.png" mode="aspectFit" />
+          <view class="icon-box order-icon">
+            <image class="xy-icon ui-icon" src="/static/icons/package-black.png" mode="aspectFit" />
             <view class="badge" v-if="count.s1">{{ count.s1 }}</view>
           </view>
           <text class="order-text">待发货</text>
         </view>
         <view class="order-item" @click.stop="goOrders(2)">
-          <view class="icon-box">
-            <image class="xy-icon ui-icon" src="/static/icons/truck.png" mode="aspectFit" />
+          <view class="icon-box order-icon">
+            <image class="xy-icon ui-icon" src="/static/icons/truck-black.png" mode="aspectFit" />
             <view class="badge" v-if="count.s2">{{ count.s2 }}</view>
           </view>
           <text class="order-text">待收货</text>
         </view>
         <view class="order-item" @click.stop="goOrders(3)">
-          <view class="icon-box">
-            <image class="xy-icon ui-icon" src="/static/icons/circle-check.png" mode="aspectFit" />
+          <view class="icon-box order-icon">
+            <image class="xy-icon ui-icon" src="/static/icons/circle-check-black.png" mode="aspectFit" />
             <view class="badge" v-if="count.s3">{{ count.s3 }}</view>
           </view>
           <text class="order-text">已完成</text>
@@ -73,19 +73,19 @@
       </view>
       <view class="order-grid">
         <view class="order-item" @click="goCreator">
-          <view class="icon-box soft"><image class="xy-icon ui-icon" src="/static/icons/sparkles.png" mode="aspectFit" /></view>
+          <view class="icon-box soft"><image class="xy-icon ui-icon" src="/static/icons/sparkles-purple.png" mode="aspectFit" /></view>
           <text class="order-text">创作者中心</text>
         </view>
         <view class="order-item" @click="goDesign">
-          <view class="icon-box soft"><image class="xy-icon ui-icon" src="/static/icons/palette.png" mode="aspectFit" /></view>
+          <view class="icon-box soft"><image class="xy-icon ui-icon" src="/static/icons/palette-purple.png" mode="aspectFit" /></view>
           <text class="order-text">我的设计</text>
         </view>
         <view class="order-item" @click="goCollect">
-          <view class="icon-box soft"><image class="xy-icon ui-icon" src="/static/icons/heart.png" mode="aspectFit" /></view>
+          <view class="icon-box soft"><image class="xy-icon ui-icon" src="/static/icons/heart-purple.png" mode="aspectFit" /></view>
           <text class="order-text">我的收藏</text>
         </view>
         <view class="order-item" @click="goSquare">
-          <view class="icon-box soft"><image class="xy-icon ui-icon" src="/static/icons/layout-grid.png" mode="aspectFit" /></view>
+          <view class="icon-box soft"><image class="xy-icon ui-icon" src="/static/icons/layout-grid-purple.png" mode="aspectFit" /></view>
           <text class="order-text">灵感广场</text>
         </view>
       </view>
@@ -97,19 +97,19 @@
       </view>
       <view class="func-grid">
         <view class="func-item" @click="goAddress">
-          <view class="func-icon"><image class="xy-icon ui-icon" src="/static/icons/map-pin.png" mode="aspectFit" /></view>
+          <view class="func-icon"><image class="xy-icon ui-icon" src="/static/icons/map-pin-purple.png" mode="aspectFit" /></view>
           <text>收货地址</text>
         </view>
         <view class="func-item" @click="contact">
-          <view class="func-icon"><image class="xy-icon ui-icon" src="/static/icons/headphones.png" mode="aspectFit" /></view>
+          <view class="func-icon"><image class="xy-icon ui-icon" src="/static/icons/headphones-purple.png" mode="aspectFit" /></view>
           <text>联系客服</text>
         </view>
         <view class="func-item" @click="goSetting">
-          <view class="func-icon"><image class="xy-icon ui-icon" src="/static/icons/settings.png" mode="aspectFit" /></view>
+          <view class="func-icon"><image class="xy-icon ui-icon" src="/static/icons/settings-purple.png" mode="aspectFit" /></view>
           <text>设置</text>
         </view>
         <view class="func-item" @click="about">
-          <view class="func-icon"><image class="xy-icon ui-icon" src="/static/icons/info.png" mode="aspectFit" /></view>
+          <view class="func-icon"><image class="xy-icon ui-icon" src="/static/icons/info-purple.png" mode="aspectFit" /></view>
           <text>关于我们</text>
         </view>
       </view>
@@ -155,6 +155,7 @@
 import { ref, onMounted } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { orderList, userGet, logout, loginWithWeixinCode, getMemberInfo } from '../../api/index.js'
+import { setTabBarSelected } from '../../utils/tabbar.js'
 
 const count = ref({ s0: 0, s1: 0, s2: 0, s3: 0 })
 const showQR = ref(false)
@@ -216,6 +217,7 @@ onMounted(() => {
 })
 
 onShow(() => {
+  setTabBarSelected(4)
   user.value = userGet()
   setTimeout(() => {
     loadOrders()
@@ -498,6 +500,10 @@ function onVip() {
   justify-content: center;
   position: relative;
   box-shadow: inset 0 0 0 1rpx rgba(139, 92, 246, 0.06);
+}
+.icon-box.order-icon {
+  background: radial-gradient(circle at 40% 35%, #F3F8FF 0%, #DCEBFF 55%, #C9E0FF 100%);
+  box-shadow: inset 0 0 0 1rpx rgba(59, 130, 246, 0.12);
 }
 .icon-box.soft {
   background: radial-gradient(circle at 40% 35%, #FBF7FF 0%, #F0E6FF 50%, #E6D8FF 100%);
