@@ -13,6 +13,7 @@ public interface ProductMapper {
     /**
      * 根据分类ID查询商品列表
      * @param categoryId 分类ID，0表示查询所有分类
+     * @param diyOnly true 时仅返回已配置 DIY 设计模板的商品
      * @return 商品列表
      */
     @Select("<script>" +
@@ -20,9 +21,12 @@ public interface ProductMapper {
             "<if test='categoryId != null and categoryId > 0'>" +
             "AND category_id = #{categoryId} " +
             "</if>" +
+            "<if test='diyOnly != null and diyOnly'>" +
+            "AND diy_data IS NOT NULL AND diy_data != '' " +
+            "</if>" +
             "ORDER BY create_time DESC" +
             "</script>")
-    List<Product> listByCategoryId(Long categoryId);
+    List<Product> listByCategoryId(@Param("categoryId") Long categoryId, @Param("diyOnly") Boolean diyOnly);
     
     /**
      * 根据分类ID查询所有商品（包括下架的）

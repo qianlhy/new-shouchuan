@@ -464,7 +464,7 @@ updateDiyCart
 } from '../../api/api.js'
 import { isLoggedIn } from '../../api/index.js'
 import { updateCartBadgeNow } from '../../utils/cartBadge.js'
-import { resolveImageUrl } from '../../utils/imageHelper.js'
+import { resolveImageUrl, toDownloadableImageUrl } from '../../utils/imageHelper.js'
 
 // 实例
 const instance = getCurrentInstance()
@@ -2115,13 +2115,13 @@ async function generateDesignImage() {
     const centerX = width / 2
     const centerY = height / 2
     
-    // 辅助函数：加载图片（远程先下载到本地，避免 canvas 跨域空白）
+    // 辅助函数：加载图片（远程走 proxy=1，避免 downloadFile 被 COS 302 拦截导致珠子变灰）
+    const imageCache = new Map()
     const loadImage = (src) => {
-      return new Promise((resolve) => {
-        if (!src) {
-          resolve(null)
-          return
-        }
+      if (!src) return Promise.resolve(null)
+      if (imageCache.has(src)) return imageCache.get(src)
+
+      const task = new Promise((resolve) => {
         const draw = (path) => {
           const img = canvas.createImage()
           img.onload = () => resolve(img)
@@ -2131,19 +2131,25 @@ async function generateDesignImage() {
           }
           img.src = path
         }
-        if (/^https?:\/\//i.test(src)) {
+        if (/^https?:\/\//i.test(src) || String(src).includes('/admin/common/image/')) {
+          const downloadUrl = toDownloadableImageUrl(src)
           uni.downloadFile({
-            url: src,
+            url: downloadUrl,
             success: (res) => {
               if (res.statusCode === 200 && res.tempFilePath) draw(res.tempFilePath)
               else resolve(null)
             },
-            fail: () => resolve(null)
+            fail: (e) => {
+              console.error('downloadFile失败:', downloadUrl, e)
+              resolve(null)
+            }
           })
         } else {
           draw(src)
         }
       })
+      imageCache.set(src, task)
+      return task
     }
 
     // 2. 绘制背景
@@ -2160,44 +2166,39 @@ async function generateDesignImage() {
     ctx.scale(scale, scale)
     ctx.translate(-centerX, -centerY)
     
-    // 3. 准备珠子图片 (提前加载)
+    // 3. 准备珠子图片 (按 URL 去重批量加载)
     const beadList = beads.value
     const beadImages = new Array(beadList.length).fill(null)
     
-    // 辅助函数：获取图片路径
-    let hasDomainError = false
-    const getImagePath = async (url) => {
-      if (!url) return null
-      return url
+    const uniqueUrls = []
+    const urlSeen = new Set()
+    beadList.forEach((b) => {
+      const u = b && b.imageUrl
+      if (u && !urlSeen.has(u)) {
+        urlSeen.add(u)
+        uniqueUrls.push(u)
+      }
+    })
+
+    const BATCH_SIZE = 4
+    const urlToImg = new Map()
+    for (let i = 0; i < uniqueUrls.length; i += BATCH_SIZE) {
+      const batch = uniqueUrls.slice(i, i + BATCH_SIZE)
+      await Promise.all(batch.map(async (url) => {
+        const img = await loadImage(url)
+        if (img) urlToImg.set(url, img)
+      }))
     }
 
-    const BATCH_SIZE = 6
-    for (let i = 0; i < beadList.length; i += BATCH_SIZE) {
-        const batch = beadList.slice(i, i + BATCH_SIZE).map((b, idx) => ({ b, originalIndex: i + idx }))
-        
-        await Promise.all(batch.map(async ({ b, originalIndex }) => {
-            if (!b.imageUrl) return
-            
-            const path = await getImagePath(b.imageUrl)
-            if (path) {
-                const img = await loadImage(path)
-                if (img) {
-                    beadImages[originalIndex] = {
-                        img,
-                        aspectRatio: img.height / img.width
-                    }
-                }
-            }
-        }))
-    }
-    
-    if (hasDomainError) {
-        uni.showToast({
-            title: '图片加载失败：请在小程序后台配置 downloadFile 域名',
-            icon: 'none',
-            duration: 3000
-        })
-    }
+    beadList.forEach((b, originalIndex) => {
+      const img = b && b.imageUrl ? urlToImg.get(b.imageUrl) : null
+      if (img) {
+        beadImages[originalIndex] = {
+          img,
+          aspectRatio: img.height / img.width
+        }
+      }
+    })
     
     // 绘制单个珠子的函数
     const drawBead = (b, i, layout) => {
@@ -2227,9 +2228,10 @@ async function generateDesignImage() {
           }
           ctx.drawImage(imgInfo.img, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight)
         } else {
+          // 图片失败时用珠子自身颜色，避免一律浅灰占位
           ctx.beginPath()
           ctx.arc(0, 0, beadSizePx / 2, 0, 2 * Math.PI)
-          ctx.fillStyle = b.color || '#e8e8e8'
+          ctx.fillStyle = b.color || b.hex || b.bgColor || '#9CA3AF'
           ctx.fill()
         }
         ctx.restore()

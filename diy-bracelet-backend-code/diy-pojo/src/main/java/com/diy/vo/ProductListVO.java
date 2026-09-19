@@ -60,5 +60,8 @@ public class ProductListVO implements Serializable {
         
         @ApiModelProperty("状态：1上架 0下架")
         private Integer status;
+
+        @ApiModelProperty("是否已配置 DIY 设计模板")
+        private Boolean hasDiyTemplate;
     }
 }

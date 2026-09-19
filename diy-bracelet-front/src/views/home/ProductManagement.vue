@@ -52,6 +52,13 @@
         </template>
       </el-table-column>
       <el-table-column prop="stock" label="库存" width="80"></el-table-column>
+      <el-table-column label="DIY模板" width="100">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.hasDiyTemplate ? 'success' : 'info'" size="mini">
+            {{ scope.row.hasDiyTemplate ? '已配置' : '普通' }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="状态" width="100">
         <template slot-scope="scope">
           <el-tag :type="scope.row.status === 1 ? 'success' : 'danger'">
@@ -477,7 +484,8 @@ export default {
                 description: this.productForm.description,
                 creatorName: this.productForm.creatorName || '',
                 coverImage: this.productForm.coverImage,
-                diyData,
+                // 空串也会写入库，用于关闭 DIY 模板
+                diyData: diyData == null ? '' : diyData,
                 price: this.productForm.price,
                 weight: this.productForm.weight,
                 stock: this.productForm.stock,

@@ -189,6 +189,23 @@ public class CommonController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
 
+            // 小程序 downloadFile 不允许 302 到未配置的 COS 域名；proxy=1 时由服务端直接吐图
+            boolean proxy = "1".equals(request.getParameter("proxy"))
+                    || "true".equalsIgnoreCase(request.getParameter("proxy"));
+            if (proxy) {
+                byte[] data = wxCloudStorageUtil.download(cleanPath);
+                if (data == null || data.length == 0) {
+                    log.warn("对象存储中未找到文件: {}", cleanPath);
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                }
+                MediaType mediaType = getMediaType(extension);
+                ByteArrayResource resource = new ByteArrayResource(data);
+                return ResponseEntity.ok()
+                        .contentType(mediaType)
+                        .cacheControl(CacheControl.maxAge(Duration.ofHours(1)))
+                        .body(resource);
+            }
+
             // 尝试获取 COS 预签名 URL 并返回 302 重定向
             try {
                 String directUrl = wxCloudStorageUtil.getDirectUrl(cleanPath);

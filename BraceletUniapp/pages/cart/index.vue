@@ -27,7 +27,7 @@
         <view class="check" :class="{ on: i.checked }" @click.stop="toggleItem(i)">
           <text v-if="i.checked">✓</text>
         </view>
-        <view class="thumb">
+        <view class="thumb" @click.stop @longpress.stop="saveCartImage(i)">
           <image
             v-if="i.imageUrl"
             class="thumb-img"
@@ -75,7 +75,7 @@ import { computed, ref } from 'vue'
 import { cartDelete, cartList, cartUpdate, isLoggedIn as checkLogin } from '../../api/index.js'
 import { updateCartBadge, updateCartBadgeNow } from '../../utils/cartBadge.js'
 import { debugCartBadge } from '../../utils/debugCartBadge.js'
-import { resolveImageUrl } from '../../utils/imageHelper.js'
+import { resolveImageUrl, toDownloadableImageUrl } from '../../utils/imageHelper.js'
 import { setTabBarSelected } from '../../utils/tabbar.js'
 
 const isLoggedIn = ref(false)
@@ -112,6 +112,63 @@ function goToLogin() {
 
 function goShop() {
   uni.switchTab({ url: '/pages/square/index' })
+}
+
+/** 长按购物车缩略图 → 保存设计图到相册 */
+function saveCartImage(item) {
+  const url = item && item.imageUrl
+  if (!url) {
+    uni.showToast({ title: '暂无图片可保存', icon: 'none' })
+    return
+  }
+  uni.showModal({
+    title: '保存图片',
+    content: '将这张设计图保存到手机相册？',
+    success: async (res) => {
+      if (!res.confirm) return
+      try {
+        uni.showLoading({ title: '保存中...', mask: true })
+        let filePath = url
+        if (/^https?:\/\//i.test(url) || String(url).includes('/admin/common/image/')) {
+          const downloadUrl = toDownloadableImageUrl(url)
+          filePath = await new Promise((resolve, reject) => {
+            uni.downloadFile({
+              url: downloadUrl,
+              success: (r) => {
+                if (r.statusCode === 200 && r.tempFilePath) resolve(r.tempFilePath)
+                else reject(new Error('图片下载失败'))
+              },
+              fail: (e) => reject(new Error((e && e.errMsg) || '图片下载失败'))
+            })
+          })
+        }
+        await new Promise((resolve, reject) => {
+          uni.saveImageToPhotosAlbum({
+            filePath,
+            success: resolve,
+            fail: reject
+          })
+        })
+        uni.hideLoading()
+        uni.showToast({ title: '已保存到相册', icon: 'success' })
+      } catch (e) {
+        uni.hideLoading()
+        const msg = (e && (e.errMsg || e.message)) || ''
+        if (/auth|authorize|permission|隐私|deny|拒绝/i.test(msg)) {
+          uni.showModal({
+            title: '需要相册权限',
+            content: '请在设置中允许保存到相册后重试',
+            confirmText: '去设置',
+            success: (r) => {
+              if (r.confirm) uni.openSetting({})
+            }
+          })
+        } else {
+          uni.showToast({ title: msg || '保存失败', icon: 'none' })
+        }
+      }
+    }
+  })
 }
 
 /** 从购物车重新打开 DIY 制作台并回填设计 */

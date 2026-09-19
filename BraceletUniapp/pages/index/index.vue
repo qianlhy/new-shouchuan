@@ -179,7 +179,7 @@ const loadBanners = async () => {
 
 const loadRecommend = async () => {
   try {
-    const list = await getProductList()
+    const list = await getProductList(0, true)
     const arr = Array.isArray(list) ? list : []
     recommends.value = arr.slice(0, 4).map((p) => ({
       ...p,

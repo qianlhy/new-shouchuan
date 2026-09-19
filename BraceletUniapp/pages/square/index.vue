@@ -156,7 +156,7 @@ async function loadWishData(ids) {
 async function loadProducts() {
   loading.value = true
   try {
-    const list = await getProductList()
+    const list = await getProductList(0, true)
     products.value = Array.isArray(list) ? list : []
     const ids = products.value.map((p) => p.id).filter(Boolean)
     await loadWishData(ids)

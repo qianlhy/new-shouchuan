@@ -84,12 +84,18 @@ export function getCategoryList() {
 
 /**
  * 根据分类查询商品列表
- * @param {Number} categoryId 分类ID
+ * @param {Number} [categoryId=0] 分类ID，0=全部上架商品
+ * @param {Boolean} [diyOnly=false] true=仅已配置 DIY 设计模板（推荐/广场）
  * @returns {Promise} { products: [] }
  */
-export function getProductList(categoryId) {
-  // 商品列表无需登录
-  return get(API_PATHS.PRODUCT_LIST, { categoryId }, false)
+export function getProductList(categoryId = 0, diyOnly = false) {
+  // 商品列表无需登录；不传时默认 0，与后端「全部分类」约定一致
+  const cid = categoryId == null || categoryId === '' ? 0 : categoryId
+  const params = { categoryId: cid }
+  if (diyOnly) {
+    params.diyOnly = true
+  }
+  return get(API_PATHS.PRODUCT_LIST, params, false)
     .then(res => res.products || res || [])
 }
 

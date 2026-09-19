@@ -33,15 +33,18 @@ public class ProductController {
     @GetMapping("/list")
     @ApiOperation("根据分类ID查询商品列表")
     public Result<ProductListVO> listByCategoryId(
-            @ApiParam("分类ID") @RequestParam Long categoryId) {
-        log.info("根据分类ID查询商品列表: categoryId={}", categoryId);
+            @ApiParam("分类ID，0或不传表示全部上架商品") @RequestParam(required = false, defaultValue = "0") Long categoryId,
+            @ApiParam("true=仅返回已配置DIY设计模板的商品（推荐/广场）") @RequestParam(required = false, defaultValue = "false") Boolean diyOnly) {
+        log.info("根据分类ID查询商品列表: categoryId={}, diyOnly={}", categoryId, diyOnly);
         
-        List<Product> products = productService.listByCategoryId(categoryId);
+        List<Product> products = productService.listByCategoryId(categoryId, diyOnly);
         
         // 转换为VO
         List<ProductListVO.ProductItem> productItems = products.stream().map(product -> {
             ProductListVO.ProductItem item = new ProductListVO.ProductItem();
             BeanUtils.copyProperties(product, item);
+            String diyData = product.getDiyData();
+            item.setHasDiyTemplate(diyData != null && !diyData.trim().isEmpty());
             return item;
         }).collect(Collectors.toList());
         

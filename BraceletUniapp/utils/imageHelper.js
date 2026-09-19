@@ -39,3 +39,27 @@ export function resolveImageUrl(url) {
   // 否则，拼接完整的接口路径
   return `${API_BASE_URL}/admin/common/image/${path}`
 }
+
+/**
+ * 生成可供小程序 downloadFile 的图片地址。
+ * 展示用 URL 常 302 到 COS，微信会拦截未配置的跳转域名；加 proxy=1 由业务域名直接吐图。
+ */
+export function toDownloadableImageUrl(url) {
+  if (!url) return ''
+  url = String(url).trim()
+  if (url.startsWith('data:')) return url
+  if (url.startsWith('/static/') || url.startsWith('static/')) {
+    return url.startsWith('/') ? url : `/${url}`
+  }
+  // 本地临时文件（已下载过）
+  if (/^(wxfile|file|http:\/\/tmp|https:\/\/tmp)/i.test(url)) return url
+
+  const full = resolveImageUrl(url)
+  if (!full) return ''
+  if (!/^https?:\/\//i.test(full)) return full
+  if (full.includes('/admin/common/image/')) {
+    if (/[?&]proxy=/.test(full)) return full
+    return full + (full.includes('?') ? '&' : '?') + 'proxy=1'
+  }
+  return full
+}

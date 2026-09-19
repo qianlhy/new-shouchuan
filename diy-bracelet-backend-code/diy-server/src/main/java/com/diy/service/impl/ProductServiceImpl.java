@@ -41,9 +41,9 @@ public class ProductServiceImpl implements ProductService {
      * @return 商品列表
      */
     @Override
-    public List<Product> listByCategoryId(Long categoryId) {
-        log.info("根据分类ID查询商品列表: categoryId={}", categoryId);
-        return productMapper.listByCategoryId(categoryId);
+    public List<Product> listByCategoryId(Long categoryId, Boolean diyOnly) {
+        log.info("根据分类ID查询商品列表: categoryId={}, diyOnly={}", categoryId, diyOnly);
+        return productMapper.listByCategoryId(categoryId, diyOnly);
     }
     
     /**
@@ -93,16 +93,21 @@ public class ProductServiceImpl implements ProductService {
         
         // 转换为VO对象，包含分类名称
         List<ProductListVO.ProductItem> productItems = page.getResult().stream()
-                .map(product -> ProductListVO.ProductItem.builder()
-                        .id(product.getId())
-                        .categoryId(product.getCategoryId())
-                        .categoryName(product.getCategoryName())
-                        .title(product.getTitle())
-                        .coverImage(product.getCoverImage())
-                        .price(product.getPrice())
-                        .stock(product.getStock())
-                        .status(product.getStatus())
-                        .build())
+                .map(product -> {
+                    String diyData = product.getDiyData();
+                    boolean hasDiy = diyData != null && !diyData.trim().isEmpty();
+                    return ProductListVO.ProductItem.builder()
+                            .id(product.getId())
+                            .categoryId(product.getCategoryId())
+                            .categoryName(product.getCategoryName())
+                            .title(product.getTitle())
+                            .coverImage(product.getCoverImage())
+                            .price(product.getPrice())
+                            .stock(product.getStock())
+                            .status(product.getStatus())
+                            .hasDiyTemplate(hasDiy)
+                            .build();
+                })
                 .collect(Collectors.toList());
         
         return new PageResult(page.getTotal(), productItems);
@@ -136,6 +141,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void update(Product product) {
         log.info("修改商品: {}", product);
+
+        // 关闭 DIY 模板时前端传空串，保证覆盖写入 diy_data
+        if (product.getDiyData() != null && product.getDiyData().trim().isEmpty()) {
+            product.setDiyData("");
+        }
 
         // 兼容：若传了 images 但没传 coverImage，默认第一张为封面
         if ((product.getCoverImage() == null || product.getCoverImage().isEmpty())

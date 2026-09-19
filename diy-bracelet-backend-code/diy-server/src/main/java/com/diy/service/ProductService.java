@@ -10,9 +10,10 @@ public interface ProductService {
     /**
      * 根据分类ID查询商品列表
      * @param categoryId 分类ID
+     * @param diyOnly true 时仅返回已配置 DIY 设计模板的商品
      * @return 商品列表
      */
-    List<Product> listByCategoryId(Long categoryId);
+    List<Product> listByCategoryId(Long categoryId, Boolean diyOnly);
     
     /**
      * 根据ID查询商品详情
