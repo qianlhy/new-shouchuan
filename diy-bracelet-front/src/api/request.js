@@ -3,7 +3,7 @@ import axios from 'axios'
 // 创建 axios 实例
 const request = axios.create({
   baseURL: process.env.VUE_APP_BASE_URL || 'http://localhost:8080',
-  timeout: 15000 // 增加到15秒，避免网络波动导致超时
+  timeout: 30000 // 管理端列表偶发慢，给足超时；分页优化后应远低于此
 })
 
 // 请求拦截器

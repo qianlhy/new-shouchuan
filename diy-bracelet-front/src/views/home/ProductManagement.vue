@@ -536,19 +536,15 @@ export default {
     async searchDiyMaterials (query) {
       this.diyMaterialLoading = true
       try {
-        if (!this._allDiyMaterials) {
-          const res = await getDiyMaterialList({})
-          const list = res.data || []
-          this._allDiyMaterials = Array.isArray(list)
-            ? list.filter(m => m.status === undefined || m.status === 1)
-            : []
-        }
-        const q = (query || '').trim().toLowerCase()
-        this.diyMaterialOptions = !q
-          ? this._allDiyMaterials.slice(0, 80)
-          : this._allDiyMaterials
-            .filter(m => (m.title || '').toLowerCase().includes(q))
-            .slice(0, 80)
+        const q = (query || '').trim()
+        const res = await getDiyMaterialList({
+          title: q || undefined,
+          limit: 80
+        })
+        const list = res.data || []
+        this.diyMaterialOptions = Array.isArray(list)
+          ? list.filter(m => m.status === undefined || m.status === 1)
+          : []
       } catch (e) {
         console.error('搜索DIY材料失败', e)
         this.diyMaterialOptions = []

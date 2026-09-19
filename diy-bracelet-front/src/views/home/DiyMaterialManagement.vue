@@ -7,19 +7,27 @@
 
     <!-- 筛选条件 -->
     <div class="xy-panel xy-filter-bar filters">
-      <el-select v-model="filterCategory" placeholder="筛选分类" clearable @change="fetchMaterials">
+      <el-input
+        v-model="filterTitle"
+        placeholder="搜索材料名称"
+        clearable
+        style="width: 200px; margin-right: 10px;"
+        @keyup.enter.native="handleSearch"
+        @clear="handleSearch" />
+      <el-select v-model="filterCategory" placeholder="筛选分类" clearable @change="handleSearch">
         <el-option label="全部分类" value=""></el-option>
         <el-option v-for="cat in categories" :key="cat.key" :label="cat.name" :value="cat.key"></el-option>
       </el-select>
-      <el-select v-model="filterColorSeries" placeholder="筛选色系" clearable @change="fetchMaterials" style="margin-left: 10px;">
+      <el-select v-model="filterColorSeries" placeholder="筛选色系" clearable @change="handleSearch" style="margin-left: 10px;">
         <el-option label="全部色系" value=""></el-option>
         <el-option v-for="color in colorSeries" :key="color.key" :label="color.name" :value="color.key"></el-option>
       </el-select>
+      <el-button type="primary" style="margin-left: 10px;" @click="handleSearch">查询</el-button>
     </div>
 
     <div class="xy-panel xy-table-wrap table-container">
       <el-table :data="materials" style="width: 100%;" v-loading="loading" height="100%">
-      <el-table-column type="index" label="序号" width="60"></el-table-column>
+      <el-table-column type="index" label="序号" width="60" :index="indexMethod"></el-table-column>
       <el-table-column prop="imageUrl" label="图片" width="80">
         <template slot-scope="scope">
           <div v-if="scope.row.imageUrl" class="material-image">
@@ -65,6 +73,16 @@
         </template>
       </el-table-column>
     </el-table>
+      <el-pagination
+        style="margin-top: 12px; text-align: right; flex-shrink: 0;"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="pagination.currentPage"
+        :page-sizes="[20, 50, 100]"
+        :page-size="pagination.pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="pagination.total">
+      </el-pagination>
     </div>
 
     <!-- 添加/编辑材料对话框 -->
@@ -162,7 +180,7 @@
 </template>
 
 <script>
-import { getDiyMaterialList, addDiyMaterial, updateDiyMaterial, deleteDiyMaterial, getColorSeriesList } from '@/api/admin'
+import { getDiyMaterialPage, getDiyMaterialDetail, addDiyMaterial, updateDiyMaterial, deleteDiyMaterial, getColorSeriesList } from '@/api/admin'
 
 export default {
   name: 'DiyMaterialManagement',
@@ -170,8 +188,14 @@ export default {
     return {
       loading: false,
       materials: [],
+      filterTitle: '',
       filterCategory: '',
       filterColorSeries: '',
+      pagination: {
+        currentPage: 1,
+        pageSize: 20,
+        total: 0
+      },
       dialogVisible: false,
       dialogTitle: '添加材料',
       materialForm: {
@@ -241,21 +265,45 @@ export default {
     async fetchMaterials () {
       this.loading = true
       try {
-        const params = {}
+        const params = {
+          page: this.pagination.currentPage,
+          pageSize: this.pagination.pageSize
+        }
+        if (this.filterTitle && this.filterTitle.trim()) {
+          params.title = this.filterTitle.trim()
+        }
         if (this.filterCategory) {
           params.categoryKey = this.filterCategory
         }
         if (this.filterColorSeries) {
           params.colorSeriesKey = this.filterColorSeries
         }
-        const res = await getDiyMaterialList(params)
-        this.materials = res.data || []
+        const res = await getDiyMaterialPage(params)
+        const data = res.data || {}
+        this.materials = data.records || []
+        this.pagination.total = data.total || 0
       } catch (error) {
         console.error('获取材料列表失败:', error)
         this.$message.error('获取材料列表失败')
       } finally {
         this.loading = false
       }
+    },
+    handleSearch () {
+      this.pagination.currentPage = 1
+      this.fetchMaterials()
+    },
+    handleSizeChange (val) {
+      this.pagination.pageSize = val
+      this.pagination.currentPage = 1
+      this.fetchMaterials()
+    },
+    handleCurrentChange (val) {
+      this.pagination.currentPage = val
+      this.fetchMaterials()
+    },
+    indexMethod (index) {
+      return (this.pagination.currentPage - 1) * this.pagination.pageSize + index + 1
     },
     addMaterial () {
       this.dialogTitle = '添加材料'
@@ -276,9 +324,15 @@ export default {
       }
       this.dialogVisible = true
     },
-    editMaterial (material) {
+    async editMaterial (material) {
       this.dialogTitle = '编辑材料'
-      this.materialForm = { ...material }
+      try {
+        // 列表已精简字段，编辑时拉详情补全 description 等
+        const res = await getDiyMaterialDetail(material.id)
+        this.materialForm = { ...(res.data || material) }
+      } catch (e) {
+        this.materialForm = { ...material }
+      }
       this.dialogVisible = true
     },
     async saveMaterial () {
@@ -402,6 +456,10 @@ export default {
   display: flex;
   flex-direction: column;
   min-height: 0;
+}
+
+.table-container .el-table {
+  flex: 1;
 }
 
 .material-image {

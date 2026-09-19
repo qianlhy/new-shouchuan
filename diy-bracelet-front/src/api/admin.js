@@ -219,10 +219,19 @@ export function deleteCustomerServiceQR () {
 
 // ============ DIY材料管理 ============
 
-// 获取DIY材料列表
+// 获取DIY材料列表（轻量；默认后端限 200 条，可传 title/limit）
 export function getDiyMaterialList (params) {
   return request({
     url: '/admin/diy/material/list',
+    method: 'get',
+    params
+  })
+}
+
+// DIY材料分页列表（管理页主列表）
+export function getDiyMaterialPage (params) {
+  return request({
+    url: '/admin/diy/material/page',
     method: 'get',
     params
   })
