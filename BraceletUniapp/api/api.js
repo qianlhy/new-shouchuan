@@ -394,6 +394,14 @@ export function addAddress(data) {
 }
 
 /**
+ * 修改收货地址（用 POST，避免部分网关/小程序对 PUT 不友好）
+ * @param {Object} data 含 id 的地址信息
+ */
+export function updateAddress(data) {
+  return post(API_PATHS.ADDRESS_UPDATE, data)
+}
+
+/**
  * 查询地址列表
  * @returns {Promise} []
  */

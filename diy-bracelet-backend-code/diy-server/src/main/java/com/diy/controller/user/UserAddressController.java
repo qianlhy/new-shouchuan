@@ -41,11 +41,11 @@ public class UserAddressController {
     }
 
     /**
-     * 更新地址
+     * 更新地址（PUT / POST 均支持，小程序侧优先走 POST）
      * @param userAddressDTO 地址信息
      * @return 更新后的地址信息
      */
-    @PutMapping("/update")
+    @RequestMapping(value = "/update", method = {RequestMethod.PUT, RequestMethod.POST})
     @ApiOperation("更新地址")
     public Result<UserAddressVO> updateAddress(
             @ApiParam("地址信息") @Validated @RequestBody UserAddressDTO userAddressDTO) {

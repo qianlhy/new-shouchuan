@@ -147,14 +147,26 @@ async function handleSave() {
   if (!validateForm()) {
     return
   }
+
+  const editId = addressId.value != null && addressId.value !== ''
+    ? Number(addressId.value)
+    : NaN
+  const editing = isEdit.value && !Number.isNaN(editId) && editId > 0
+
+  if (isEdit.value && !editing) {
+    uni.showToast({ title: '地址ID无效，请返回重试', icon: 'none' })
+    return
+  }
   
   try {
     uni.showLoading({ title: '保存中...' })
     
     let res
-    if (isEdit.value && addressId.value) {
-      res = await addressUpdate(addressId.value, form.value)
+    if (editing) {
+      console.log('更新地址 id=', editId)
+      res = await addressUpdate(editId, form.value)
     } else {
+      console.log('新增地址')
       res = await addressAdd(form.value)
     }
     
@@ -162,7 +174,7 @@ async function handleSave() {
     
     if (res && res.ok) {
       uni.showToast({ 
-        title: isEdit.value ? '修改成功' : '添加成功', 
+        title: editing ? '修改成功' : '添加成功', 
         icon: 'success' 
       })
       setTimeout(() => {
@@ -170,14 +182,14 @@ async function handleSave() {
       }, 1500)
     } else {
       uni.showToast({ 
-        title: res.message || '保存失败', 
+        title: res.message || res.msg || '保存失败', 
         icon: 'none' 
       })
     }
   } catch (e) {
     uni.hideLoading()
     console.error('保存地址失败', e)
-    uni.showToast({ title: '保存失败', icon: 'none' })
+    uni.showToast({ title: e.message || e.msg || '保存失败', icon: 'none' })
   }
 }
 
@@ -212,12 +224,18 @@ async function loadAddress(id) {
 }
 
 onLoad((options) => {
-  if (options && options.id) {
-    addressId.value = options.id
+  const rawId = options && (options.id || options.addressId)
+  const id = rawId != null && rawId !== '' && rawId !== 'undefined'
+    ? Number(rawId)
+    : NaN
+  if (!Number.isNaN(id) && id > 0) {
+    addressId.value = id
     isEdit.value = true
     uni.setNavigationBarTitle({ title: '编辑地址' })
-    loadAddress(options.id)
+    loadAddress(id)
   } else {
+    addressId.value = null
+    isEdit.value = false
     uni.setNavigationBarTitle({ title: '添加地址' })
   }
 })

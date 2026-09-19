@@ -105,8 +105,10 @@ export const API_PATHS = {
   DIY_ORDER_CREATE: '/user/design/order/create',
 
   // ==================== 地址管理模块 ====================
-  // 添加/修改地址
+  // 添加地址
   ADDRESS_ADD: '/user/address/add',
+  // 修改地址
+  ADDRESS_UPDATE: '/user/address/update',
   // 查询地址列表
   ADDRESS_LIST: '/user/address/list',
   // 获取默认地址

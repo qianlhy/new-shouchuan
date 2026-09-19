@@ -54,8 +54,9 @@
 <script setup>
 import { onHide, onLoad, onPullDownRefresh, onReachBottom, onShow, onUnload } from '@dcloudio/uni-app'
 import { ref } from 'vue'
-import { cancelOrder, getAddressList, orderList, payOrder, refundOrder, updateOrderAddress } from '../../api/index.js'
+import { cancelOrder, getAddressList, orderList, refundOrder, updateOrderAddress } from '../../api/index.js'
 import { resolveImageUrl } from '../../utils/imageHelper.js'
+import { handleOrderPayment } from '../../utils/paymentHelper.js'
 
 const orders = ref([])
 const page = ref(1)
@@ -295,19 +296,10 @@ async function handleEditAddress(order) {
 async function handlePay(order) {
   const orderNo = order.orderNo || order.order_no
   if (!orderNo) return uni.showToast({ title: '订单号缺失', icon: 'none' })
-  
-  try {
-    uni.showLoading({ title: '正在支付...' })
-    // 默认使用微信支付(1)
-    await payOrder(orderNo, 1)
-    uni.hideLoading()
-    uni.showToast({ title: '支付成功', icon: 'success' })
-    setTimeout(() => refresh(), 1500)
-  } catch (e) {
-    uni.hideLoading()
-    console.error('支付失败:', e)
-    uni.showToast({ title: e.msg || '支付失败', icon: 'none' })
-  }
+  // 与详情页一致：拿预支付参数后真正调起 uni.requestPayment
+  await handleOrderPayment(order, () => {
+    setTimeout(() => refresh(), 800)
+  })
 }
 
 function statusText(s) {

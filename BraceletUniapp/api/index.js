@@ -7,7 +7,7 @@
 
 // ==================== 导入真实后端API ====================
 import { STORAGE_TOKEN_KEY, STORAGE_USER_KEY } from '../config.js'
-import { addAddress, deleteAddress, getAddressList, getDefaultAddress, setDefaultAddress, wechatLogin } from './api.js'
+import { addAddress, updateAddress, deleteAddress, getAddressList, getDefaultAddress, setDefaultAddress, wechatLogin } from './api.js'
 
 export {
 addAddress,
@@ -114,16 +114,20 @@ const fromApiAddress = (addr) => {
 
 // 前端 -> 后端 字段映射
 const toApiAddress = (data) => {
-  return {
-    id: data.id, // 如果有id则是修改
+  const idNum = data.id != null && data.id !== '' ? Number(data.id) : NaN
+  const payload = {
     consignee: data.name,
     phone: data.phone,
     province: data.province,
     city: data.city,
     district: data.district,
     detailAddress: data.detail,
-    isDefault: data.isDefault ? 1 : 0
+    isDefault: data.isDefault === true || data.isDefault === 1 ? 1 : 0
   }
+  if (!Number.isNaN(idNum) && idNum > 0) {
+    payload.id = idNum
+  }
+  return payload
 }
 
 export const addressList = () => {
@@ -135,21 +139,25 @@ export const addressList = () => {
 export const addressDetail = (id) => {
   // 由于没有详情接口，先获取列表再查找
   return getAddressList().then(list => {
-    const addr = list.find(a => a.id === Number(id))
+    const sid = String(id)
+    const addr = list.find(a => String(a.id) === sid)
     return fromApiAddress(addr) || null
   })
 }
 
 export const addressAdd = (data) => {
   const apiData = toApiAddress(data)
-  // 如果是添加，id可能不需要，或者由后端生成，但如果data里没有id则没问题
+  // 新增时不要带 id，避免误更新
+  delete apiData.id
   return addAddress(apiData).then(res => ({ ok: true, data: res }))
 }
 
 export const addressUpdate = (id, data) => {
-  // 复用 addAddress，确保 id 存在
   const apiData = toApiAddress({ ...data, id })
-  return addAddress(apiData).then(res => ({ ok: true, data: res }))
+  if (!apiData.id) {
+    return Promise.reject(new Error('地址ID缺失，无法修改'))
+  }
+  return updateAddress(apiData).then(res => ({ ok: true, data: res }))
 }
 
 export const addressDelete = (id) => {

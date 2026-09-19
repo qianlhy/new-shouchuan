@@ -124,7 +124,7 @@
 <script setup>
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
-import { cancelOrder, cancelRefundOrder, completeOrder, orderDetail } from '../../api/index.js'
+import { cancelOrder, cancelRefundOrder, completeOrder, orderDetail, refundOrder } from '../../api/index.js'
 import { STORAGE_TOKEN_KEY } from '../../config.js'
 import { resolveImageUrl } from '../../utils/imageHelper.js'
 import { handleOrderPayment } from '../../utils/paymentHelper.js'
