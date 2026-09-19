@@ -1,85 +1,78 @@
 <template>
-  <div class="welcome-container">
-    <div class="welcome-header">
-      <h2>欢迎使用祈愿手作后台管理</h2>
+  <div class="xy-page welcome-page">
+    <div class="welcome-hero">
+      <p class="welcome-en">QIYUAN ADMIN</p>
+      <h2 class="welcome-title">欢迎使用祈愿手作后台管理</h2>
       <p class="welcome-subtitle">{{ greeting }}，{{ userInfo.displayName || '管理员' }}</p>
     </div>
 
-    <el-row :gutter="20" class="stats-row">
+    <el-row :gutter="16" class="stats-row">
       <el-col :span="6">
-        <el-card shadow="hover" class="stats-card">
-          <div class="stats-item">
-            <i class="el-icon-picture-outline"></i>
-            <div class="stats-info">
-              <div class="stats-title">轮播图</div>
-              <div class="stats-value">{{ stats.banners || 0 }}</div>
-            </div>
+        <div class="stats-card">
+          <div class="xy-icon-orb"><i class="el-icon-picture-outline"></i></div>
+          <div class="stats-info">
+            <div class="stats-title">轮播图</div>
+            <div class="stats-value">{{ stats.banners || 0 }}</div>
           </div>
-        </el-card>
+        </div>
       </el-col>
       <el-col :span="6">
-        <el-card shadow="hover" class="stats-card">
-          <div class="stats-item">
-            <i class="el-icon-menu"></i>
-            <div class="stats-info">
-              <div class="stats-title">商品分类</div>
-              <div class="stats-value">{{ stats.categories || 0 }}</div>
-            </div>
+        <div class="stats-card">
+          <div class="xy-icon-orb"><i class="el-icon-menu"></i></div>
+          <div class="stats-info">
+            <div class="stats-title">商品分类</div>
+            <div class="stats-value">{{ stats.categories || 0 }}</div>
           </div>
-        </el-card>
+        </div>
       </el-col>
       <el-col :span="6">
-        <el-card shadow="hover" class="stats-card">
-          <div class="stats-item">
-            <i class="el-icon-goods"></i>
-            <div class="stats-info">
-              <div class="stats-title">商品数量</div>
-              <div class="stats-value">{{ stats.products || 0 }}</div>
-            </div>
+        <div class="stats-card">
+          <div class="xy-icon-orb"><i class="el-icon-goods"></i></div>
+          <div class="stats-info">
+            <div class="stats-title">商品数量</div>
+            <div class="stats-value">{{ stats.products || 0 }}</div>
           </div>
-        </el-card>
+        </div>
       </el-col>
       <el-col :span="6">
-        <el-card shadow="hover" class="stats-card">
-          <div class="stats-item">
-            <i class="el-icon-s-order"></i>
-            <div class="stats-info">
-              <div class="stats-title">待处理订单</div>
-              <div class="stats-value">{{ stats.pendingOrders || 0 }}</div>
-            </div>
+        <div class="stats-card">
+          <div class="xy-icon-orb"><i class="el-icon-s-order"></i></div>
+          <div class="stats-info">
+            <div class="stats-title">待处理订单</div>
+            <div class="stats-value">{{ stats.pendingOrders || 0 }}</div>
           </div>
-        </el-card>
+        </div>
       </el-col>
     </el-row>
 
-    <div class="quick-actions">
-      <h3>快捷操作</h3>
-      <el-row :gutter="20">
+    <div class="section-block">
+      <h3 class="section-title">快捷操作</h3>
+      <el-row :gutter="16">
         <el-col :span="6">
-          <el-button type="primary" icon="el-icon-picture-outline" @click="$router.push('/home/banner')">轮播图管理</el-button>
+          <el-button type="primary" class="xy-btn-gradient quick-btn" icon="el-icon-picture-outline" @click="$router.push('/home/banner')">轮播图管理</el-button>
         </el-col>
         <el-col :span="6">
-          <el-button type="primary" icon="el-icon-menu" @click="$router.push('/home/category')">分类管理</el-button>
+          <el-button type="primary" class="xy-btn-gradient quick-btn" icon="el-icon-menu" @click="$router.push('/home/category')">分类管理</el-button>
         </el-col>
         <el-col :span="6">
-          <el-button type="primary" icon="el-icon-goods" @click="$router.push('/home/product')">商品管理</el-button>
+          <el-button type="primary" class="xy-btn-gradient quick-btn" icon="el-icon-goods" @click="$router.push('/home/product')">商品管理</el-button>
         </el-col>
         <el-col :span="6">
-          <el-button type="primary" icon="el-icon-s-order" @click="$router.push('/home/order')">订单管理</el-button>
+          <el-button type="primary" class="xy-btn-gradient quick-btn" icon="el-icon-s-order" @click="$router.push('/home/order')">订单管理</el-button>
         </el-col>
       </el-row>
     </div>
 
-    <div class="tips-section">
-      <h3>使用提示</h3>
-      <el-card class="tips-card">
+    <div class="section-block">
+      <h3 class="section-title">使用提示</h3>
+      <div class="xy-panel tips-panel">
         <ul>
           <li>点击左侧菜单可以快速切换不同功能模块</li>
           <li>可以通过轮播图管理首页展示图片</li>
           <li>商品分类管理帮助您更好地组织商品</li>
           <li>订单管理可以查看和处理用户订单</li>
         </ul>
-      </el-card>
+      </div>
     </div>
   </div>
 </template>
@@ -129,20 +122,16 @@ export default {
     },
     async fetchStats () {
       try {
-        // 获取轮播图数量
         const bannerResponse = await getBannerList()
         this.stats.banners = bannerResponse.data.banners ? bannerResponse.data.banners.length : 0
 
-        // 获取分类数量
         const categoryResponse = await getCategoryList()
         this.stats.categories = categoryResponse.data.categories ? categoryResponse.data.categories.length : 0
 
-        // 获取商品数量
         const productResponse = await getProductList()
         this.stats.products = productResponse.data.products ? productResponse.data.products.length : 0
 
-        // 获取待处理订单数量
-        const orderResponse = await getOrderList({ status: 0, page: 1, size: 50 }) // 0表示待支付订单
+        const orderResponse = await getOrderList({ status: 0, page: 1, size: 50 })
         this.stats.pendingOrders = orderResponse.data.orders ? orderResponse.data.orders.length : 0
       } catch (error) {
         console.error('获取统计数据失败:', error)
@@ -153,94 +142,108 @@ export default {
 </script>
 
 <style scoped>
-.welcome-container {
-  padding: 20px;
+.welcome-page {
+  max-width: 1100px;
 }
 
-.welcome-header {
-  text-align: center;
-  margin-bottom: 40px;
+.welcome-hero {
+  padding: 28px 32px;
+  margin-bottom: 20px;
+  border-radius: 18px;
+  background: linear-gradient(145deg, #FBF7FF 0%, #F0E6FF 45%, #E4D4FF 100%);
+  border: 1px solid rgba(139, 92, 246, 0.12);
+  box-shadow: 0 12px 32px rgba(90, 50, 160, 0.07);
 }
 
-.welcome-header h2 {
-  font-size: 28px;
+.welcome-en {
+  margin: 0 0 8px;
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: #A78BFA;
+  font-weight: 600;
+}
+
+.welcome-title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
   color: #2A2140;
-  margin-bottom: 10px;
+  letter-spacing: 1px;
 }
 
 .welcome-subtitle {
-  font-size: 16px;
-  color: #606266;
+  margin: 10px 0 0;
+  font-size: 15px;
+  color: #8B849C;
 }
 
 .stats-row {
-  margin-bottom: 40px;
-}
-
-.stats-card {
-  height: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.stats-item {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.stats-item i {
-  font-size: 48px;
-  color: #8B5CF6;
-}
-
-.stats-info {
-  text-align: left;
-}
-
-.stats-title {
-  font-size: 14px;
-  color: #909399;
   margin-bottom: 8px;
 }
 
+.stats-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 18px;
+  margin-bottom: 16px;
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid rgba(139, 92, 246, 0.1);
+  box-shadow: 0 8px 24px rgba(90, 50, 160, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(90, 50, 160, 0.1);
+}
+
+.stats-title {
+  font-size: 13px;
+  color: #8B849C;
+  margin-bottom: 6px;
+}
+
 .stats-value {
-  font-size: 24px;
-  color: #303133;
-  font-weight: bold;
+  font-size: 26px;
+  color: #2A2140;
+  font-weight: 700;
+  line-height: 1;
 }
 
-.quick-actions {
-  margin-bottom: 40px;
+.section-block {
+  margin-top: 12px;
+  margin-bottom: 8px;
 }
 
-.quick-actions h3 {
-  margin-bottom: 20px;
-  color: #303133;
+.section-title {
+  margin: 0 0 14px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #2A2140;
 }
 
-.quick-actions .el-button {
+.quick-btn {
   width: 100%;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  border-radius: 999px !important;
+  height: 40px;
 }
 
-.tips-section h3 {
-  margin-bottom: 20px;
-  color: #303133;
+.tips-panel {
+  background: linear-gradient(180deg, #FBF7FF 0%, #F3EBFF 100%) !important;
+  margin-bottom: 0;
 }
 
-.tips-card {
-  background-color: #F3EBFF;
-}
-
-.tips-card ul {
+.tips-panel ul {
   padding-left: 20px;
   margin: 0;
 }
 
-.tips-card li {
+.tips-panel li {
   line-height: 2;
-  color: #606266;
+  color: #4A3A78;
+  font-size: 14px;
 }
 </style>

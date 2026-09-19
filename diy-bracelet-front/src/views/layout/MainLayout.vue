@@ -99,66 +99,87 @@ export default {
 }
 
 .sidebar {
-  width: 220px;
+  width: 228px;
   background: linear-gradient(180deg, #2A2140 0%, #1F1830 100%);
   color: #fff;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+  box-shadow: 8px 0 32px rgba(42, 33, 64, 0.18);
+  z-index: 2;
 }
 
 .brand {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 22px 18px 16px;
+  padding: 24px 18px 18px;
   border-bottom: 1px solid rgba(196, 181, 253, 0.15);
 }
 
 .brand-mark {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
   background: #fff;
   object-fit: contain;
-  box-shadow: 0 8px 18px rgba(139, 92, 246, 0.28);
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.32);
   flex-shrink: 0;
 }
 
 .brand-name {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
   color: #fff;
   line-height: 1.2;
+  letter-spacing: 1px;
 }
 
 .brand-sub {
-  margin-top: 2px;
+  margin-top: 3px;
   font-size: 12px;
   color: #A78BFA;
 }
 
 .user-info {
-  padding: 16px 18px;
+  margin: 14px 12px;
+  padding: 12px 12px;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid rgba(196, 181, 253, 0.12);
+  border-radius: 12px;
+  background: rgba(139, 92, 246, 0.14);
+  border: 1px solid rgba(196, 181, 253, 0.18);
 }
 
 .username {
   margin-left: 10px;
   font-size: 14px;
   color: #EDE4FF;
+  font-weight: 500;
 }
 
 .menu {
   border-right: none;
   flex: 1;
+  padding: 4px 0 16px;
+  background: transparent !important;
+}
+
+.menu >>> .el-menu-item {
+  margin: 4px 10px;
+  border-radius: 10px;
+  height: 46px;
+  line-height: 46px;
 }
 
 .menu >>> .el-menu-item.is-active {
-  background: linear-gradient(90deg, rgba(139, 92, 246, 0.45), rgba(139, 92, 246, 0.12)) !important;
-  border-right: 3px solid #A78BFA;
+  background: linear-gradient(90deg, rgba(139, 92, 246, 0.5), rgba(139, 92, 246, 0.14)) !important;
+  border-right: none;
+  box-shadow: inset 3px 0 0 #A78BFA;
+}
+
+.menu >>> .el-menu-item:hover {
+  background: rgba(139, 92, 246, 0.18) !important;
 }
 
 .menu >>> .el-menu-item i {
@@ -168,8 +189,11 @@ export default {
 
 .main-content {
   flex: 1;
-  padding: 20px;
-  background: linear-gradient(180deg, #FBF7FF 0%, #F3EBFF 40%, #F7F4FC 100%);
+  padding: 22px 24px 12px;
+  background:
+    radial-gradient(ellipse 80% 50% at 10% -10%, rgba(183, 148, 255, 0.22), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 0%, rgba(139, 92, 246, 0.12), transparent 50%),
+    linear-gradient(180deg, #FBF7FF 0%, #F3EBFF 35%, #F7F4FC 100%);
   overflow: auto;
   display: flex;
   flex-direction: column;
@@ -178,9 +202,9 @@ export default {
 
 .footer {
   margin-top: auto;
-  padding: 20px;
+  padding: 16px 20px 20px;
   text-align: center;
-  color: #909399;
+  color: #B5ADC6;
   font-size: 12px;
 }
 

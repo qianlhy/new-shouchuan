@@ -17,7 +17,7 @@
           <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" @keyup.enter.native="handleLogin"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" class="login-btn" @click="handleLogin" :loading="loading">登录</el-button>
+          <el-button type="primary" class="login-btn xy-btn-gradient" @click="handleLogin" :loading="loading">登录</el-button>
         </el-form-item>
       </el-form>
       <div class="footer">
@@ -115,16 +115,16 @@ export default {
 
 .login-box {
   width: 420px;
-  padding: 36px 34px 28px;
-  background: rgba(255, 255, 255, 0.92);
-  border-radius: 20px;
-  box-shadow: 0 18px 48px rgba(90, 50, 160, 0.14);
-  border: 1px solid rgba(139, 92, 246, 0.12);
+  padding: 40px 36px 28px;
+  background: rgba(255, 255, 255, 0.88);
+  border-radius: 22px;
+  box-shadow: 0 20px 56px rgba(90, 50, 160, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.55);
   display: flex;
   flex-direction: column;
   position: relative;
   z-index: 1;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(14px);
   text-align: left;
 }
 
@@ -156,9 +156,10 @@ export default {
 
 .login-btn {
   width: 100%;
-  background: linear-gradient(90deg, #B794FF, #8B5CF6 55%, #7C3AED) !important;
-  border: none !important;
+  height: 42px;
+  border-radius: 999px !important;
   font-weight: 600;
+  letter-spacing: 2px;
 }
 
 .footer {

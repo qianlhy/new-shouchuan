@@ -1,11 +1,11 @@
 <template>
-  <div class="product-management">
-    <div class="header">
-      <h2>商品管理</h2>
-      <el-button type="primary" icon="el-icon-plus" @click="addProduct">添加商品</el-button>
+  <div class="xy-page product-management">
+    <div class="xy-page-header">
+      <h2 class="xy-page-title">商品管理</h2>
+      <el-button type="primary" class="xy-btn-gradient" icon="el-icon-plus" @click="addProduct">添加商品</el-button>
     </div>
 
-    <div class="filter-bar">
+    <div class="xy-panel xy-filter-bar">
       <el-form :inline="true" :model="filterForm" class="demo-form-inline">
         <el-form-item label="分类">
           <el-select v-model="filterForm.categoryId" placeholder="请选择分类" clearable>
@@ -32,6 +32,7 @@
       </el-form>
     </div>
 
+    <div class="xy-panel xy-table-wrap">
     <el-table :data="products" style="width: 100%" v-loading="loading">
       <el-table-column type="index" label="序号" width="80"></el-table-column>
       <el-table-column label="封面图" width="100">
@@ -89,6 +90,7 @@
       :total="pagination.total"
       style="margin-top: 20px; text-align: right;">
     </el-pagination>
+    </div>
 
     <!-- 添加/编辑商品对话框 -->
     <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="760px" top="4vh">
@@ -773,22 +775,9 @@ export default {
 
 <style scoped>
 .product-management {
-  background: #fff;
-  padding: 20px;
   height: 100%;
   display: flex;
   flex-direction: column;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.filter-bar {
-  margin-bottom: 20px;
 }
 
 .el-table {

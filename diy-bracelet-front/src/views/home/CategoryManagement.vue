@@ -1,10 +1,11 @@
 <template>
-  <div class="category-management">
-    <div class="header">
-      <h2>商品分类管理</h2>
-      <el-button type="primary" icon="el-icon-plus" @click="addCategory">添加分类</el-button>
+  <div class="xy-page category-management">
+    <div class="xy-page-header">
+      <h2 class="xy-page-title">商品分类管理</h2>
+      <el-button type="primary" class="xy-btn-gradient" icon="el-icon-plus" @click="addCategory">添加分类</el-button>
     </div>
 
+    <div class="xy-panel xy-table-wrap">
     <el-table :data="categories" style="width: 100%" v-loading="loading">
       <el-table-column type="index" label="序号" width="80"></el-table-column>
       <el-table-column prop="name" label="分类名称"></el-table-column>
@@ -38,6 +39,7 @@
       :total="pagination.total"
       style="margin-top: 20px; text-align: right;">
     </el-pagination>
+    </div>
 
     <!-- 添加/编辑分类对话框 -->
     <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="500px">
@@ -206,18 +208,9 @@ export default {
 
 <style scoped>
 .category-management {
-  background: #fff;
-  padding: 20px;
   height: 100%;
   display: flex;
   flex-direction: column;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
 }
 
 .el-table {

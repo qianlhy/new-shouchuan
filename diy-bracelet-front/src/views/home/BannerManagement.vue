@@ -1,11 +1,12 @@
 <template>
-  <div class="banner-management">
-    <div class="header">
-      <h2>轮播图管理</h2>
-      <el-button type="primary" icon="el-icon-plus" @click="addBanner">添加轮播图</el-button>
+  <div class="xy-page banner-management">
+    <div class="xy-page-header">
+      <h2 class="xy-page-title">轮播图管理</h2>
+      <el-button type="primary" class="xy-btn-gradient" icon="el-icon-plus" @click="addBanner">添加轮播图</el-button>
     </div>
 
-    <el-table :data="banners" style="width: 100%" v-loading="loading" row-class-name="banner-table-row" :header-cell-style="{background: '#f5f7fa', fontWeight: 'bold'}">
+    <div class="xy-panel xy-table-wrap">
+    <el-table :data="banners" style="width: 100%" v-loading="loading" row-class-name="banner-table-row" :header-cell-style="{background: '#faf8ff', fontWeight: 'bold'}">
       <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
       <el-table-column label="图片" width="140" align="center">
         <template slot-scope="scope">
@@ -25,6 +26,7 @@
         </template>
       </el-table-column>
     </el-table>
+    </div>
 
     <!-- 添加/编辑轮播图对话框 -->
     <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="500px" @close="resetForm">
@@ -198,24 +200,9 @@ export default {
 
 <style scoped>
 .banner-management {
-  background: #fff;
-  padding: 20px;
   height: 100%;
   display: flex;
   flex-direction: column;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
-}
-
-.header h2 {
-  margin: 0;
-  font-size: 18px;
-  color: #333;
 }
 
 .el-table {

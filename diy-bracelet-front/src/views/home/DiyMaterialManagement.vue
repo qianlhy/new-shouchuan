@@ -1,12 +1,12 @@
 <template>
-  <div class="diy-material-management">
-    <div class="header">
-      <h2>DIY材料管理</h2>
-      <el-button type="primary" icon="el-icon-plus" @click="addMaterial">添加材料</el-button>
+  <div class="xy-page diy-material-management">
+    <div class="xy-page-header">
+      <h2 class="xy-page-title">DIY材料管理</h2>
+      <el-button type="primary" class="xy-btn-gradient" icon="el-icon-plus" @click="addMaterial">添加材料</el-button>
     </div>
 
     <!-- 筛选条件 -->
-    <div class="filters">
+    <div class="xy-panel xy-filter-bar filters">
       <el-select v-model="filterCategory" placeholder="筛选分类" clearable @change="fetchMaterials">
         <el-option label="全部分类" value=""></el-option>
         <el-option v-for="cat in categories" :key="cat.key" :label="cat.name" :value="cat.key"></el-option>
@@ -17,7 +17,7 @@
       </el-select>
     </div>
 
-    <div class="table-container">
+    <div class="xy-panel xy-table-wrap table-container">
       <el-table :data="materials" style="width: 100%;" v-loading="loading" height="100%">
       <el-table-column type="index" label="序号" width="60"></el-table-column>
       <el-table-column prop="imageUrl" label="图片" width="80">
@@ -386,31 +386,22 @@ export default {
 
 <style scoped>
 .diy-material-management {
-  background: #fff;
-  padding: 20px;
   height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  flex-shrink: 0;
-}
-
 .filters {
-  margin-bottom: 10px;
   flex-shrink: 0;
 }
 
 .table-container {
   flex: 1;
   overflow: hidden;
-  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .material-image {

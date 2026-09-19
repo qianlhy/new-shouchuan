@@ -1,10 +1,10 @@
 <template>
-  <div class="order-management">
-    <div class="header">
-      <h2>订单管理</h2>
+  <div class="xy-page order-management">
+    <div class="xy-page-header">
+      <h2 class="xy-page-title">订单管理</h2>
     </div>
 
-    <div class="filter-bar">
+    <div class="xy-panel xy-filter-bar">
       <el-form :inline="true" :model="filterForm" class="demo-form-inline">
         <el-form-item label="订单号">
           <el-input
@@ -35,7 +35,7 @@
       </el-form>
     </div>
 
-    <div class="table-wrapper">
+    <div class="xy-panel xy-table-wrap table-wrapper">
       <el-table :data="filteredOrders" style="width: 100%" v-loading="loading">
         <el-table-column type="index" label="序号" width="80"></el-table-column>
         <el-table-column prop="orderNo" label="订单号"></el-table-column>
@@ -842,33 +842,17 @@ export default {
 
 <style scoped>
 .order-management {
-  background: #fff;
-  padding: 20px;
   height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  flex-shrink: 0;
-}
-
-.filter-bar {
-  margin-bottom: 20px;
-  flex-shrink: 0;
+  padding-bottom: 8px;
 }
 
 .table-wrapper {
   flex: 1;
   overflow: auto;
-  border: 1px solid #ebeef5;
-  border-radius: 4px;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 .table-wrapper::-webkit-scrollbar {
@@ -877,16 +861,16 @@ export default {
 }
 
 .table-wrapper::-webkit-scrollbar-thumb {
-  background: #dcdfe6;
+  background: #c4b5fd;
   border-radius: 6px;
 }
 
 .table-wrapper::-webkit-scrollbar-thumb:hover {
-  background: #909399;
+  background: #a78bfa;
 }
 
 .table-wrapper::-webkit-scrollbar-track {
-  background: #f5f7fa;
+  background: #f3ebff;
   border-radius: 6px;
 }
 

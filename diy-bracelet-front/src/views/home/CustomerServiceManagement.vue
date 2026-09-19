@@ -1,10 +1,10 @@
 <template>
-  <div class="customer-service-management">
-    <div class="header">
-      <h2>客服二维码管理</h2>
+  <div class="xy-page customer-service-management">
+    <div class="xy-page-header">
+      <h2 class="xy-page-title">客服二维码管理</h2>
     </div>
 
-    <div class="qr-container" v-loading="loading">
+    <div class="xy-panel qr-container" v-loading="loading">
       <div class="qr-card">
         <h3>当前客服二维码</h3>
         <div class="qr-preview" v-if="currentQRCode">
@@ -180,18 +180,9 @@ export default {
 
 <style scoped>
 .customer-service-management {
-  background: #fff;
-  padding: 20px;
   height: 100%;
   display: flex;
   flex-direction: column;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
 }
 
 .qr-container {
@@ -207,21 +198,23 @@ export default {
 .qr-card h3 {
   margin-bottom: 20px;
   font-size: 18px;
-  color: #333;
+  color: #2A2140;
+  font-weight: 700;
 }
 
 .qr-card h4 {
   margin: 20px 0 10px;
   font-size: 16px;
-  color: #666;
+  color: #8B849C;
 }
 
 .qr-preview {
   text-align: center;
   padding: 20px;
-  border: 1px dashed #ddd;
-  border-radius: 8px;
+  border: 1px dashed #c4b5fd;
+  border-radius: 16px;
   margin-bottom: 30px;
+  background: #fbf7ff;
 }
 
 .qr-actions {
