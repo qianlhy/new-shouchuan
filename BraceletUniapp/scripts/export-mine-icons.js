@@ -1,11 +1,13 @@
 const lucide = require('lucide-static')
 const sharp = require('sharp')
 const path = require('path')
+const fs = require('fs')
 
 const OUT = path.join(__dirname, '..', 'static', 'icons')
 const SIZE = 256
-const COLOR = '#6B4EFF'
-const STROKE = 2.35
+const COLOR = '#8B5CF6'
+const COLOR_BLACK = '#5B5568'
+const STROKE = 1.75
 
 const MAP = {
   wallet: 'Wallet',
@@ -36,9 +38,11 @@ const MAP = {
   'badge-percent': 'BadgePercent'
 }
 
-function prepSvg(raw) {
+const BLACK_KEYS = ['wallet', 'package', 'truck', 'circle-check']
+
+function prepSvg(raw, color) {
   let s = String(raw)
-  s = s.replace(/stroke="currentColor"/g, `stroke="${COLOR}"`)
+  s = s.replace(/stroke="currentColor"/g, `stroke="${color}"`)
   s = s.replace(/stroke-width="2"/g, `stroke-width="${STROKE}"`)
   if (!/xmlns=/.test(s)) {
     s = s.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"')
@@ -48,6 +52,12 @@ function prepSvg(raw) {
   return s
 }
 
+async function writePng(fileBase, svg) {
+  const buf = Buffer.from(svg)
+  const png = await sharp(buf, { density: 400 }).resize(SIZE, SIZE).png({ compressionLevel: 9 }).toBuffer()
+  fs.writeFileSync(path.join(OUT, `${fileBase}.png`), png)
+}
+
 ;(async () => {
   for (const [file, key] of Object.entries(MAP)) {
     const raw = lucide[key]
@@ -55,11 +65,11 @@ function prepSvg(raw) {
       console.log('MISS', key)
       continue
     }
-    const svg = prepSvg(raw)
-    const buf = Buffer.from(svg)
-    const png = await sharp(buf, { density: 400 }).resize(SIZE, SIZE).png({ compressionLevel: 9 }).toBuffer()
-    require('fs').writeFileSync(path.join(OUT, `${file}.png`), png)
-    require('fs').writeFileSync(path.join(OUT, `${file}-purple.png`), png)
+    await writePng(file, prepSvg(raw, COLOR))
+    await writePng(`${file}-purple`, prepSvg(raw, COLOR))
+    if (BLACK_KEYS.includes(file)) {
+      await writePng(`${file}-black`, prepSvg(raw, COLOR_BLACK))
+    }
     console.log('ok', file)
   }
   console.log('ALL DONE')

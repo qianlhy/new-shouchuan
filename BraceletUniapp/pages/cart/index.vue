@@ -46,8 +46,11 @@
             <view class="s-btn" :class="{disabled: updating || deleting}" @click="inc(i)">+</view>
           </view>
           <view v-else class="diy-info" @click.stop>
-            <text class="diy-quantity">数量: {{ i.quantity }}</text>
-            <text v-if="i.diySize" class="diy-size">手围: {{ i.diySize }}cm</text>
+            <view class="diy-meta-row">
+              <text class="diy-meta">数量 {{ i.quantity }}</text>
+              <text v-if="i.diySize" class="diy-dot">·</text>
+              <text v-if="i.diySize" class="diy-meta">手围 {{ i.diySize }}cm</text>
+            </view>
             <view class="diy-edit-btn" @click.stop="reeditDiy(i)">重新设计</view>
           </view>
         </view>
@@ -389,18 +392,18 @@ if (typeof window !== 'undefined') {
 }
 </script>
 
-<style>
+<style lang="scss">
+@import '../../styles/theme.scss';
+
 .page {
   padding-bottom: 160rpx;
   min-height: 100vh;
   box-sizing: border-box;
   background:
-    radial-gradient(ellipse 80% 40% at 20% 0%, rgba(183, 148, 255, 0.26), transparent 55%),
-    radial-gradient(ellipse 60% 30% at 90% 10%, rgba(221, 200, 255, 0.35), transparent 50%),
-    linear-gradient(180deg, #FBF7FF 0%, #F3EBFF 40%, #FBF7FF 100%);
+    $page-mist,
+    linear-gradient(180deg, $page-bg 0%, $page-bg-deep 40%, $page-bg 100%);
 }
 
-/* 登录提示样式 */
 .login-prompt {
   display: flex;
   flex-direction: column;
@@ -416,26 +419,26 @@ if (typeof window !== 'undefined') {
 }
 .login-prompt .tip {
   font-size: 32rpx;
-  color: #666;
+  color: $text-sub;
   margin-bottom: 48rpx;
 }
 .login-prompt .login-btn {
-  background: linear-gradient(90deg, #B794FF, #8B5CF6 55%, #7C3AED);
+  background: $gradient-primary;
   color: #fff;
-  border-radius: 999rpx;
+  border-radius: $radius-pill;
   padding: 0 64rpx;
   height: 88rpx;
   line-height: 88rpx;
   font-size: 32rpx;
   font-weight: 600;
   border: none;
-  box-shadow: 0 10rpx 24rpx rgba(139, 92, 246, 0.32);
+  box-shadow: $shadow-btn;
 }
 
 .empty {
   padding: 120rpx 24rpx;
   text-align: center;
-  color: #999;
+  color: $text-hint;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -444,12 +447,12 @@ if (typeof window !== 'undefined') {
   width: 220rpx;
   height: 220rpx;
   border-radius: 50%;
-  background: radial-gradient(circle at 40% 35%, #F8F3FF 0%, #EDE4FF 55%, #E4D6FF 100%);
+  background: $icon-orb;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 28rpx;
-  box-shadow: 0 12rpx 32rpx rgba(90, 50, 160, 0.08);
+  box-shadow: $shadow-card-soft;
 }
 .empty-cart-img {
   width: 88rpx;
@@ -457,43 +460,42 @@ if (typeof window !== 'undefined') {
 }
 .empty-text {
   font-size: 28rpx;
-  color: #8B849C;
+  color: $text-sub;
   margin-bottom: 28rpx;
 }
 .go-shop {
-  background: linear-gradient(90deg, #B794FF, #8B5CF6 55%, #7C3AED);
+  background: $gradient-primary;
   color: #fff;
-  border-radius: 999rpx;
+  border-radius: $radius-pill;
   padding: 0 56rpx;
   height: 80rpx;
   line-height: 80rpx;
   font-size: 28rpx;
   font-weight: 600;
-  box-shadow: 0 10rpx 24rpx rgba(139, 92, 246, 0.32);
+  box-shadow: $shadow-btn;
   border: none;
 }
 .go-shop::after { border: none; }
 
 .list { padding: 24rpx 24rpx 40rpx; display: flex; flex-direction: column; gap: 20rpx; }
 .row {
-  background: #FFFFFF;
-  border-radius: 20rpx;
+  background: $card-bg;
+  border-radius: 24rpx;
   padding: 24rpx 20rpx;
   display: flex;
   gap: 20rpx;
   align-items: center;
-  box-shadow: 0 4rpx 16rpx rgba(42, 33, 64, 0.10);
-  border: 2rpx solid #EEE8F8;
+  box-shadow: $shadow-card-soft;
+  border: 1rpx solid $border-soft;
 }
 .row.is-off {
-  /* 未勾选只降一点对比，不要整卡发糊 */
   opacity: 0.92;
 }
 .check {
   width: 44rpx;
   height: 44rpx;
   border-radius: 50%;
-  border: 3rpx solid #A78BFA;
+  border: 2rpx solid $primary-light;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -504,8 +506,8 @@ if (typeof window !== 'undefined') {
   background: #FFFFFF;
 }
 .check.on {
-  background: #7C3AED;
-  border-color: #7C3AED;
+  background: $primary;
+  border-color: $primary;
 }
 .bar-left {
   display: flex;
@@ -513,7 +515,7 @@ if (typeof window !== 'undefined') {
   gap: 12rpx;
   margin-right: 12rpx;
 }
-.all-label { font-size: 26rpx; color: #2A2140; font-weight: 600; }
+.all-label { font-size: 26rpx; color: $text-main; font-weight: 600; }
 .thumb {
   width: 160rpx;
   height: 160rpx;
@@ -522,7 +524,7 @@ if (typeof window !== 'undefined') {
   overflow: hidden;
   position: relative;
   flex-shrink: 0;
-  border: 2rpx solid #EDE7F6;
+  border: 1rpx solid rgba(139, 92, 246, 0.12);
 }
 .thumb-img {
   width: 100%;
@@ -536,15 +538,15 @@ if (typeof window !== 'undefined') {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #F3EBFF;
-  color: #7C3AED;
+  background: $primary-soft;
+  color: $primary;
   font-size: 40rpx;
   font-weight: 700;
 }
 .meta { flex: 1; min-width: 0; }
 .title {
   font-size: 30rpx;
-  color: #1A1228;
+  color: $text-main;
   font-weight: 700;
   line-height: 1.35;
 }
@@ -560,8 +562,8 @@ if (typeof window !== 'undefined') {
   line-height: 52rpx;
   text-align: center;
   border-radius: 50%;
-  background: #F3F0F8;
-  color: #6B6478;
+  background: $primary-soft;
+  color: $text-sub;
   flex-shrink: 0;
   font-size: 32rpx;
 }
@@ -574,62 +576,98 @@ if (typeof window !== 'undefined') {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #F3F0F8;
+  background: $primary-soft;
   border-radius: 10rpx;
   font-size: 32rpx;
-  color: #2A2140;
+  color: $text-main;
 }
-.s-btn:active { background: #E8E0F5; }
+.s-btn:active { background: $primary-soft-2; }
 .s-btn.disabled { opacity: 0.4; pointer-events: none; }
 .ipt {
   width: 100rpx;
   margin: 0 10rpx;
   text-align: center;
   height: 54rpx;
-  border: 2rpx solid #E8E0F5;
+  border: 1rpx solid rgba(139, 92, 246, 0.18);
   border-radius: 10rpx;
-  color: #2A2140;
+  color: $text-main;
 }
 .ipt:disabled { background: #f9f9f9; color: #999; }
 
 .row.is-diy {
-  background: #FFFFFF;
-  border-color: #D8C8FF;
+  background: $card-bg;
+  border-color: rgba(139, 92, 246, 0.22);
 }
 .diy-badge {
   position: absolute;
   top: 0;
   left: 0;
   z-index: 2;
-  background: #7C3AED;
+  background: $primary;
   color: #fff;
   font-size: 20rpx;
   padding: 4rpx 12rpx;
   border-radius: 0 0 12rpx 0;
-  font-weight: 700;
+  font-weight: 600;
 }
 .diy-info {
-  margin-top: 10rpx;
+  margin-top: 12rpx;
   display: flex;
   flex-direction: column;
-  gap: 6rpx;
+  gap: 12rpx;
   align-items: flex-start;
 }
-.diy-quantity { font-size: 24rpx; color: #3D3550; font-weight: 500; }
-.diy-size { font-size: 22rpx; color: #6B6478; }
+.diy-meta-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6rpx;
+}
+.diy-meta {
+  font-size: 22rpx;
+  color: $text-sub;
+  font-weight: 500;
+  line-height: 1.3;
+}
+.diy-dot {
+  font-size: 22rpx;
+  color: $text-hint;
+}
 .diy-edit-btn {
-  margin-top: 8rpx;
   padding: 8rpx 22rpx;
-  border-radius: 999rpx;
-  background: #7C3AED;
-  color: #fff;
-  font-size: 24rpx;
-  font-weight: 700;
+  border-radius: $radius-pill;
+  background: $btn-ghost-bg;
+  color: $btn-ghost-text;
+  font-size: 22rpx;
+  font-weight: 500;
+  border: 1rpx solid $btn-ghost-border;
+  line-height: 1.3;
 }
 
-.bar { position: fixed; left: 0; right: 0; bottom: 0; background: #ffffff; padding: 12rpx 24rpx calc(12rpx + env(safe-area-inset-bottom)); display: flex; align-items: center; box-shadow: 0 -6rpx 12rpx rgba(0,0,0,0.04); gap: 12rpx; }
-.total { color: #333; font-size: 26rpx; flex: 1; text-align: right; }
+.bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.96);
+  padding: 12rpx 24rpx calc(12rpx + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  box-shadow: 0 -6rpx 16rpx rgba(90, 50, 160, 0.05);
+  gap: 12rpx;
+}
+.total { color: $text-main; font-size: 26rpx; flex: 1; text-align: right; }
 .money { color: #e54d42; font-weight: 700; }
-.checkout { background: linear-gradient(90deg, #B794FF, #8B5CF6 55%, #7C3AED); color: #fff; border-radius: 999rpx; padding: 0 28rpx; height: 72rpx; line-height: 72rpx; font-weight: 600; box-shadow: 0 10rpx 24rpx rgba(139,92,246,.32); flex-shrink: 0; }
+.checkout {
+  background: $gradient-primary;
+  color: #fff;
+  border-radius: $radius-pill;
+  padding: 0 28rpx;
+  height: 72rpx;
+  line-height: 72rpx;
+  font-weight: 600;
+  box-shadow: $shadow-btn;
+  flex-shrink: 0;
+}
 .checkout[disabled] { opacity: 0.45; }
 </style>

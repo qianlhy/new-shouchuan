@@ -382,9 +382,8 @@ function onVip() {
 .page {
   padding: 24rpx 28rpx 160rpx;
   background:
-    radial-gradient(ellipse 80% 40% at 10% -10%, rgba(183, 148, 255, 0.28), transparent 55%),
-    radial-gradient(ellipse 70% 35% at 95% 8%, rgba(221, 200, 255, 0.45), transparent 50%),
-    linear-gradient(180deg, #FBF7FF 0%, #F3EBFF 38%, #FBF7FF 100%);
+    $page-mist,
+    linear-gradient(180deg, $page-bg 0%, $page-bg-deep 38%, $page-bg 100%);
   min-height: 100vh;
   box-sizing: border-box;
 }
@@ -431,21 +430,21 @@ function onVip() {
   justify-content: space-between;
   align-items: center;
   background: $gradient-vip;
-  border-radius: 28rpx;
+  border-radius: $radius-card;
   padding: 28rpx 32rpx;
   margin-bottom: 20rpx;
   box-shadow: $shadow-card;
-  border: 1rpx solid rgba(139, 92, 246, 0.12);
+  border: 1rpx solid $border-glass;
 }
 .vip-card::after {
   content: '';
   position: absolute;
   right: -20rpx;
   top: -30rpx;
-  width: 160rpx;
-  height: 160rpx;
+  width: 180rpx;
+  height: 180rpx;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(183, 148, 255, 0.45) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 230, 250, 0.55) 0%, rgba(183, 148, 255, 0.28) 45%, transparent 72%);
   pointer-events: none;
 }
 .vip-left { position: relative; z-index: 1; }
@@ -499,7 +498,7 @@ function onVip() {
   align-items: center;
   justify-content: center;
   position: relative;
-  box-shadow: inset 0 0 0 1rpx rgba(139, 92, 246, 0.06);
+  box-shadow: inset 0 0 0 1rpx rgba(255, 255, 255, 0.65);
 }
 .icon-box.order-icon {
   background: radial-gradient(circle at 40% 35%, #F3F8FF 0%, #DCEBFF 55%, #C9E0FF 100%);
@@ -513,10 +512,10 @@ function onVip() {
 .panel {
   background: $card-bg;
   border-radius: $radius-card;
-  box-shadow: $shadow-card;
+  box-shadow: $shadow-card-soft;
   margin-bottom: 20rpx;
   padding: 24rpx;
-  border: 1rpx solid $border-soft;
+  border: 1rpx solid $border-glass;
 }
 .panel-header {
   display: flex;
@@ -575,15 +574,23 @@ function onVip() {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: inset 0 0 0 1rpx rgba(139, 92, 246, 0.06);
+  box-shadow: inset 0 0 0 1rpx rgba(255, 255, 255, 0.7);
 }
 
-.logout-section { margin-top: 12rpx; }
+.logout-section { margin-top: 20rpx; padding: 0 4rpx 8rpx; }
 .logout-btn {
-  background: #fff;
-  color: #FF5722;
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.92);
+  color: $logout-text;
+  font-size: 28rpx;
+  font-weight: 500;
   border-radius: $radius-pill;
-  border: 1rpx solid rgba(255, 87, 34, 0.2);
+  border: 1rpx solid $logout-border;
+  box-shadow: $shadow-card-soft;
+  letter-spacing: 2rpx;
 }
 .logout-btn::after { border: none; }
 

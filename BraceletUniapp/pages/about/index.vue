@@ -1,348 +1,236 @@
 <template>
   <view class="page">
-    <!-- 品牌头部 -->
-    <view class="brand-header">
-      <image class="logo" src="/static/logo/qiyuan_logo.png" mode="aspectFit" />
-      <view class="brand-slogan">天然水晶 · 祈愿定制</view>
-      <view class="version">v1.0.0</view>
+    <view class="hero">
+      <text class="hero-title">祈愿手作定制手串退换政策</text>
+      <text class="hero-sub">购买前请仔细阅读 · AFTER-SALES</text>
     </view>
 
-    <!-- 关于我们 -->
     <view class="section">
-      <view class="section-title">关于我们</view>
-      <view class="section-content">
-        <text class="content-text">
-          我们是一家专注于水晶手链定制的品牌，致力于为每一位用户打造独一无二的手链作品。
-          从选材到设计，从制作到包装，我们坚持用心精神，只为呈现最美的作品。
-        </text>
+      <view class="section-head warn">
+        <text class="section-no">一</text>
+        <text class="section-title">无法退换 · 天然水晶默认微瑕</text>
+      </view>
+      <text class="p">
+        本店材质包含天然水晶及玉石，默认微瑕。矿坑、划痕、棉絮、扣手、黑点、冰片等自然形成的表皮及内里产物，不属于质量问题，无法退换。完美主义者慎拍哦！
+      </text>
+    </view>
+
+    <view class="section">
+      <view class="section-head warn">
+        <text class="section-no">二</text>
+        <text class="section-title">无法退换 · 定制商品不支持无理由退换</text>
+      </view>
+      <view class="bullets">
+        <text class="li">商品为定制商品，一经发货后，不支持无理由退换货。</text>
+        <text class="li">下单后想看实物图请联系客服查看实物图片。</text>
+        <text class="li">如不确定手围请联系客服！付款前请务必确认自己的手围与手串手围一致，尺寸不符需自行改款或付费维修。</text>
+        <text class="li">实物图均为自然光下一物一拍，有需要可以联系小程序客服在未发货前索要任意角度视频/图片。一经实物图确认后，无法因色差原因退换，建议勿拍哦！</text>
       </view>
     </view>
 
-    <!-- 品牌理念 -->
     <view class="section">
-      <view class="section-title">品牌理念</view>
-      <view class="feature-list">
-        <view class="feature-item">
-          <view class="feature-icon"><image class="xy-icon" src="/static/icons/gem.png" mode="aspectFit" style="width:40rpx;height:40rpx" /></view>
-          <view class="feature-info">
-            <view class="feature-name">精选原石</view>
-            <view class="feature-desc">每一颗珠子都经过精心挑选</view>
-          </view>
-        </view>
-        <view class="feature-item">
-          <view class="feature-icon"><image class="xy-icon" src="/static/icons/sparkles.png" mode="aspectFit" style="width:40rpx;height:40rpx" /></view>
-          <view class="feature-info">
-            <view class="feature-name">用心工艺</view>
-            <view class="feature-desc">传统工艺与现代设计完美结合</view>
-          </view>
-        </view>
-        <view class="feature-item">
-          <view class="feature-icon"><image class="xy-icon" src="/static/icons/palette.png" mode="aspectFit" style="width:40rpx;height:40rpx" /></view>
-          <view class="feature-info">
-            <view class="feature-name">自由定制</view>
-            <view class="feature-desc">DIY创作，专属你的独特风格</view>
-          </view>
-        </view>
-        <view class="feature-item">
-          <view class="feature-icon"><image class="xy-icon" src="/static/icons/shield-check.png" mode="aspectFit" style="width:40rpx;height:40rpx" /></view>
-          <view class="feature-info">
-            <view class="feature-name">品质保证</view>
-            <view class="feature-desc">严格质检，确保每件作品完美</view>
-          </view>
-        </view>
+      <view class="section-head ok">
+        <text class="section-no">三</text>
+        <text class="section-title">可退范围 · 请保证内外包装完整</text>
+      </view>
+      <view class="bullets">
+        <text class="li">未发货可随心退换，24小时内自动退回到原账户，不会存在退款中已发货的问题。</text>
+        <text class="li">珠子存在打开碎开，或配饰存在质量问题，凭开箱视频48小时内随心退换。</text>
       </view>
     </view>
 
-    <!-- 联系我们 -->
-    <!-- <view class="section">
-      <view class="section-title">联系我们</view>
-      <view class="contact-list">
-        <view class="contact-item">
-          <view class="contact-label">客服微信</view>
-          <view class="contact-value">点击查看二维码</view>
-          <button class="contact-btn" @click="showQRCode">查看</button>
-        </view>
-        <view class="contact-item">
-          <view class="contact-label">营业时间</view>
-          <view class="contact-value">周一至周日 9:00-21:00</view>
-        </view> -->
-        <!-- <view class="contact-item">
-          <view class="contact-label">客服电话</view>
-          <view class="contact-value">400-123-4567</view>
-          <button class="contact-btn" @click="callPhone">拨打</button>
-        </view> -->
-      <!-- </view>
-    </view> -->
+    <view class="section">
+      <view class="section-head">
+        <text class="section-no">四</text>
+        <text class="section-title">维修服务 · 订单一年内有效期</text>
+      </view>
+      <text class="p">水晶手串内置赠送备用线及消磁石，可用于自行改款，也可以联系客服寄回帮忙改款。</text>
+      <text class="p">保修期内，如出现绳子断开、配饰氧化等老化问题，请联系客服进行维修，邮费需自付。</text>
+      <view class="tip-box">
+        <text class="tip-line">客服时间：12:00—23:00</text>
+        <text class="tip-line">如对本售后须知有疑问，请联系客服咨询。</text>
+      </view>
+    </view>
 
-    <!-- 版权信息 -->
+    <view class="section">
+      <view class="section-head">
+        <text class="section-no">·</text>
+        <text class="section-title">关于材质</text>
+      </view>
+      <text class="note">（下文代指水晶、玉、石及各类珠宝）</text>
+      <view class="bullets">
+        <text class="li">本店在售材质均为天然，部分材质可能会因其结构特殊性存在国检允许的优化工艺，介意勿拍。</text>
+        <text class="li">天然水晶默认微瑕，棉絮/冰裂/平头/矿坑等属自然印记，非质量问题，详情请看售后政策。</text>
+        <text class="li">实物因拍摄光线、设备显色差异可能存在色差，请以包容心迎接天然独特之美。</text>
+        <text class="li">配件默认为高保色合金，长期遇水/汗可能氧化变色，非质量问题，如有需求可联系客服自费更换。</text>
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-head">
+        <text class="section-no">·</text>
+        <text class="section-title">发货与快递</text>
+      </view>
+      <view class="bullets">
+        <text class="li">默认快递：中通快递</text>
+        <text class="li">发货时效：由于多达数百种珠子需人工挑选，有较长的配货时长，按照订单提交顺序进行配货。具体时间咨询客服。</text>
+        <text class="li">顺丰加急：可联系客服补快递差价改顺丰。</text>
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-head">
+        <text class="section-no">·</text>
+        <text class="section-title">其他</text>
+      </view>
+      <text class="p">
+        DIY珠子尺寸默认误差 0.4mm，如10mm代表尺寸在9.6mm至10.4mm之间。配货中会尽可能寻找尺寸相近的珠子搭配。
+      </text>
+    </view>
+
     <view class="footer">
-      <view class="copyright">© 2025 祈愿手作</view>
-      <view class="copyright">专注水晶手链定制</view>
-    </view>
-
-    <!-- 客服二维码弹窗 -->
-    <view v-if="showQR" class="mask" @click="showQR = false">
-      <view class="qr-modal" @click.stop>
-        <view class="qr-title">客服微信</view>
-        <image 
-          class="qr" 
-          :src="qrUrl" 
-          mode="widthFix" 
-          show-menu-by-longpress="true"
-          @click="previewQR"
-        />
-        <view class="qr-tips">长按识别二维码添加客服</view>
-        <button class="qr-close" @click="showQR = false">关闭</button>
-      </view>
+      <text class="copyright">© 祈愿手作 · 天然水晶定制</text>
     </view>
   </view>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-
-const showQR = ref(false)
-const qrUrl = '/static/CustomerService/714966e4f87775b79a26b9002c0606d1.jpg'
-
-function showQRCode() {
-  showQR.value = true
-}
-
-function previewQR() {
-  try {
-    uni.previewImage({ urls: [qrUrl] })
-  } catch (e) {
-    uni.showToast({ title: '图片加载失败', icon: 'none' })
-  }
-}
-
-function callPhone() {
-  uni.makePhoneCall({
-    phoneNumber: '400-123-4567',
-    fail: () => {
-      uni.showToast({ title: '拨打失败', icon: 'none' })
-    }
-  })
-}
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@import '../../styles/theme.scss';
+
 .page {
   min-height: 100vh;
-  background: #f7f7f7;
-  padding-bottom: 24rpx;
+  box-sizing: border-box;
+  padding: 24rpx 28rpx 48rpx;
+  background:
+    $page-mist,
+    linear-gradient(180deg, $page-bg 0%, $page-bg-deep 40%, $page-bg 100%);
 }
 
-.brand-header {
-  background: linear-gradient(145deg, #FBF7FF 0%, #EDE4FF 45%, #D8C4FF 100%);
-  padding: 72rpx 24rpx 56rpx;
-  text-align: center;
+.hero {
+  background: $gradient-banner;
+  border-radius: $radius-card;
+  padding: 36rpx 28rpx;
+  margin-bottom: 20rpx;
+  border: 1rpx solid $border-glass;
+  box-shadow: $shadow-card-soft;
 }
-
-.logo {
-  width: 280rpx;
-  height: 280rpx;
-  margin: 0 auto 20rpx;
+.hero-title {
   display: block;
-  border-radius: 24rpx;
-  background: #fff;
-  box-shadow: 0 12rpx 32rpx rgba(90, 50, 160, 0.12);
-}
-
-.brand-name {
-  font-size: 48rpx;
+  font-size: 34rpx;
   font-weight: 700;
-  color: #2A2140;
-  margin-bottom: 12rpx;
+  color: $text-on-soft;
+  line-height: 1.4;
 }
-
-.brand-slogan {
-  font-size: 28rpx;
-  color: rgba(42, 33, 64, 0.72);
-  margin-bottom: 16rpx;
-}
-
-.version {
-  font-size: 24rpx;
-  color: rgba(42, 33, 64, 0.5);
+.hero-sub {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: rgba(74, 58, 120, 0.55);
+  letter-spacing: 1rpx;
 }
 
 .section {
-  background: #fff;
-  margin: 24rpx 24rpx 0;
-  border-radius: 16rpx;
-  padding: 32rpx 24rpx;
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: $radius-card;
+  padding: 28rpx 24rpx;
+  margin-bottom: 16rpx;
+  box-shadow: $shadow-card-soft;
+  border: 1rpx solid $border-glass;
 }
-
-.section-title {
-  font-size: 32rpx;
+.section-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+  padding-bottom: 14rpx;
+  border-bottom: 1rpx solid rgba(139, 92, 246, 0.08);
+}
+.section-no {
+  flex-shrink: 0;
+  min-width: 40rpx;
+  height: 40rpx;
+  line-height: 40rpx;
+  text-align: center;
+  border-radius: 12rpx;
+  background: $icon-orb;
+  color: $primary;
+  font-size: 22rpx;
   font-weight: 700;
-  color: #333;
-  margin-bottom: 24rpx;
-  padding-bottom: 16rpx;
-  border-bottom: 2rpx solid #f5f5f5;
 }
-
-.section-content {
-  line-height: 1.8;
+.section-head.warn .section-no {
+  background: rgba(255, 237, 213, 0.9);
+  color: #C2410C;
 }
-
-.content-text {
+.section-head.ok .section-no {
+  background: $success-soft;
+  color: #15803D;
+}
+.section-title {
+  flex: 1;
   font-size: 28rpx;
-  color: #666;
+  font-weight: 700;
+  color: $text-main;
+  line-height: 1.45;
 }
-
-.feature-list {
+.p {
+  display: block;
+  font-size: 26rpx;
+  color: $text-sub;
+  line-height: 1.75;
+  margin-bottom: 12rpx;
+}
+.p:last-child { margin-bottom: 0; }
+.note {
+  display: block;
+  font-size: 22rpx;
+  color: $text-hint;
+  margin-bottom: 12rpx;
+}
+.bullets {
   display: flex;
   flex-direction: column;
-  gap: 24rpx;
+  gap: 14rpx;
 }
-
-.feature-item {
-  display: flex;
-  align-items: center;
-  gap: 20rpx;
+.li {
+  position: relative;
+  display: block;
+  padding-left: 24rpx;
+  font-size: 26rpx;
+  color: $text-sub;
+  line-height: 1.7;
 }
-
-.feature-icon {
-  width: 80rpx;
-  height: 80rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #F3EEFF;
+.li::before {
+  content: '';
+  position: absolute;
+  left: 4rpx;
+  top: 16rpx;
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 50%;
+  background: $primary-muted;
+}
+.tip-box {
+  margin-top: 8rpx;
+  padding: 18rpx 20rpx;
   border-radius: 16rpx;
-  flex-shrink: 0;
+  background: $primary-soft;
+  border: 1rpx solid rgba(139, 92, 246, 0.12);
 }
-.ui-icon {
-  width: 44rpx;
-  height: 44rpx;
-}
-
-.feature-info {
-  flex: 1;
-}
-
-.feature-name {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 6rpx;
-}
-
-.feature-desc {
+.tip-line {
+  display: block;
   font-size: 24rpx;
-  color: #999;
+  color: $text-on-soft;
+  line-height: 1.7;
 }
-
-.contact-list {
-  display: flex;
-  flex-direction: column;
-  gap: 24rpx;
-}
-
-.contact-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20rpx 0;
-  border-bottom: 1rpx solid #f5f5f5;
-}
-
-.contact-item:last-child {
-  border-bottom: none;
-}
-
-.contact-label {
-  font-size: 28rpx;
-  color: #666;
-  width: 160rpx;
-  flex-shrink: 0;
-}
-
-.contact-value {
-  flex: 1;
-  font-size: 28rpx;
-  color: #333;
-}
-
-.contact-btn {
-  padding: 0 24rpx;
-  height: 56rpx;
-  line-height: 56rpx;
-  font-size: 24rpx;
-  background: #6B4EFF;
-  color: #fff;
-  border: none;
-  border-radius: 8rpx;
-  font-weight: 600;
-}
-
 .footer {
   text-align: center;
-  padding: 48rpx 24rpx;
+  padding: 28rpx 0 8rpx;
 }
-
 .copyright {
-  font-size: 24rpx;
-  color: #999;
-  line-height: 1.8;
-}
-
-.mask {
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.qr-modal {
-  width: 80%;
-  background: #fff;
-  border-radius: 20rpx;
-  padding: 40rpx;
-  box-shadow: 0 10rpx 24rpx rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.qr-title {
-  font-size: 32rpx;
-  font-weight: 700;
-  color: #333;
-  margin-bottom: 24rpx;
-}
-
-.qr {
-  width: 480rpx;
-  height: 480rpx;
-  background: #f5f5f5;
-  border-radius: 12rpx;
-  margin-bottom: 16rpx;
-}
-
-.qr-tips {
-  font-size: 24rpx;
-  color: #999;
-  margin-bottom: 24rpx;
-}
-
-.qr-close {
-  width: 100%;
-  height: 80rpx;
-  line-height: 80rpx;
-  background: #6B4EFF;
-  color: #333;
-  font-size: 28rpx;
-  font-weight: 700;
-  border-radius: 16rpx;
-  border: none;
+  font-size: 22rpx;
+  color: $text-hint;
 }
 </style>

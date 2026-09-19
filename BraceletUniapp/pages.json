@@ -61,7 +61,7 @@
     },
     {
       "path": "pages/about/index",
-      "style": {"navigationBarTitleText": "关于我们"}
+      "style": {"navigationBarTitleText": "售后须知"}
     },
     {
       "path": "pages/setting/index",

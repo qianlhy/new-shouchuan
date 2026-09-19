@@ -21,11 +21,26 @@ $success: #22C55E;
 $success-soft: #E8F9EF;
 
 $border-soft: rgba(139, 92, 246, 0.10);
+$border-glass: rgba(255, 255, 255, 0.55);
 $shadow-card: 0 12rpx 32rpx rgba(90, 50, 160, 0.07);
+$shadow-card-soft: 0 8rpx 24rpx rgba(90, 50, 160, 0.05);
 $shadow-btn: 0 10rpx 24rpx rgba(139, 92, 246, 0.32);
 
 $radius-card: 28rpx;
 $radius-pill: 999rpx;
+
+/* 次要 / 幽灵按钮 */
+$btn-ghost-bg: rgba(243, 235, 255, 0.85);
+$btn-ghost-border: rgba(139, 92, 246, 0.22);
+$btn-ghost-text: $primary;
+$logout-text: #6B6478;
+$logout-border: rgba(139, 92, 246, 0.18);
+
+/* 页面淡粉紫光斑（梦幻氛围，克制使用） */
+$page-mist:
+  radial-gradient(ellipse 85% 42% at 0% 0%, rgba(183, 148, 255, 0.22), transparent 55%),
+  radial-gradient(ellipse 70% 36% at 100% 5%, rgba(232, 200, 255, 0.32), transparent 52%),
+  radial-gradient(ellipse 50% 28% at 50% 100%, rgba(255, 230, 250, 0.18), transparent 60%);
 
 /* 按钮：水平渐变（对标竞品粉→深粉） */
 $gradient-primary: linear-gradient(90deg, #B794FF 0%, #8B5CF6 55%, #7C3AED 100%);
@@ -40,4 +55,4 @@ $gradient-vip: linear-gradient(105deg, #F7F1FF 0%, #EDE0FF 48%, #E2D0FF 100%);
 $gradient-diy: linear-gradient(160deg, #F1E8FF 0%, #E2D2FF 55%, #D4C0FF 100%);
 
 /* 图标圆底：径向淡紫填充感 */
-$icon-orb: radial-gradient(circle at 40% 35%, #F8F3FF 0%, #EDE4FF 55%, #E4D6FF 100%);
+$icon-orb: radial-gradient(circle at 40% 35%, #FBF8FF 0%, #F1E8FF 55%, #E8DCFF 100%);

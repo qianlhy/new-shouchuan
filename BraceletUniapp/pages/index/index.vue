@@ -16,19 +16,19 @@
         </view>
         <view class="guide-grid">
           <view class="guide-item" @click="goAbout">
-            <view class="guide-icon"><image class="xy-icon" src="/static/icons/shield-check-purple.png" mode="aspectFit" style="width:32rpx;height:32rpx" /></view>
+            <view class="guide-icon"><image class="xy-icon" src="/static/icons/shield-check-purple.png" mode="aspectFit" style="width:42rpx;height:42rpx" /></view>
             <text>售后范围</text>
           </view>
           <view class="guide-item" @click="goAbout">
-            <view class="guide-icon"><image class="xy-icon" src="/static/icons/truck-purple.png" mode="aspectFit" style="width:32rpx;height:32rpx" /></view>
+            <view class="guide-icon"><image class="xy-icon" src="/static/icons/truck-purple.png" mode="aspectFit" style="width:42rpx;height:42rpx" /></view>
             <text>物流运输</text>
           </view>
           <view class="guide-item" @click="goAbout">
-            <view class="guide-icon"><image class="xy-icon" src="/static/icons/gem-purple.png" mode="aspectFit" style="width:32rpx;height:32rpx" /></view>
+            <view class="guide-icon"><image class="xy-icon" src="/static/icons/gem-purple.png" mode="aspectFit" style="width:42rpx;height:42rpx" /></view>
             <text>天然材质</text>
           </view>
           <view class="guide-item" @click="goAbout">
-            <view class="guide-icon"><image class="xy-icon" src="/static/icons/circle-help-purple.png" mode="aspectFit" style="width:32rpx;height:32rpx" /></view>
+            <view class="guide-icon"><image class="xy-icon" src="/static/icons/circle-help-purple.png" mode="aspectFit" style="width:42rpx;height:42rpx" /></view>
             <text>常见问题</text>
           </view>
         </view>
@@ -39,15 +39,15 @@
     <!-- 中部入口 -->
     <view class="mid-row">
       <view class="mid-item" @click="onLuckyDraw">
-        <view class="mid-icon"><image class="xy-icon" src="/static/icons/gift-purple.png" mode="aspectFit" style="width:34rpx;height:34rpx" /></view>
+        <view class="mid-icon"><image class="xy-icon" src="/static/icons/gift-purple.png" mode="aspectFit" style="width:42rpx;height:42rpx" /></view>
         <text>幸运抽奖</text>
       </view>
       <view class="mid-item" @click="goService">
-        <view class="mid-icon"><image class="xy-icon" src="/static/icons/message-circle-purple.png" mode="aspectFit" style="width:34rpx;height:34rpx" /></view>
+        <view class="mid-icon"><image class="xy-icon" src="/static/icons/message-circle-purple.png" mode="aspectFit" style="width:42rpx;height:42rpx" /></view>
         <text>联系客服</text>
       </view>
       <view class="mid-item" @click="goDesign">
-        <view class="mid-icon"><image class="xy-icon" src="/static/icons/palette-purple.png" mode="aspectFit" style="width:34rpx;height:34rpx" /></view>
+        <view class="mid-icon"><image class="xy-icon" src="/static/icons/palette-purple.png" mode="aspectFit" style="width:42rpx;height:42rpx" /></view>
         <text>我的设计</text>
       </view>
     </view>
@@ -98,7 +98,7 @@
       <view class="rec-head">
         <text class="rec-title">推荐设计</text>
         <view class="rec-refresh" @click="loadRecommend">
-          <image class="xy-icon" src="/static/icons/refresh-cw.png" mode="aspectFit" style="width:28rpx;height:28rpx" />
+          <image class="xy-icon" src="/static/icons/refresh-cw-purple.png" mode="aspectFit" style="width:40rpx;height:40rpx" />
           <text>刷新</text>
         </view>
       </view>
@@ -297,9 +297,8 @@ onMounted(() => {
 .page {
   min-height: 100vh;
   background:
-    radial-gradient(ellipse 85% 42% at 0% 0%, rgba(183, 148, 255, 0.26), transparent 55%),
-    radial-gradient(ellipse 70% 36% at 100% 5%, rgba(221, 200, 255, 0.4), transparent 52%),
-    linear-gradient(180deg, #FBF7FF 0%, #F3EBFF 36%, #FBF7FF 100%);
+    $page-mist,
+    linear-gradient(180deg, $page-bg 0%, $page-bg-deep 36%, $page-bg 100%);
   padding: 24rpx 28rpx 160rpx;
   box-sizing: border-box;
 }
@@ -312,6 +311,7 @@ onMounted(() => {
   margin-bottom: 20rpx;
   background: $gradient-banner;
   box-shadow: $shadow-card;
+  border: 1rpx solid $border-glass;
 }
 .guide-deco {
   position: absolute;
@@ -320,18 +320,18 @@ onMounted(() => {
   z-index: 0;
 }
 .guide-wrap .d1 {
-  width: 220rpx;
-  height: 220rpx;
+  width: 240rpx;
+  height: 240rpx;
   right: -50rpx;
   top: -60rpx;
-  background: radial-gradient(circle, rgba(183, 148, 255, 0.55) 0%, rgba(221, 200, 255, 0.15) 60%, transparent 75%);
+  background: radial-gradient(circle, rgba(255, 230, 250, 0.45) 0%, rgba(183, 148, 255, 0.35) 40%, transparent 72%);
 }
 .guide-wrap .d2 {
   width: 140rpx;
   height: 140rpx;
   right: 80rpx;
   bottom: -40rpx;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.22) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.16) 0%, transparent 70%);
 }
 .guide-wrap .d3 {
   width: 56rpx;
@@ -396,18 +396,19 @@ onMounted(() => {
   box-shadow: 0 6rpx 16rpx rgba(90, 50, 160, 0.06);
 }
 .guide-icon {
-  width: 52rpx;
-  height: 52rpx;
+  width: 56rpx;
+  height: 56rpx;
   border-radius: 16rpx;
   background: $icon-orb;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: inset 0 0 0 1rpx rgba(255, 255, 255, 0.7);
 }
 .ui-icon {
-  width: 36rpx;
-  height: 36rpx;
+  width: 42rpx;
+  height: 42rpx;
 }
 .guide-note {
   display: block;
@@ -424,28 +425,29 @@ onMounted(() => {
 }
 .mid-item {
   flex: 1;
-  background: $card-bg;
+  background: rgba(255, 255, 255, 0.92);
   border-radius: 24rpx;
   padding: 22rpx 10rpx;
   text-align: center;
-  box-shadow: $shadow-card;
-  border: 1rpx solid $border-soft;
+  box-shadow: $shadow-card-soft;
+  border: 1rpx solid $border-glass;
   font-size: 24rpx;
   color: $text-main;
 }
 .mid-icon {
-  width: 56rpx;
-  height: 56rpx;
+  width: 60rpx;
+  height: 60rpx;
   margin: 0 auto 10rpx;
   border-radius: 50%;
   background: $icon-orb;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: inset 0 0 0 1rpx rgba(255, 255, 255, 0.7);
 }
 .mid-icon .ui-icon {
-  width: 32rpx;
-  height: 32rpx;
+  width: 42rpx;
+  height: 42rpx;
 }
 
 .action-section {
@@ -461,12 +463,13 @@ onMounted(() => {
   border-radius: 28rpx;
   padding: 28rpx 24rpx;
   box-shadow: $shadow-card;
+  border: 1rpx solid $border-glass;
 }
 /* 撞色：左浅紫实心块 / 右白底 */
 .diy-card { background: $gradient-diy; }
 .select-card {
-  background: #FFFFFF;
-  border: 1rpx solid $border-soft;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1rpx solid $border-glass;
 }
 .card-badge {
   font-size: 18rpx;
@@ -491,10 +494,10 @@ onMounted(() => {
   position: absolute;
   right: -20rpx;
   bottom: -30rpx;
-  width: 140rpx;
-  height: 140rpx;
+  width: 150rpx;
+  height: 150rpx;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(183, 148, 255, 0.55) 0%, rgba(139, 92, 246, 0.12) 55%, transparent 72%);
+  background: radial-gradient(circle, rgba(255, 230, 250, 0.4) 0%, rgba(183, 148, 255, 0.35) 40%, transparent 72%);
 }
 .cart-glow {
   position: absolute;
@@ -549,8 +552,8 @@ onMounted(() => {
   color: $primary;
 }
 .refresh-icon {
-  width: 28rpx;
-  height: 28rpx;
+  width: 40rpx;
+  height: 40rpx;
 }
 .rec-empty {
   text-align: center;
@@ -562,12 +565,12 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   gap: 20rpx;
-  background: $card-bg;
+  background: rgba(255, 255, 255, 0.94);
   border-radius: $radius-card;
   padding: 24rpx;
   margin-bottom: 16rpx;
-  box-shadow: $shadow-card;
-  border: 1rpx solid $border-soft;
+  box-shadow: $shadow-card-soft;
+  border: 1rpx solid $border-glass;
 }
 .rec-name {
   display: block;

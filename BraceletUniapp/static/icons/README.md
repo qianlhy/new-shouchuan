@@ -19,6 +19,7 @@ BraceletUniapp/static/icons/*.png
 4. 页面引用：/static/icons/图标名.png
 
 ## 品牌色
-- purple #6B4EFF（默认）
-- gray #666666
+- purple #8B5CF6（主题主色，stroke 1.75）
+- gray #9CA3AF（tabBar 未选中）
+- black #5B5568（订单图标）
 - gold #F5C93A
