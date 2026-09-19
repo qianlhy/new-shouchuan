@@ -10,12 +10,15 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -36,11 +39,36 @@ public class WeChatPayUtil {
     private static final String REFUND_URL = "https://api.mch.weixin.qq.com/v3/refund/domestic/refunds";
 
     /**
+     * 读取 PEM：优先磁盘路径，不存在则回退 classpath:/certs/文件名
+     */
+    private String readPemContent(String configuredPath) throws IOException {
+        if (configuredPath != null && !configuredPath.isBlank()) {
+            Path path = Paths.get(configuredPath);
+            if (Files.exists(path) && Files.isRegularFile(path)) {
+                return Files.readString(path, StandardCharsets.UTF_8);
+            }
+        }
+        String fileName = configuredPath == null ? null : Paths.get(configuredPath).getFileName().toString();
+        if (fileName == null || fileName.isBlank()) {
+            throw new IOException("微信支付证书路径未配置");
+        }
+        ClassPathResource resource = new ClassPathResource("certs/" + fileName);
+        if (!resource.exists()) {
+            throw new IOException("微信支付证书不存在: " + configuredPath
+                    + "（同时未找到 classpath:certs/" + fileName
+                    + "）。请将 apiclient_key.pem / pub_key.pem 放到容器 /app/certs/ 或重新打包部署。");
+        }
+        try (InputStream in = resource.getInputStream()) {
+            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+        }
+    }
+
+    /**
      * 加载商户私钥
      */
     private PrivateKey loadPrivateKey() throws Exception {
         String privateKeyPath = weChatProperties.getPrivateKeyFilePath();
-        String privateKeyPEM = new String(Files.readAllBytes(Paths.get(privateKeyPath)), StandardCharsets.UTF_8)
+        String privateKeyPEM = readPemContent(privateKeyPath)
                 .replace("-----BEGIN PRIVATE KEY-----", "")
                 .replace("-----END PRIVATE KEY-----", "")
                 .replaceAll("\\s+", "");
@@ -56,7 +84,7 @@ public class WeChatPayUtil {
      */
     private PublicKey loadPublicKey() throws Exception {
         String publicKeyPath = weChatProperties.getWeChatPayPublicKeyPath();
-        String publicKeyPEM = new String(Files.readAllBytes(Paths.get(publicKeyPath)), StandardCharsets.UTF_8)
+        String publicKeyPEM = readPemContent(publicKeyPath)
                 .replace("-----BEGIN PUBLIC KEY-----", "")
                 .replace("-----END PUBLIC KEY-----", "")
                 .replaceAll("\\s+", "");

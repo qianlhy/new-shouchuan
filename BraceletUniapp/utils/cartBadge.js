@@ -4,8 +4,8 @@
 
 import { getCartList, isLoggedIn } from '../api/index.js'
 
-// 购物车在TabBar中的索引
-const CART_TAB_INDEX = 2
+// 购物车在TabBar中的索引（首页0 / 广场1 / DIY2 / 购物车3 / 我的4）
+const CART_TAB_INDEX = 3
 
 // 防抖定时器
 let updateTimer = null
@@ -43,9 +43,10 @@ function isInTabBarPages() {
     const currentPage = pages[pages.length - 1]
     const route = currentPage.route || ''
     
-    // TabBar页面列表
+    // TabBar页面列表（与 pages.json tabBar.list 一致）
     const tabBarPages = [
       'pages/index/index',
+      'pages/square/index',
       'pages/design/index',
       'pages/cart/index',
       'pages/mine/index'

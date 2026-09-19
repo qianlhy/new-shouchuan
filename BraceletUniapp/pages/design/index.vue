@@ -732,23 +732,17 @@ const rawLayoutRadius = computed(() => {
   if (!count) return visualRadius.value
   const totalArc = getTotalBeadArcRpx()
   const minR = totalArc / (2 * Math.PI)
-  // 紧凑模式：半径刚好包住珠子，圆环无缝闭合
-  // 均匀模式：至少按手围半径，多余空隙再均分
-  if (!isAutoArranged.value) {
-    return Math.max(minR, 1)
-  }
+  // 始终按手围半径展示（绳子大圆）；珠子过多时再放大，避免重叠
+  // 紧凑模式不再收成 minR，否则会变成「小闭环」叠住中心 logo
   return Math.max(visualRadius.value, minR)
 })
 
 const layoutRadius = computed(() => {
-  if (!isAutoArranged.value) {
-    return rawLayoutRadius.value
-  }
   return Math.max(rawLayoutRadius.value, maxRadiusHistory.value)
 })
 
 watch(rawLayoutRadius, (val) => {
-  if (isAutoArranged.value && val > maxRadiusHistory.value) {
+  if (val > maxRadiusHistory.value) {
     maxRadiusHistory.value = val
   }
 })
@@ -776,7 +770,7 @@ const canvasScale = computed(() => {
   return autoScale * manualScale.value
 })
 
-// 计算珠子布局（必须闭环，首尾相接无缺口）
+// 计算珠子布局：紧凑=从顶点连串；均匀=空隙均分绕满手围圆
 const beadLayouts = computed(() => {
   const count = beads.value.length
   if (!count) return []
@@ -802,12 +796,11 @@ const beadLayouts = computed(() => {
     if (canGap) validGapCount++
   }
 
-  // 剩余弧长必须均分到可间隙处，否则首尾对不齐会出现缺口
+  // 剩余弧长：仅「均匀」模式均分到珠间；紧凑模式间隙为 0，珠子从顶点连成一串（图二效果）
   let gap = 0
-  if (remainingArc > 0.5 && validGapCount > 0) {
+  if (isAutoArranged.value && remainingArc > 0.5 && validGapCount > 0) {
     gap = remainingArc / validGapCount
   } else if (remainingArc < -0.5) {
-    // 珠子总长略超圆周时，靠半径已放大；这里不再制造负间隙
     gap = 0
   }
 
@@ -923,7 +916,7 @@ function toggleAutoArrange() {
   isAutoArranged.value = !isAutoArranged.value
   if (!isAutoArranged.value) maxRadiusHistory.value = 0
   uni.showToast({ 
-    title: isAutoArranged.value ? '已均匀排列' : '已紧凑闭合', 
+    title: isAutoArranged.value ? '已均匀排列' : '已紧凑排列', 
     icon: 'none' 
   })
 }

@@ -41,6 +41,8 @@ services:
     volumes:
       # 持久化上传文件
       - ./uploads:/app/uploads
+      # 微信支付证书（容器内路径 /app/certs）
+      - ./certs:/app/certs:ro
     restart: unless-stopped
     networks:
       - diy-network
