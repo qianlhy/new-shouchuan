@@ -21,24 +21,21 @@ public class DiyMaterialServiceImpl implements DiyMaterialService {
     private DiyMaterialMapper diyMaterialMapper;
 
     @Override
-    public List<DiyMaterial> list(String categoryKey, String colorSeriesKey) {
-        List<String> categories = categoryKey != null ? Arrays.asList(categoryKey) : null;
-        List<String> colorSeries = colorSeriesKey != null ? Arrays.asList(colorSeriesKey) : null;
-        return diyMaterialMapper.list(categories, colorSeries);
+    public List<DiyMaterial> list(String categoryKey, String colorSeriesKey, String title, Integer limit) {
+        List<String> categories = categoryKey != null && !categoryKey.isEmpty() ? Arrays.asList(categoryKey) : null;
+        List<String> colorSeries = colorSeriesKey != null && !colorSeriesKey.isEmpty() ? Arrays.asList(colorSeriesKey) : null;
+        String titleKey = title != null && !title.trim().isEmpty() ? title.trim() : null;
+        return diyMaterialMapper.list(categories, colorSeries, titleKey, limit);
     }
 
     @Override
-    public PageResult page(Integer page, Integer pageSize, String categoryKey, String colorSeriesKey) {
-        // 开启分页
+    public PageResult page(Integer page, Integer pageSize, String categoryKey, String colorSeriesKey, String title) {
         PageHelper.startPage(page, pageSize);
-        
-        List<String> categories = categoryKey != null ? Arrays.asList(categoryKey) : null;
-        List<String> colorSeriesList = colorSeriesKey != null ? Arrays.asList(colorSeriesKey) : null;
-        
-        // 执行查询
-        Page<DiyMaterial> pageResult = (Page<DiyMaterial>) diyMaterialMapper.list(categories, colorSeriesList);
-        
-        // 封装分页结果
+        List<String> categories = categoryKey != null && !categoryKey.isEmpty() ? Arrays.asList(categoryKey) : null;
+        List<String> colorSeriesList = colorSeriesKey != null && !colorSeriesKey.isEmpty() ? Arrays.asList(colorSeriesKey) : null;
+        String titleKey = title != null && !title.trim().isEmpty() ? title.trim() : null;
+        // 分页时不要带 limit，交给 PageHelper
+        Page<DiyMaterial> pageResult = (Page<DiyMaterial>) diyMaterialMapper.list(categories, colorSeriesList, titleKey, null);
         return new PageResult(pageResult.getTotal(), pageResult.getResult());
     }
 

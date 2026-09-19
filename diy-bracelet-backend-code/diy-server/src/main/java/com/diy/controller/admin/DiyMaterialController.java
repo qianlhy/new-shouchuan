@@ -32,24 +32,29 @@ public class DiyMaterialController {
     @ApiOperation("分页查询材料列表")
     public Result<PageResult> page(
             @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(defaultValue = "20") Integer pageSize,
             @RequestParam(required = false) String categoryKey,
-            @RequestParam(required = false) String colorSeriesKey) {
-        log.info("分页查询材料列表，页码：{}，每页大小：{}，分类：{}，色系：{}", page, pageSize, categoryKey, colorSeriesKey);
-        PageResult pageResult = diyMaterialService.page(page, pageSize, categoryKey, colorSeriesKey);
+            @RequestParam(required = false) String colorSeriesKey,
+            @RequestParam(required = false) String title) {
+        log.info("分页查询材料列表，页码：{}，每页大小：{}，分类：{}，色系：{}，标题：{}", page, pageSize, categoryKey, colorSeriesKey, title);
+        PageResult pageResult = diyMaterialService.page(page, pageSize, categoryKey, colorSeriesKey, title);
         return Result.success(pageResult);
     }
 
     /**
-     * 查询材料列表（不分页）
+     * 查询材料列表（不分页；可用于下拉搜索，建议带 title/limit）
      */
     @GetMapping("/list")
     @ApiOperation("查询材料列表")
     public Result<List<DiyMaterial>> list(
             @RequestParam(required = false) String categoryKey,
-            @RequestParam(required = false) String colorSeriesKey) {
-        log.info("查询材料列表，分类：{}，色系：{}", categoryKey, colorSeriesKey);
-        List<DiyMaterial> materials = diyMaterialService.list(categoryKey, colorSeriesKey);
+            @RequestParam(required = false) String colorSeriesKey,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) Integer limit) {
+        log.info("查询材料列表，分类：{}，色系：{}，标题：{}，limit：{}", categoryKey, colorSeriesKey, title, limit);
+        // 未传 limit 时默认最多 200 条，避免一次拉全表拖垮管理端
+        Integer safeLimit = limit != null ? limit : 200;
+        List<DiyMaterial> materials = diyMaterialService.list(categoryKey, colorSeriesKey, title, safeLimit);
         return Result.success(materials);
     }
 

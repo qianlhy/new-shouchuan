@@ -42,7 +42,7 @@
             <view class="title">{{ getDisplayTitle(detail) }}</view>
             <view class="sub" v-if="detail.description">规格：{{ detail.description }}</view>
             <view class="price-row">
-              <text class="price">¥{{ detail.amount }}</text>
+              <text class="price">¥{{ goodsAmount }}</text>
               <text class="qty">x1</text>
             </view>
           </view>
@@ -126,34 +126,48 @@ import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 import { cancelOrder, cancelRefundOrder, completeOrder, orderDetail, refundOrder } from '../../api/index.js'
 import { STORAGE_TOKEN_KEY } from '../../config.js'
+import { isAuthError } from '../../api/request.js'
 import { resolveImageUrl } from '../../utils/imageHelper.js'
 import { handleOrderPayment } from '../../utils/paymentHelper.js'
+import { calculateShippingFee } from '../../utils/shippingFee.js'
 
 const detail = ref(null)
 const loading = ref(true)
 let oid = ''
 
-// 判断是否是新疆、西藏地址
-const isRemoteArea = computed(() => {
-  if (!detail.value) return false
+// 商品金额：优先按订单项汇总（不含运费）
+const goodsAmount = computed(() => {
+  if (!detail.value) return 0
+  const items = detail.value.items || detail.value.orderItems || []
+  if (items.length > 0) {
+    const sum = items.reduce((acc, i) => {
+      return acc + (Number(i.price) || 0) * (Number(i.quantity) || 0)
+    }, 0)
+    if (sum > 0) return Number(sum.toFixed(2))
+  }
+  // 无明细时按规则反推，避免把运费算进商品金额
+  const total = Number(detail.value.amount) || 0
   const province = detail.value.receiverProvince || ''
-  return province.includes('新疆') || province.includes('西藏')
+  let fee = calculateShippingFee(total, province)
+  let goods = Math.max(0, Number((total - fee).toFixed(2)))
+  fee = calculateShippingFee(goods, province)
+  return Math.max(0, Number((total - fee).toFixed(2)))
 })
 
-// 运费
-const shippingFee = computed(() => {
-  return isRemoteArea.value ? 15 : 0
-})
-
-// 订单总金额（从数据库读取，已包含运费）
+// 订单总金额 = 数据库 amount = 微信支付金额（禁止在前端再加减运费）
 const totalAmount = computed(() => {
   if (!detail.value) return 0
   return Number(detail.value.amount) || 0
 })
 
-// 商品金额（订单总金额 - 运费）
-const goodsAmount = computed(() => {
-  return totalAmount.value - shippingFee.value
+// 运费展示：优先用「应付总额 - 商品金额」，与库内金额、支付完全一致
+// （避免只改展示、支付仍用旧 amount 的历史问题）
+const shippingFee = computed(() => {
+  if (!detail.value) return 0
+  const fromOrder = Number((totalAmount.value - goodsAmount.value).toFixed(2))
+  if (fromOrder >= 0) return fromOrder
+  const province = detail.value.receiverProvince || ''
+  return calculateShippingFee(goodsAmount.value, province)
 })
 
 // 计算显示的材料列表
@@ -571,7 +585,9 @@ onLoad(async (options) => {
       console.log('📋 订单详情:', detail.value)
     } catch (e) {
       console.error('❌ 加载订单失败', e)
-      uni.showToast({ title: '加载失败', icon: 'none' })
+      if (!(e.authExpired || isAuthError(e))) {
+        uni.showToast({ title: '加载失败', icon: 'none' })
+      }
     } finally {
       loading.value = false
     }

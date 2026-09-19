@@ -7,14 +7,14 @@ import java.util.List;
 public interface DiyMaterialService {
     
     /**
-     * 查询材料列表
+     * 查询材料列表（可选标题关键词、条数上限）
      */
-    List<DiyMaterial> list(String categoryKey, String colorSeriesKey);
+    List<DiyMaterial> list(String categoryKey, String colorSeriesKey, String title, Integer limit);
     
     /**
      * 分页查询材料列表
      */
-    PageResult page(Integer page, Integer pageSize, String categoryKey, String colorSeriesKey);
+    PageResult page(Integer page, Integer pageSize, String categoryKey, String colorSeriesKey, String title);
     
     /**
      * 根据ID查询

@@ -55,6 +55,7 @@
 import { onHide, onLoad, onPullDownRefresh, onReachBottom, onShow, onUnload } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import { cancelOrder, getAddressList, orderList, refundOrder, updateOrderAddress } from '../../api/index.js'
+import { isAuthError } from '../../api/request.js'
 import { resolveImageUrl } from '../../utils/imageHelper.js'
 import { handleOrderPayment } from '../../utils/paymentHelper.js'
 
@@ -389,6 +390,7 @@ async function load(isRefresh = false) {
     
   } catch (e) {
     console.error('❌ 加载订单列表失败:', e)
+    if (e.authExpired || isAuthError(e)) return
     uni.showToast({ title: '加载失败', icon: 'none' })
   } finally {
     isLoading.value = false

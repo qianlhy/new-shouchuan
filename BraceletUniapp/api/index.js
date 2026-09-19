@@ -82,6 +82,9 @@ export const requireLogin = () => {
   return true
 }
 
+/** 判断错误是否为登录失效（供页面 catch 跳过重复 toast） */
+export { isAuthError } from './request.js'
+
 // 退出登录
 export const logout = async () => {
   try {

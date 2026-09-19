@@ -33,7 +33,7 @@ public class OrdersSubmitDTO implements Serializable {
     // 详细地址（非必填，用于直接传递收件人信息）
     private String receiverDetail;
     
-    // 运费（可选，新疆西藏等偏远地区需要加运费）
+    // 运费（可选；后端会按规则重算，不信任此字段）
     private java.math.BigDecimal shippingFee;
 
     // 勾选结算的购物车项ID列表（为空则结算全部）

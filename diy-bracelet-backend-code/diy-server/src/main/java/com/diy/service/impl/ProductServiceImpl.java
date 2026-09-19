@@ -94,8 +94,7 @@ public class ProductServiceImpl implements ProductService {
         // 转换为VO对象，包含分类名称
         List<ProductListVO.ProductItem> productItems = page.getResult().stream()
                 .map(product -> {
-                    String diyData = product.getDiyData();
-                    boolean hasDiy = diyData != null && !diyData.trim().isEmpty();
+                    boolean hasDiy = product.getHasDiyTemplate() != null && product.getHasDiyTemplate() == 1;
                     return ProductListVO.ProductItem.builder()
                             .id(product.getId())
                             .categoryId(product.getCategoryId())

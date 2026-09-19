@@ -16,6 +16,7 @@ import com.diy.mapper.*;
 import com.diy.result.PageResult;
 import com.diy.service.CartItemService;
 import com.diy.service.OrderService;
+import com.diy.utils.ShippingFeeUtil;
 import com.diy.utils.WeChatPayUtil;
 import com.diy.utils.WxCloudStorageUtil;
 import com.diy.vo.OrderCreateVO;
@@ -295,12 +296,10 @@ public class OrderServiceImpl implements OrderService {
         }
 
         String orderNo = "ORD" + System.currentTimeMillis();
-        
-        // 加上运费（如果有）
-        BigDecimal shippingFee = BigDecimal.ZERO;
-        if (ordersSubmitDTO != null && ordersSubmitDTO.getShippingFee() != null) {
-            shippingFee = ordersSubmitDTO.getShippingFee();
-        }
+
+        // 运费以后端规则为准（新疆/西藏15；其他地区不满20加7）
+        String province = ordersSubmitDTO != null ? ordersSubmitDTO.getReceiverProvince() : null;
+        BigDecimal shippingFee = ShippingFeeUtil.calculate(totalAmount, province);
         BigDecimal finalAmount = totalAmount.add(shippingFee);
         log.info("生成订单号: {}, 商品金额: {}, 运费: {}, 总金额: {}", orderNo, totalAmount, shippingFee, finalAmount);
 
@@ -365,7 +364,7 @@ public class OrderServiceImpl implements OrderService {
         OrderCreateVO.Order orderVO = OrderCreateVO.Order.builder()
                 .orderId(orderId)
                 .orderNo(orderNo)
-                .amount(totalAmount)
+                .amount(finalAmount)
                 .status(Orders.PENDING_PAYMENT)
                 .build();
 

@@ -2,14 +2,21 @@
  * HTTP请求封装 - 统一处理JWT认证和错误
  */
 
-import { 
-  API_BASE_URL, 
-  TOKEN_HEADER, 
+import {
+  API_BASE_URL,
+  TOKEN_HEADER,
   STORAGE_TOKEN_KEY,
+  STORAGE_USER_KEY,
   REQUEST_TIMEOUT,
   REQUEST_HEADERS,
   RESPONSE_CODE
 } from '../config.js'
+
+const AUTH_EXPIRED_MSG = '登录已过期，请重新登录'
+const LOGIN_REQUIRED_MSG = '请先登录'
+
+/** 防止短时间内多次弹「登录过期」 */
+let authHandling = false
 
 /**
  * 获取本地存储的Token
@@ -21,6 +28,61 @@ function getToken() {
     console.error('获取Token失败:', e)
     return ''
   }
+}
+
+/**
+ * 是否鉴权失败（HTTP 401 / 业务 401 / 文案含 token|未登录|登录）
+ */
+export function isAuthError(errorOrCode, msg) {
+  const code = typeof errorOrCode === 'object' && errorOrCode !== null
+    ? errorOrCode.code
+    : errorOrCode
+  const text = typeof errorOrCode === 'object' && errorOrCode !== null
+    ? (errorOrCode.msg || errorOrCode.message || '')
+    : (msg || '')
+  if (code === 401) return true
+  const lower = String(text).toLowerCase()
+  return lower.includes('token') || text.includes('未登录') || text.includes('登录过期') || text.includes('登录已过期')
+}
+
+/**
+ * 构造统一的鉴权错误对象（页面 catch 可用 e.msg / e.message）
+ */
+export function createAuthError(message = AUTH_EXPIRED_MSG) {
+  const err = new Error(message)
+  err.code = 401
+  err.msg = message
+  err.authExpired = true
+  return err
+}
+
+/**
+ * 处理登录失效：清本地凭证、提示、跳转首页登录
+ * 可被 request / uploadFile 共用
+ */
+export function handleTokenExpired(message = AUTH_EXPIRED_MSG) {
+  if (authHandling) return
+  authHandling = true
+
+  try {
+    uni.removeStorageSync(STORAGE_TOKEN_KEY)
+    uni.removeStorageSync(STORAGE_USER_KEY)
+  } catch (e) {
+    console.error('清除登录信息失败:', e)
+  }
+
+  uni.showToast({
+    title: message,
+    icon: 'none',
+    duration: 2000
+  })
+
+  setTimeout(() => {
+    authHandling = false
+    uni.reLaunch({
+      url: '/pages/index/index?login=1'
+    })
+  }, 2000)
 }
 
 /**
@@ -41,53 +103,57 @@ export function request(options) {
     header = {}
   } = options
 
-  // 构建完整URL
   const fullUrl = `${API_BASE_URL}${url}`
-  
-  // 添加调试日志
+
   console.log(`📡 ${method}请求:`, fullUrl)
   if (method !== 'GET' && data && Object.keys(data).length > 0) {
     console.log('📦 请求数据:', data)
   }
 
-  // 构建请求头
   const requestHeader = {
     ...REQUEST_HEADERS,
     ...header
   }
 
-  // 如果需要认证，添加Token
   if (needAuth) {
     const token = getToken()
     if (token) {
       requestHeader[TOKEN_HEADER] = token
     } else {
       console.warn('请求需要认证但Token不存在:', url)
+      // 本地无 token：直接提示登录，避免业务层报出莫名其妙的失败
+      handleTokenExpired(LOGIN_REQUIRED_MSG)
+      return Promise.reject(createAuthError(LOGIN_REQUIRED_MSG))
     }
   }
 
   return new Promise((resolve, reject) => {
-    // GET请求不应该使用data，参数已经在URL中
     const requestConfig = {
       url: fullUrl,
       method,
       header: requestHeader,
-      timeout: REQUEST_TIMEOUT,
+      timeout: REQUEST_TIMEOUT
     }
-    
-    // 只有非GET请求才传递data
+
     if (method !== 'GET') {
       requestConfig.data = data
     }
-    
+
     uni.request({
       ...requestConfig,
       success: (res) => {
-        // 检查HTTP状态码
+        // HTTP 401：后端拦截器常见返回（无业务 JSON）
+        if (res.statusCode === 401) {
+          console.error('HTTP 401 登录失效:', url)
+          handleTokenExpired(AUTH_EXPIRED_MSG)
+          reject(createAuthError(AUTH_EXPIRED_MSG))
+          return
+        }
+
         if (res.statusCode !== 200) {
           const error = {
             code: res.statusCode,
-            msg: `HTTP错误: ${res.statusCode}`,
+            msg: `请求失败(${res.statusCode})`,
             data: null
           }
           console.error('HTTP请求失败:', error)
@@ -95,32 +161,32 @@ export function request(options) {
           return
         }
 
-        // 检查业务状态码
-        const responseData = res.data
-        
-        // 兼容处理：无论新旧接口，只要code是0或1都视为成功
-        // 新接口 code=0 为成功，旧接口 code=1 为成功
-        const isSuccess = responseData.code === RESPONSE_CODE.SUCCESS || responseData.code === RESPONSE_CODE.SUCCESS_NEW
-        
+        const responseData = res.data || {}
+
+        // 兼容：code=0 或 1 都视为成功
+        const isSuccess =
+          responseData.code === RESPONSE_CODE.SUCCESS ||
+          responseData.code === RESPONSE_CODE.SUCCESS_NEW
+
         if (isSuccess) {
-          // 成功，返回data字段
-          resolve(responseData.data || responseData)
-        } else {
-          // 业务失败
-          const error = {
-            code: responseData.code,
-            msg: responseData.msg || '请求失败',
-            data: responseData.data
-          }
-          console.error('业务请求失败:', error)
-          
-          // 如果是token失效，清除本地token并跳转登录
-          if (responseData.code === 401 || responseData.msg?.includes('token')) {
-            handleTokenExpired()
-          }
-          
-          reject(error)
+          resolve(responseData.data !== undefined ? responseData.data : responseData)
+          return
         }
+
+        const error = {
+          code: responseData.code,
+          msg: responseData.msg || '请求失败',
+          data: responseData.data
+        }
+        console.error('业务请求失败:', error)
+
+        if (isAuthError(error)) {
+          handleTokenExpired(AUTH_EXPIRED_MSG)
+          reject(createAuthError(AUTH_EXPIRED_MSG))
+          return
+        }
+
+        reject(error)
       },
       fail: (err) => {
         const error = {
@@ -136,44 +202,16 @@ export function request(options) {
 }
 
 /**
- * 处理Token过期
- */
-function handleTokenExpired() {
-  try {
-    uni.removeStorageSync(STORAGE_TOKEN_KEY)
-    uni.removeStorageSync('user')
-    
-    // 提示用户重新登录
-    uni.showToast({
-      title: '登录已过期，请重新登录',
-      icon: 'none',
-      duration: 2000
-    })
-    
-    // 延迟跳转到登录页
-    setTimeout(() => {
-      uni.reLaunch({
-        url: '/pages/index/index'
-      })
-    }, 2000)
-  } catch (e) {
-    console.error('处理Token过期失败:', e)
-  }
-}
-
-/**
  * GET请求
  */
 export function get(url, params = {}, needAuth = true) {
-  // GET请求参数需要拼接到URL上
   const queryString = Object.keys(params)
     .filter(key => params[key] !== undefined && params[key] !== null && params[key] !== '')
     .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
     .join('&')
-  
+
   const fullUrl = queryString ? `${url}?${queryString}` : url
-  
-  // 调试日志
+
   console.log('📤 GET请求:', fullUrl, '参数:', params)
 
   return request({

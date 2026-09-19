@@ -4,7 +4,7 @@
  */
 
 import { API_BASE_URL, API_PATHS, RESPONSE_CODE, STORAGE_TOKEN_KEY, STORAGE_USER_KEY, TOKEN_HEADER } from '../config.js'
-import { del, get, post, put } from './request.js'
+import { createAuthError, del, get, handleTokenExpired, isAuthError, post, put } from './request.js'
 
 // ==================== 用户登录模块 ====================
 
@@ -440,52 +440,82 @@ export function setDefaultAddress(id) {
 }
 
 /**
- * 上传文件
+ * 上传文件（与 request 共用登录失效处理，避免 401 被提示成「上传失败」）
  * @param {string} filePath - 文件临时路径
  * @param {string} [scene] - 场景参数 (可选)
  * @returns {Promise} { url: string }
  */
 export function uploadFile(filePath, scene) {
   return new Promise((resolve, reject) => {
+    const token = uni.getStorageSync(STORAGE_TOKEN_KEY) || ''
+    if (!token) {
+      handleTokenExpired('请先登录')
+      reject(createAuthError('请先登录'))
+      return
+    }
+
     let url = API_BASE_URL + '/user/common/upload'
     if (scene) {
       url += `?scene=${scene}`
     }
-    
+
     uni.uploadFile({
       url: url,
       filePath: filePath,
       name: 'file',
       header: {
-        [TOKEN_HEADER]: uni.getStorageSync(STORAGE_TOKEN_KEY) || ''
+        [TOKEN_HEADER]: token
       },
       success: (res) => {
         console.log('Upload response raw:', res.data)
+
+        if (res.statusCode === 401) {
+          console.error('上传 HTTP 401 登录失效')
+          handleTokenExpired()
+          reject(createAuthError())
+          return
+        }
+
         if (res.statusCode === 200) {
           try {
-            const data = JSON.parse(res.data)
+            const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data
             console.log('Upload response parsed:', data)
-            // 兼容多种成功状态码：0(新接口), 1(旧接口), 200(标准HTTP风格)
-            if (data.code === RESPONSE_CODE.SUCCESS || 
-                data.code === RESPONSE_CODE.SUCCESS_NEW || 
+            if (data.code === RESPONSE_CODE.SUCCESS ||
+                data.code === RESPONSE_CODE.SUCCESS_NEW ||
                 data.code === 200) {
               resolve(data.data)
-            } else {
-              console.error('上传业务失败:', data)
-              reject(new Error(data.msg || '上传失败'))
+              return
             }
+            if (isAuthError(data.code, data.msg)) {
+              handleTokenExpired()
+              reject(createAuthError())
+              return
+            }
+            console.error('上传业务失败:', data)
+            const bizErr = new Error(data.msg || '上传失败')
+            bizErr.code = data.code
+            bizErr.msg = data.msg || '上传失败'
+            reject(bizErr)
+            return
           } catch (e) {
             console.error('解析上传响应失败:', e)
             reject(e)
           }
-        } else {
-          console.error('上传HTTP失败:', res.statusCode)
-          reject(new Error(`上传失败: ${res.statusCode}`))
+          return
         }
+
+        console.error('上传HTTP失败:', res.statusCode)
+        reject(Object.assign(new Error(`上传失败(${res.statusCode})`), {
+          code: res.statusCode,
+          msg: `上传失败(${res.statusCode})`
+        }))
       },
       fail: (err) => {
         console.error('上传请求失败:', err)
-        reject(err)
+        reject(Object.assign(new Error(err.errMsg || '上传失败'), {
+          code: 0,
+          msg: err.errMsg || '上传失败'
+        }))
       }
     })
   })

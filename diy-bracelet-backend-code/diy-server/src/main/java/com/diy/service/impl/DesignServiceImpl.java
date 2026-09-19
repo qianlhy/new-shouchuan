@@ -15,6 +15,7 @@ import com.diy.mapper.OrderDetailMapper;
 import com.diy.mapper.OrderMapper;
 import com.diy.result.PageResult;
 import com.diy.service.DesignService;
+import com.diy.utils.ShippingFeeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -151,11 +152,8 @@ public class DesignServiceImpl implements DesignService {
         // 生成订单号：时间戳 + 用户ID
         String orderNo = "DIY" + System.currentTimeMillis();
 
-        // 加上运费（如果有）
-        BigDecimal shippingFee = BigDecimal.ZERO;
-        if (diyOrderCreateDTO.getShippingFee() != null) {
-            shippingFee = diyOrderCreateDTO.getShippingFee();
-        }
+        // 运费以后端规则为准（新疆/西藏15；其他地区不满20加7）
+        BigDecimal shippingFee = ShippingFeeUtil.calculate(totalAmount, diyOrderCreateDTO.getReceiverProvince());
         BigDecimal finalAmount = totalAmount.add(shippingFee);
         log.info("DIY订单商品金额: {}, 运费: {}, 总金额: {}", totalAmount, shippingFee, finalAmount);
 
@@ -186,7 +184,7 @@ public class DesignServiceImpl implements DesignService {
         // 插入订单
         orderMapper.insert(order);
         Long orderId = order.getId();
-        log.info("DIY订单创建成功,订单ID: {}, 订单号: {}, 金额: {}", orderId, orderNo, totalAmount);
+        log.info("DIY订单创建成功,订单ID: {}, 订单号: {}, 金额: {}", orderId, orderNo, finalAmount);
 
         // 插入订单详情
         if (!orderItems.isEmpty()) {

@@ -45,15 +45,14 @@
             p.category_id,
             c.name as categoryName,
             p.title,
-            p.description,
             p.creator_name,
             p.cover_image,
-            p.diy_data,
             p.price,
             p.weight,
             p.stock,
             p.status,
-            p.create_time
+            p.create_time,
+            CASE WHEN p.diy_data IS NOT NULL AND p.diy_data &lt;&gt; '' THEN 1 ELSE 0 END AS hasDiyTemplate
         from product p
         left join category c on p.category_id = c.id
         <where>

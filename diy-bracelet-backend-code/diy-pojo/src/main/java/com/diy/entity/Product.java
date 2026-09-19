@@ -44,6 +44,11 @@ public class Product implements Serializable {
     //DIY设计模板JSON（与购物车 diyData 同结构；有值则详情页可带入制作台）
     private String diyData;
 
+    /**
+     * 列表查询用：是否已配置 DIY 模板（0/1，由 SQL CASE 计算，非表字段）
+     */
+    private Integer hasDiyTemplate;
+
     //商品图片列表（非数据库字段）
     private List<String> images;
 

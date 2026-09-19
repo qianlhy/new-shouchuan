@@ -86,7 +86,7 @@
         <text class="value">¥{{ totalAmount }}</text>
       </view>
       <view class="amount-row">
-        <text class="label">运费</text>
+        <text class="label">运费{{ shippingTip }}</text>
         <text class="value">¥{{ shippingFee.toFixed(2) }}</text>
       </view>
       <view class="amount-row total">
@@ -113,8 +113,10 @@
 <script setup>
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
-import { addressList, cartAdd, cartList, clearCart, createDiyOrder, orderCreate } from '../../api/index.js'
+import { addressList, cartAdd, cartList, clearCart, createDiyOrder, orderCreate, isLoggedIn } from '../../api/index.js'
+import { isAuthError } from '../../api/request.js'
 import { resolveImageUrl } from '../../utils/imageHelper.js'
+import { calculateShippingFee, FREE_SHIPPING_THRESHOLD, LOW_AMOUNT_FEE, isRemoteArea } from '../../utils/shippingFee.js'
 
 const cartItems = ref([])
 const selectedAddress = ref(null)
@@ -130,19 +132,25 @@ const totalAmount = computed(() => {
   return cartItems.value.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 0), 0).toFixed(2)
 })
 
-// 运费计算：新疆、西藏加15元，其他省份0元
+// 运费：新疆/西藏固定15；其他地区不满20加7（与后端 ShippingFeeUtil 一致）
 const shippingFee = computed(() => {
-  if (!selectedAddress.value || !selectedAddress.value.province) {
-    return 0
-  }
-  const province = selectedAddress.value.province
-  if (province.includes('新疆') || province.includes('西藏')) {
-    return 15
-  }
-  return 0
+  const province = selectedAddress.value?.province || ''
+  return calculateShippingFee(totalAmount.value, province)
 })
 
-// 实付款 = 商品金额 + 运费
+const shippingTip = computed(() => {
+  const province = selectedAddress.value?.province || ''
+  if (isRemoteArea(province)) {
+    return '（偏远地区）'
+  }
+  const goods = Number(totalAmount.value) || 0
+  if (goods < FREE_SHIPPING_THRESHOLD) {
+    return `（不满${FREE_SHIPPING_THRESHOLD}元加${LOW_AMOUNT_FEE}元）`
+  }
+  return ''
+})
+
+// 实付款 = 商品金额 + 运费（与后端写入订单 amount、微信支付金额一致）
 const finalAmount = computed(() => {
   return (Number(totalAmount.value) + shippingFee.value).toFixed(2)
 })
@@ -263,6 +271,7 @@ async function loadCartItems() {
     }
   } catch (e) {
     console.error('加载购物车失败:', e)
+    if (e.authExpired || isAuthError(e)) return
     uni.showToast({ title: '加载失败', icon: 'none' })
   }
 }
@@ -294,6 +303,14 @@ function goSelectAddress() {
 
 // 提交订单
 async function submitOrder() {
+  if (!isLoggedIn()) {
+    uni.showToast({ title: '请先登录', icon: 'none' })
+    setTimeout(() => {
+      uni.reLaunch({ url: '/pages/index/index?login=1' })
+    }, 1200)
+    return
+  }
+
   if (!selectedAddress.value) {
     uni.showToast({ title: '请选择收货地址', icon: 'none' })
     return
@@ -352,7 +369,7 @@ async function submitOrder() {
         description: desc.trim(),
         designId: 0,
         
-        // 运费（新疆西藏等偏远地区）
+        // 运费由后端按统一规则重算并写入订单金额；此处仍传便于对账
         shippingFee: shippingFee.value
       })
     } else if (orderMode.value === 'direct') {
@@ -449,7 +466,8 @@ async function submitOrder() {
   } catch (e) {
     uni.hideLoading()
     console.error('创建订单失败:', e)
-    uni.showToast({ title: e.message || '创建订单失败', icon: 'none' })
+    if (e.authExpired || isAuthError(e)) return
+    uni.showToast({ title: e.message || e.msg || '创建订单失败', icon: 'none' })
   } finally {
     submitting.value = false
   }

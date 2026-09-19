@@ -68,7 +68,7 @@ public class DiyOrderCreateDTO implements Serializable {
     private List<DiyOrderItem> items;
     
     /**
-     * 运费（可选，新疆西藏等偏远地区需要加运费）
+     * 运费（可选；后端会按规则重算，不信任此字段）
      */
     private java.math.BigDecimal shippingFee;
     

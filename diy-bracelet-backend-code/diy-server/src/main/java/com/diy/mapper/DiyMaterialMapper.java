@@ -9,14 +9,12 @@ import java.util.List;
 public interface DiyMaterialMapper {
 
     /**
-     * 查询DIY材料列表（支持分类和色系筛选）
-     * 
-     * @param categories  分类键列表
-     * @param colorSeries 色系键列表
-     * @return
+     * 查询DIY材料列表（支持分类、色系、标题筛选；limit 可选，与 PageHelper 分页勿同时用）
      */
     List<DiyMaterial> list(@Param("categories") List<String> categories,
-            @Param("colorSeries") List<String> colorSeries);
+            @Param("colorSeries") List<String> colorSeries,
+            @Param("title") String title,
+            @Param("limit") Integer limit);
 
     /**
      * 用户端材料列表（按名称+尺寸排序,支持分页）

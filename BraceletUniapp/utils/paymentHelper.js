@@ -1,4 +1,5 @@
 import { orderPay, checkPaymentStatus } from '../api/index.js'
+import { isAuthError } from '../api/request.js'
 
 /**
  * 统一支付处理逻辑
@@ -77,8 +78,13 @@ export async function handleOrderPayment(order, onSuccess, onFail) {
   } catch (error) {
     uni.hideLoading()
     console.error('支付流程错误：', error)
+
+    if (error && (error.authExpired || isAuthError(error))) {
+      if (onFail) onFail(error)
+      return
+    }
     
-    const errorMsg = error.errMsg || error.message || '支付失败'
+    const errorMsg = error.errMsg || error.message || error.msg || '支付失败'
     
     // Handle user cancellation specifically
     if (errorMsg.includes('cancel') || errorMsg.includes('取消')) {

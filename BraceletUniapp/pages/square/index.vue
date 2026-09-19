@@ -74,6 +74,7 @@
 import { computed, ref, reactive } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { getProductList, getWishCounts, getMyWishes, toggleWish, isLoggedIn } from '../../api/index.js'
+import { isAuthError } from '../../api/request.js'
 import { resolveImageUrl } from '../../utils/imageHelper.js'
 import { setTabBarSelected } from '../../utils/tabbar.js'
 
@@ -205,6 +206,7 @@ async function toggleWant(item) {
     }
   } catch (e) {
     console.error('操作失败', e)
+    if (e.authExpired || isAuthError(e)) return
     uni.showToast({ title: '操作失败', icon: 'none' })
   }
 }

@@ -3,7 +3,7 @@
 <mapper namespace="com.diy.mapper.DiyMaterialMapper">
 
     <select id="list" resultType="com.diy.entity.DiyMaterial">
-        SELECT id, category_key, color_series_key, title, description, size, color, 
+        SELECT id, category_key, color_series_key, title, size, color, 
                price, stock, weight, image_url, sort, status, create_time, update_time
         FROM diy_material
         WHERE 1=1
@@ -19,7 +19,13 @@
                 #{color}
             </foreach>
         </if>
+        <if test="title != null and title != ''">
+            AND title LIKE CONCAT('%', #{title}, '%')
+        </if>
         ORDER BY sort ASC, create_time DESC
+        <if test="limit != null">
+            LIMIT #{limit}
+        </if>
     </select>
 
     <!-- 用户端：材料列表（按名称+尺寸排序，使同名相邻且尺寸有序，支持分页） -->

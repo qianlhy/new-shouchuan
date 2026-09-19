@@ -463,6 +463,7 @@ uploadFile,
 updateDiyCart
 } from '../../api/api.js'
 import { isLoggedIn } from '../../api/index.js'
+import { isAuthError } from '../../api/request.js'
 import { updateCartBadgeNow } from '../../utils/cartBadge.js'
 import { resolveImageUrl, toDownloadableImageUrl } from '../../utils/imageHelper.js'
 
@@ -1567,6 +1568,8 @@ async function doAddToCartFromDesign() {
   } catch (e) {
     uni.hideLoading()
     console.error('加入购物车失败:', e)
+    // 登录失效已由 request/upload 统一提示并跳转，避免再弹「上传失败」
+    if (e.authExpired || isAuthError(e)) return
     uni.showToast({ title: e.message || e.msg || '加入失败', icon: 'none' })
   }
 }
@@ -2330,6 +2333,11 @@ async function generateDesignImage() {
 // 提交订单
 async function submitOrder() {
   if (loading.value) return
+
+  if (!checkLoginStatus()) {
+    showLoginPopup.value = true
+    return
+  }
   
   try {
     // Generate & Upload Image
@@ -2404,9 +2412,10 @@ async function submitOrder() {
     
   } catch (e) {
     uni.hideLoading()
-    const msg = e.message || '处理失败'
-    uni.showToast({ title: msg.length > 15 ? '处理失败，请查看控制台' : msg, icon: 'none' })
     console.error('Submit Order Error:', e)
+    if (e.authExpired || isAuthError(e)) return
+    const msg = e.message || e.msg || '处理失败'
+    uni.showToast({ title: msg.length > 15 ? '处理失败，请重试' : msg, icon: 'none' })
   }
 }
 
@@ -2414,6 +2423,11 @@ async function submitOrder() {
 async function addDiyToCart() {
   if (!beads.value.length) {
     uni.showToast({ title: '请先添加珠子', icon: 'none' })
+    return
+  }
+
+  if (!checkLoginStatus()) {
+    showLoginPopup.value = true
     return
   }
 
@@ -2448,6 +2462,7 @@ async function addDiyToCart() {
     
   } catch (e) {
     console.error('批量添加购物车失败:', e)
+    if (e.authExpired || isAuthError(e)) return
     uni.showToast({ title: '部分商品添加失败', icon: 'none' })
   } finally {
     uni.hideLoading()

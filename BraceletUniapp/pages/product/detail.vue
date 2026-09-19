@@ -97,6 +97,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { productDetail, cartAdd } from '../../api/index.js'
+import { isAuthError } from '../../api/request.js'
 import { resolveImageUrl } from '../../utils/imageHelper.js'
 import { onLoad, onShareAppMessage } from '@dcloudio/uni-app'
 import { updateCartBadge } from '../../utils/cartBadge.js'
@@ -178,23 +179,11 @@ async function handleAdd () {
     updateCartBadge()
   } catch (e) {
     console.error('添加购物车失败:', e)
-    if (e.code === 401) {
-      uni.showModal({
-        title: '提示',
-        content: '请先登录后再操作',
-        confirmText: '去登录',
-        success: (res) => {
-          if (res.confirm) {
-            uni.reLaunch({ url: '/pages/index/index' })
-          }
-        }
-      })
-    } else {
-      uni.showToast({
-        title: e.msg || '添加失败，请重试',
-        icon: 'none'
-      })
-    }
+    if (e.authExpired || isAuthError(e)) return
+    uni.showToast({
+      title: e.msg || e.message || '添加失败，请重试',
+      icon: 'none'
+    })
   }
 }
 

@@ -76,6 +76,7 @@
 import { onShow } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 import { cartDelete, cartList, cartUpdate, isLoggedIn as checkLogin } from '../../api/index.js'
+import { isAuthError } from '../../api/request.js'
 import { updateCartBadge, updateCartBadgeNow } from '../../utils/cartBadge.js'
 import { debugCartBadge } from '../../utils/debugCartBadge.js'
 import { resolveImageUrl, toDownloadableImageUrl } from '../../utils/imageHelper.js'
@@ -257,12 +258,11 @@ async function load() {
   } catch (e) {
     console.error('加载购物车失败:', e)
     items.value = []
-    if (e.code === 401) {
+    if (e.authExpired || isAuthError(e)) {
       isLoggedIn.value = false
-      uni.showToast({ title: '登录已过期，请重新登录', icon: 'none' })
-    } else {
-      uni.showToast({ title: e.msg || '购物车加载失败', icon: 'none' })
+      return
     }
+    uni.showToast({ title: e.msg || '购物车加载失败', icon: 'none' })
   }
 }
 
@@ -286,6 +286,7 @@ async function removeItem(item) {
     uni.showToast({ title: '已删除', icon: 'success', duration: 1000 })
   } catch (e) {
     console.error('删除失败:', e)
+    if (e.authExpired || isAuthError(e)) return
     uni.showToast({ title: '删除失败', icon: 'none' })
   } finally {
     deleting.value = false
@@ -327,6 +328,9 @@ async function apply(i) {
     updateCartBadge()
   } catch (e) {
     console.error('更新数量失败:', e)
+    if (!(e.authExpired || isAuthError(e))) {
+      uni.showToast({ title: '更新失败', icon: 'none' })
+    }
   } finally {
     updating.value = false
   }
