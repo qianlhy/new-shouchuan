@@ -1772,14 +1772,15 @@ function clearDesignSilent() {
   refreshInUseGoodsIfNeeded()
 }
 
-/** 从购物车 diyData 回填到画布 */
+/** 从购物车/广场 diyData 回填到画布（按 position 保序） */
 function restoreFromDiyData(diyInfo) {
   if (!diyInfo) return
   if (diyInfo.size != null) {
     selectedSize.value = Number(diyInfo.size)
     uni.setStorageSync('diy_selected_size', selectedSize.value)
   }
-  const list = Array.isArray(diyInfo.beads) ? diyInfo.beads : []
+  let list = Array.isArray(diyInfo.beads) ? [...diyInfo.beads] : []
+  list.sort((a, b) => Number(a.position || 0) - Number(b.position || 0))
   beads.value = list.map(b => ({
     _id: `b_${++beadIdCounter}`,
     productId: b.productId,

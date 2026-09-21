@@ -16,6 +16,10 @@
       "style": {"navigationBarTitleText": "广场"}
     },
     {
+      "path": "pages/square/detail",
+      "style": {"navigationBarTitleText": "灵感详情"}
+    },
+    {
       "path": "pages/design/index",
       "style": {"navigationBarTitleText": "DIY"}
     },
@@ -50,6 +54,10 @@
     {
       "path": "pages/mine/index",
       "style": {"navigationBarTitleText": "我的"}
+    },
+    {
+      "path": "pages/mine/designs",
+      "style": {"navigationBarTitleText": "推荐设计"}
     },
     {
       "path": "pages/address/list",

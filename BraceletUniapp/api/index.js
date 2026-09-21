@@ -28,6 +28,8 @@ addAddress,
     submitOrder, updateOrderAddress, uploadFile,
     // 心愿众筹 & 会员
     toggleWish, getWishCounts, getMyWishes, getMemberInfo,
+    // 灵感广场
+    submitSquareItem, getSquareList, getSquareDetail,
     // DIY 购物车更新
     updateDiyCart,
     // 登录

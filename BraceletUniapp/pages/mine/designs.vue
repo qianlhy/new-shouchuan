@@ -1,20 +1,15 @@
 <template>
   <view class="page">
     <view class="banner">
-      <view class="banner-deco d1" />
-      <view class="banner-deco d2" />
-      <view class="banner-deco d3" />
-      <view class="banner-deco d4" />
       <view class="banner-content">
-        <text class="banner-en">INSPIRATION SQUARE</text>
-        <text class="banner-title">灵感广场</text>
-        <text class="banner-sub">发现心动，遇见灵感的你。</text>
+        <text class="banner-en">RECOMMENDED</text>
+        <text class="banner-title">推荐设计</text>
+        <text class="banner-sub">精选设计，一键带入 DIY</text>
       </view>
-      <image class="banner-star" src="/static/icons/sparkles.png" mode="aspectFit" />
     </view>
 
     <view v-if="loading" class="state">加载中...</view>
-    <view v-else-if="!list.length" class="state">暂无灵感作品</view>
+    <view v-else-if="!list.length" class="state">暂无设计作品</view>
 
     <view v-else class="list">
       <view
@@ -45,7 +40,6 @@ import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { getSquareList, getSquareDetail } from '../../api/index.js'
 import { resolveImageUrl } from '../../utils/imageHelper.js'
-import { setTabBarSelected } from '../../utils/tabbar.js'
 
 const DIY_EDIT_STORAGE_KEY = 'diy_edit_cart'
 const loading = ref(false)
@@ -66,10 +60,10 @@ function mapItem(p) {
 async function loadList() {
   loading.value = true
   try {
-    const rows = await getSquareList('square')
+    const rows = await getSquareList('recommend')
     list.value = (Array.isArray(rows) ? rows : []).map(mapItem)
   } catch (e) {
-    console.error('广场加载失败', e)
+    console.error('推荐设计加载失败', e)
     list.value = []
     uni.showToast({ title: '加载失败', icon: 'none' })
   } finally {
@@ -78,14 +72,14 @@ async function loadList() {
 }
 
 function goDetail(item) {
-  uni.navigateTo({ url: `/pages/square/detail?id=${item.id}&channel=square` })
+  uni.navigateTo({ url: `/pages/square/detail?id=${item.id}&channel=recommend` })
 }
 
 async function bringDiy(item) {
   try {
     let diyData = item.diyData
     if (!diyData) {
-      const detail = await getSquareDetail(item.id, 'square')
+      const detail = await getSquareDetail(item.id, 'recommend')
       diyData = detail && detail.diyData
     }
     if (!diyData) {
@@ -104,7 +98,6 @@ async function bringDiy(item) {
 }
 
 onShow(() => {
-  setTabBarSelected(1)
   loadList()
 })
 </script>
@@ -118,66 +111,42 @@ $text-sub: #8B849C;
 .page {
   min-height: 100vh;
   background: $page-bg;
-  padding-bottom: calc(140rpx + env(safe-area-inset-bottom));
+  padding-bottom: calc(40rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
 }
-
 .banner {
-  position: relative;
-  margin: 24rpx 24rpx 16rpx;
-  padding: 40rpx 36rpx 44rpx;
+  margin: 24rpx;
+  padding: 36rpx 32rpx;
   border-radius: 28rpx;
-  overflow: hidden;
-  background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 55%, #C4B5FD 100%);
+  background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
 }
-.banner-deco {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
-}
-.d1 { width: 180rpx; height: 180rpx; top: -60rpx; right: -40rpx; }
-.d2 { width: 100rpx; height: 100rpx; bottom: -30rpx; left: 40rpx; }
-.d3 { width: 60rpx; height: 60rpx; top: 30rpx; left: 60%; opacity: 0.5; }
-.d4 { width: 40rpx; height: 40rpx; bottom: 50rpx; right: 30%; opacity: 0.4; }
-.banner-content { position: relative; z-index: 1; }
 .banner-en {
   display: block;
   font-size: 20rpx;
-  letter-spacing: 4rpx;
+  letter-spacing: 3rpx;
   color: rgba(255, 255, 255, 0.7);
-  margin-bottom: 8rpx;
 }
 .banner-title {
   display: block;
-  font-size: 44rpx;
+  margin-top: 8rpx;
+  font-size: 40rpx;
   font-weight: 800;
   color: #fff;
 }
 .banner-sub {
   display: block;
-  margin-top: 10rpx;
+  margin-top: 8rpx;
   font-size: 24rpx;
   color: rgba(255, 255, 255, 0.85);
 }
-.banner-star {
-  position: absolute;
-  right: 36rpx;
-  bottom: 36rpx;
-  width: 56rpx;
-  height: 56rpx;
-  opacity: 0.9;
-  z-index: 1;
-}
-
 .state {
   text-align: center;
   color: $text-sub;
   font-size: 26rpx;
   padding: 80rpx 0;
 }
-
 .list {
-  padding: 8rpx 24rpx 24rpx;
+  padding: 0 24rpx 24rpx;
   display: flex;
   flex-direction: column;
   gap: 20rpx;
@@ -225,7 +194,6 @@ $text-sub: #8B849C;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12rpx;
 }
 .price-pill {
   font-size: 30rpx;

@@ -126,6 +126,11 @@ export const API_PATHS = {
   // 我想要的商品列表（我的收藏）
   WISH_MINE: '/user/wish/mine',
 
+  // ==================== 灵感广场作品 ====================
+  SQUARE_SUBMIT: '/user/square/submit',
+  SQUARE_LIST: '/user/square/list',
+  SQUARE_DETAIL: '/user/square/detail',
+
   // ==================== 会员中心模块 ====================
   // 获取当前用户会员信息
   MEMBER_INFO: '/user/member/info'

@@ -78,7 +78,7 @@
         </view>
         <view class="order-item" @click="goDesign">
           <view class="icon-box soft"><image class="xy-icon ui-icon" src="/static/icons/palette-purple.png" mode="aspectFit" /></view>
-          <text class="order-text">我的设计</text>
+          <text class="order-text">推荐设计</text>
         </view>
         <view class="order-item" @click="goCollect">
           <view class="icon-box soft"><image class="xy-icon ui-icon" src="/static/icons/heart-purple.png" mode="aspectFit" /></view>
@@ -369,7 +369,7 @@ function onQrError() {
   uni.showToast({ title: '二维码加载失败', icon: 'none' })
 }
 function goDesign() {
-  uni.switchTab({ url: '/pages/design/index' })
+  uni.navigateTo({ url: '/pages/mine/designs' })
 }
 function goSquare() {
   uni.switchTab({ url: '/pages/square/index' })

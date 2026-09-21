@@ -282,7 +282,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { getBannerList, getProductList, userGet, userSet, loginWithWeixinCode } from '../../api/index.js'
+import { getBannerList, getSquareList, userGet, userSet, loginWithWeixinCode } from '../../api/index.js'
 import { resolveImageUrl } from '../../utils/imageHelper.js'
 import { setTabBarSelected } from '../../utils/tabbar.js'
 
@@ -395,11 +395,13 @@ const loadBanners = async () => {
 
 const loadRecommend = async () => {
   try {
-    const list = await getProductList(0, true)
+    const list = await getSquareList('recommend')
     const arr = Array.isArray(list) ? list : []
     recommends.value = arr.slice(0, 4).map((p) => ({
       ...p,
-      imageUrl: resolveImageUrl(p.image || p.imageUrl || p.coverImage || '')
+      name: p.title || p.name,
+      imageUrl: resolveImageUrl(p.imageUrl || p.image || p.coverImage || ''),
+      _fromSquare: true
     }))
   } catch (e) {
     console.error('推荐加载失败', e)
@@ -478,7 +480,13 @@ const goDesign = () => uni.switchTab({ url: '/pages/design/index' })
 const goProductList = () => uni.navigateTo({ url: '/pages/product/list' })
 const goAbout = () => uni.navigateTo({ url: '/pages/about/index' })
 const goService = () => uni.navigateTo({ url: '/pages/customer-service/index' })
-const goDetail = (item) => uni.navigateTo({ url: `/pages/product/detail?id=${item.id}` })
+const goDetail = (item) => {
+  if (item && item._fromSquare) {
+    uni.navigateTo({ url: `/pages/square/detail?id=${item.id}&channel=recommend` })
+    return
+  }
+  uni.navigateTo({ url: `/pages/product/detail?id=${item.id}` })
+}
 
 const onLuckyDraw = () => {
   uni.showToast({ title: '幸运抽奖即将开放', icon: 'none' })

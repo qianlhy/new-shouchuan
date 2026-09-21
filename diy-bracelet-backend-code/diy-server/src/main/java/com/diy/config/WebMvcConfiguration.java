@@ -62,6 +62,8 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
                 .excludePathPatterns("/user/common/customer-service-qr")
                 // 心愿众筹进度为公开浏览接口
                 .excludePathPatterns("/user/wish/counts")
+                .excludePathPatterns("/user/square/list")
+                .excludePathPatterns("/user/square/detail/**")
                 .excludePathPatterns("/notify/paySuccess")
                 .excludePathPatterns("/notify/refundSuccess");
     }

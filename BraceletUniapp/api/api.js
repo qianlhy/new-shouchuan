@@ -634,6 +634,34 @@ export function getMyWishes() {
     .then(res => (Array.isArray(res) ? res : (res.data || [])))
 }
 
+// ==================== 灵感广场作品 ====================
+
+/**
+ * 购物车设计提交到广场（待后台展示）
+ * @param {Object} data { title, imageUrl, diyData, price, beadCount, handSize, cartItemId }
+ */
+export function submitSquareItem(data) {
+  return post(API_PATHS.SQUARE_SUBMIT, data)
+}
+
+/**
+ * 广场已展示作品列表（公开）
+ * @param {String} channel square=灵感广场 recommend|mine=推荐设计
+ */
+export function getSquareList(channel = 'square') {
+  return get(API_PATHS.SQUARE_LIST, { channel }, false)
+    .then(res => (Array.isArray(res) ? res : (res.data || [])))
+}
+
+/**
+ * 广场作品详情
+ * @param {Number} id
+ * @param {String} channel
+ */
+export function getSquareDetail(id, channel = 'square') {
+  return get(`${API_PATHS.SQUARE_DETAIL}/${id}`, { channel }, false)
+}
+
 // ==================== 会员中心模块 ====================
 
 /**

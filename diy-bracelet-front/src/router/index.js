@@ -11,6 +11,7 @@ const ProductManagement = () => import('../views/home/ProductManagement.vue')
 const OrderManagement = () => import('../views/home/OrderManagement.vue')
 const CustomerServiceManagement = () => import('../views/home/CustomerServiceManagement.vue')
 const DiyMaterialManagement = () => import('../views/home/DiyMaterialManagement.vue')
+const SquareManagement = () => import('../views/home/SquareManagement.vue')
 
 Vue.use(VueRouter)
 
@@ -71,6 +72,12 @@ const routes = [
         path: 'diy-material',
         name: 'DiyMaterialManagement',
         component: DiyMaterialManagement,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'square',
+        name: 'SquareManagement',
+        component: SquareManagement,
         meta: { requiresAuth: true }
       }
     ]

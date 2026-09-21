@@ -75,11 +75,11 @@
 <script setup>
 import { onShow } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
-import { cartDelete, cartList, cartUpdate, isLoggedIn as checkLogin } from '../../api/index.js'
+import { cartDelete, cartList, cartUpdate, isLoggedIn as checkLogin, submitSquareItem } from '../../api/index.js'
 import { isAuthError } from '../../api/request.js'
 import { updateCartBadge, updateCartBadgeNow } from '../../utils/cartBadge.js'
 import { debugCartBadge } from '../../utils/debugCartBadge.js'
-import { resolveImageUrl, toDownloadableImageUrl } from '../../utils/imageHelper.js'
+import { resolveImageUrl } from '../../utils/imageHelper.js'
 import { setTabBarSelected } from '../../utils/tabbar.js'
 
 const isLoggedIn = ref(false)
@@ -118,61 +118,72 @@ function goShop() {
   uni.switchTab({ url: '/pages/square/index' })
 }
 
-/** 长按购物车缩略图 → 保存设计图到相册 */
+/** 长按购物车 DIY 缩略图 → 提交到后台（不保存本地相册） */
 function saveCartImage(item) {
-  const url = item && item.imageUrl
-  if (!url) {
-    uni.showToast({ title: '暂无图片可保存', icon: 'none' })
+  if (!item || !item.isDiy || !item.diyData) {
+    uni.showToast({ title: '仅支持提交 DIY 设计', icon: 'none' })
+    return
+  }
+  if (!item.imageUrl && !item.diyData) {
+    uni.showToast({ title: '暂无设计可提交', icon: 'none' })
     return
   }
   uni.showModal({
-    title: '保存图片',
-    content: '将这张设计图保存到手机相册？',
+    title: '提交到广场',
+    content: '将这套设计提交到后台，审核通过后可在灵感广场 / 推荐设计展示（带入 DIY 保留珠子顺序）？',
+    confirmText: '确认提交',
     success: async (res) => {
       if (!res.confirm) return
       try {
-        uni.showLoading({ title: '保存中...', mask: true })
-        let filePath = url
-        if (/^https?:\/\//i.test(url) || String(url).includes('/admin/common/image/')) {
-          const downloadUrl = toDownloadableImageUrl(url)
-          filePath = await new Promise((resolve, reject) => {
-            uni.downloadFile({
-              url: downloadUrl,
-              success: (r) => {
-                if (r.statusCode === 200 && r.tempFilePath) resolve(r.tempFilePath)
-                else reject(new Error('图片下载失败'))
-              },
-              fail: (e) => reject(new Error((e && e.errMsg) || '图片下载失败'))
-            })
-          })
-        }
-        await new Promise((resolve, reject) => {
-          uni.saveImageToPhotosAlbum({
-            filePath,
-            success: resolve,
-            fail: reject
-          })
-        })
+        uni.showLoading({ title: '提交中...', mask: true })
+        await submitDesignToSquare(item)
         uni.hideLoading()
-        uni.showToast({ title: '已保存到相册', icon: 'success' })
+        uni.showToast({ title: '已提交，等待审核', icon: 'success' })
       } catch (e) {
         uni.hideLoading()
-        const msg = (e && (e.errMsg || e.message)) || ''
-        if (/auth|authorize|permission|隐私|deny|拒绝/i.test(msg)) {
-          uni.showModal({
-            title: '需要相册权限',
-            content: '请在设置中允许保存到相册后重试',
-            confirmText: '去设置',
-            success: (r) => {
-              if (r.confirm) uni.openSetting({})
-            }
-          })
-        } else {
-          uni.showToast({ title: msg || '保存失败', icon: 'none' })
-        }
+        handleSaveError(e)
       }
     }
   })
+}
+
+async function submitDesignToSquare(item) {
+  let diyInfo = {}
+  try {
+    diyInfo = typeof item.diyData === 'string' ? JSON.parse(item.diyData) : (item.diyData || {})
+  } catch (e) {
+    diyInfo = {}
+  }
+  const beads = Array.isArray(diyInfo.beads) ? diyInfo.beads : (item.diyBeads || [])
+  const sortedBeads = [...beads].sort((a, b) => Number(a.position || 0) - Number(b.position || 0))
+  const diyPayload = {
+    ...diyInfo,
+    title: diyInfo.title || item.title || 'DIY设计',
+    price: diyInfo.price != null ? diyInfo.price : item.price,
+    imageUrl: diyInfo.imageUrl || item.imageUrl,
+    size: diyInfo.size != null ? diyInfo.size : item.diySize,
+    beads: sortedBeads.map((b, index) => ({
+      ...b,
+      position: b.position != null ? b.position : index + 1
+    }))
+  }
+
+  await submitSquareItem({
+    title: diyPayload.title,
+    imageUrl: diyPayload.imageUrl || item.imageUrl,
+    diyData: JSON.stringify(diyPayload),
+    price: Number(diyPayload.price || 0),
+    beadCount: sortedBeads.length,
+    handSize: diyPayload.size != null ? Number(diyPayload.size) : null,
+    cartItemId: item.id
+  })
+}
+
+function handleSaveError(e) {
+  const msg = (e && (e.errMsg || e.message || e.msg)) || ''
+  if (!(e && (e.authExpired || isAuthError(e)))) {
+    uni.showToast({ title: msg || '提交失败', icon: 'none' })
+  }
 }
 
 /** 从购物车重新打开 DIY 制作台并回填设计 */
@@ -249,7 +260,8 @@ async function load() {
         price,
         imageUrl,
         diySize,
-        diyBeads
+        diyBeads,
+        diyData: item.diyData || null
       }
     }).filter(item => item && (item.id != null || item.productId != null || item.diyData))
 

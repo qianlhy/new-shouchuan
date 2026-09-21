@@ -39,6 +39,10 @@
           <i class="el-icon-bangzhu"></i>
           <span>DIY材料管理</span>
         </el-menu-item>
+        <el-menu-item index="/home/square">
+          <i class="el-icon-s-opportunity"></i>
+          <span>灵感广场</span>
+        </el-menu-item>
         <el-menu-item index="/home/order">
           <i class="el-icon-s-order"></i>
           <span>订单管理</span>

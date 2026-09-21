@@ -287,3 +287,43 @@ export function getColorSeriesList () {
     method: 'get'
   })
 }
+
+// ==================== 灵感广场管理 ====================
+
+export function getSquarePage (params) {
+  return request({
+    url: '/admin/square/page',
+    method: 'get',
+    params
+  })
+}
+
+export function getSquareDetailAdmin (id) {
+  return request({
+    url: `/admin/square/detail/${id}`,
+    method: 'get'
+  })
+}
+
+export function updateSquareStatus (data) {
+  return request({
+    url: '/admin/square/status',
+    method: 'put',
+    data
+  })
+}
+
+export function updateSquareItem (data) {
+  return request({
+    url: '/admin/square/update',
+    method: 'put',
+    data
+  })
+}
+
+export function deleteSquareItem (id) {
+  return request({
+    url: `/admin/square/${id}`,
+    method: 'delete'
+  })
+}
