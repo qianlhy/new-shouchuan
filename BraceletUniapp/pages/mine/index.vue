@@ -122,8 +122,19 @@
     <view v-if="showQR" class="mask" @click="showQR=false">
       <view class="qr-modal" @click.stop>
         <view class="qr-title">客服微信</view>
-        <image class="qr" :src="qrUrl" mode="widthFix" show-menu-by-longpress="true" @click="previewQR" />
-        <view class="qr-tips">长按识别二维码添加</view>
+        <view v-if="qrLoading" class="qr-status">加载中...</view>
+        <view v-else-if="qrUrl" class="qr-wrap">
+          <image
+            class="qr"
+            :src="qrUrl"
+            mode="aspectFit"
+            show-menu-by-longpress="true"
+            @click="previewQR"
+            @error="onQrError"
+          />
+          <view class="qr-tips">长按识别二维码添加</view>
+        </view>
+        <view v-else class="qr-status">客服二维码暂未配置</view>
         <button class="qr-close" @click="showQR=false">关闭</button>
       </view>
     </view>
@@ -155,11 +166,14 @@
 import { ref, onMounted } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { orderList, userGet, logout, loginWithWeixinCode, getMemberInfo } from '../../api/index.js'
+import { getCustomerServiceQRCode } from '../../api/api.js'
+import { resolveImageUrl } from '../../utils/imageHelper.js'
 import { setTabBarSelected } from '../../utils/tabbar.js'
 
 const count = ref({ s0: 0, s1: 0, s2: 0, s3: 0 })
 const showQR = ref(false)
-const qrUrl = '/static/CustomerService/714966e4f87775b79a26b9002c0606d1.jpg'
+const qrUrl = ref('')
+const qrLoading = ref(false)
 const user = ref(null)
 const member = ref(null)
 const showEditProfile = ref(false)
@@ -332,11 +346,27 @@ function goSetting() {
 function about() {
   uni.navigateTo({ url: '/pages/about/index' })
 }
-function contact() {
+async function contact() {
   showQR.value = true
+  if (qrUrl.value || qrLoading.value) return
+  qrLoading.value = true
+  try {
+    const res = await getCustomerServiceQRCode()
+    qrUrl.value = res ? resolveImageUrl(res) : ''
+  } catch (e) {
+    console.error('获取客服二维码失败:', e)
+    qrUrl.value = ''
+    uni.showToast({ title: '获取客服信息失败', icon: 'none' })
+  } finally {
+    qrLoading.value = false
+  }
 }
 function previewQR() {
-  uni.previewImage({ urls: [qrUrl] })
+  if (!qrUrl.value) return
+  uni.previewImage({ urls: [qrUrl.value] })
+}
+function onQrError() {
+  uni.showToast({ title: '二维码加载失败', icon: 'none' })
 }
 function goDesign() {
   uni.switchTab({ url: '/pages/design/index' })
@@ -615,7 +645,23 @@ function onVip() {
   font-weight: 700;
   margin-bottom: 20rpx;
 }
-.qr { width: 100%; border-radius: 16rpx; }
+.qr-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.qr {
+  width: 400rpx;
+  height: 400rpx;
+  border-radius: 16rpx;
+  background: #f7f5ff;
+}
+.qr-status {
+  text-align: center;
+  color: $text-sub;
+  font-size: 26rpx;
+  padding: 48rpx 0;
+}
 .qr-tips { text-align: center; color: $text-sub; font-size: 24rpx; margin: 16rpx 0; }
 .qr-close, .save-btn {
   background: $gradient-primary;

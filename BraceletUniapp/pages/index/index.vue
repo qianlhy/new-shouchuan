@@ -48,7 +48,7 @@
       </view>
       <view class="mid-item" @click="openWristGuide">
         <view class="mid-icon"><image class="xy-icon" src="/static/icons/info-purple.png" mode="aspectFit" style="width:42rpx;height:42rpx" /></view>
-        <text>手维测算</text>
+        <text>手围测算</text>
       </view>
     </view>
 
@@ -147,13 +147,13 @@
       </view>
     </view>
 
-    <!-- 手维测算弹层 -->
+    <!-- 手围测算弹层 -->
     <view v-if="showWristGuide" class="wrist-mask" @click="closeWristGuide">
       <view class="wrist-sheet" @click.stop>
         <view class="wrist-handle" />
         <view class="wrist-head">
           <view>
-            <text class="wrist-title">手维测算</text>
+            <text class="wrist-title">手围测算</text>
             <text class="wrist-sub">选对尺寸 · 佩戴更舒适</text>
           </view>
           <view class="wrist-close" @click="closeWristGuide">✕</view>
@@ -890,7 +890,7 @@ onMounted(() => {
   font-size: 24rpx;
 }
 
-/* —— 手维测算弹层 —— */
+/* —— 手围测算弹层 —— */
 .wrist-mask {
   position: fixed;
   inset: 0;
