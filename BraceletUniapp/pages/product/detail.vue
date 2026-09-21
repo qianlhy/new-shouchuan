@@ -273,7 +273,7 @@ onLoad(async (options) => {
 .img { width: 100%; height: 100%; }
 
 .info-card {
-  margin: -28rpx 24rpx 0;
+  margin: 20rpx 24rpx 0;
   position: relative;
   z-index: 2;
   background: $card-bg;

@@ -46,9 +46,9 @@
         <view class="mid-icon"><image class="xy-icon" src="/static/icons/message-circle-purple.png" mode="aspectFit" style="width:42rpx;height:42rpx" /></view>
         <text>联系客服</text>
       </view>
-      <view class="mid-item" @click="goDesign">
-        <view class="mid-icon"><image class="xy-icon" src="/static/icons/palette-purple.png" mode="aspectFit" style="width:42rpx;height:42rpx" /></view>
-        <text>我的设计</text>
+      <view class="mid-item" @click="openWristGuide">
+        <view class="mid-icon"><image class="xy-icon" src="/static/icons/info-purple.png" mode="aspectFit" style="width:42rpx;height:42rpx" /></view>
+        <text>手维测算</text>
       </view>
     </view>
 
@@ -146,11 +146,141 @@
         <text class="skip-btn" @click="skipLogin">跳过，使用默认</text>
       </view>
     </view>
+
+    <!-- 手维测算弹层 -->
+    <view v-if="showWristGuide" class="wrist-mask" @click="closeWristGuide">
+      <view class="wrist-sheet" @click.stop>
+        <view class="wrist-handle" />
+        <view class="wrist-head">
+          <view>
+            <text class="wrist-title">手维测算</text>
+            <text class="wrist-sub">选对尺寸 · 佩戴更舒适</text>
+          </view>
+          <view class="wrist-close" @click="closeWristGuide">✕</view>
+        </view>
+
+        <view class="wrist-tabs">
+          <view
+            class="wrist-tab"
+            :class="{ active: wristTab === 'estimate' }"
+            @click="wristTab = 'estimate'"
+          >智能估算</view>
+          <view
+            class="wrist-tab"
+            :class="{ active: wristTab === 'measure' }"
+            @click="wristTab = 'measure'"
+          >精准测量</view>
+        </view>
+
+        <scroll-view scroll-y class="wrist-body">
+          <!-- 智能估算 -->
+          <view v-if="wristTab === 'estimate'" class="wrist-panel">
+            <view class="wrist-tip-banner">
+              <text class="tip-strong">量尺不方便？用身高体重快速估算</text>
+              <text class="tip-light">仅供参考，建议最终以净手围为准</text>
+            </view>
+
+            <view class="est-card">
+              <view class="est-field">
+                <text class="est-label">身高</text>
+                <picker mode="selector" :range="heightLabels" :value="heightIndex" @change="onHeightPick">
+                  <view class="est-picker">
+                    <text>{{ heightLabels[heightIndex] }}</text>
+                    <text class="est-arrow">›</text>
+                  </view>
+                </picker>
+              </view>
+              <view class="est-field">
+                <text class="est-label">体重</text>
+                <picker mode="selector" :range="weightLabels" :value="weightIndex" @change="onWeightPick">
+                  <view class="est-picker">
+                    <text>{{ weightLabels[weightIndex] }}</text>
+                    <text class="est-arrow">›</text>
+                  </view>
+                </picker>
+              </view>
+            </view>
+
+            <view class="est-result">
+              <text class="est-result-label">建议手围</text>
+              <view class="est-result-main">
+                <text class="est-size">{{ estimatedSize }}</text>
+                <text class="est-unit">cm</text>
+              </view>
+              <text class="est-result-hint">{{ estimateHint }}</text>
+            </view>
+
+            <view class="table-block">
+              <text class="block-title">完整估算表</text>
+              <text class="table-note">横轴体重 kg · 纵轴身高 cm · 空格表示该组合无参考值</text>
+              <scroll-view scroll-x class="table-scroll" :show-scrollbar="false">
+                <view class="wrist-table">
+                  <view class="t-row t-head">
+                    <view class="t-cell t-corner">身高\体重</view>
+                    <view v-for="w in weightCols" :key="'h'+w" class="t-cell t-weight">{{ w }}</view>
+                  </view>
+                  <view
+                    v-for="(row, ri) in estimateMatrix"
+                    :key="heightRanges[ri].label"
+                    class="t-row"
+                  >
+                    <view class="t-cell t-height">{{ heightRanges[ri].label }}</view>
+                    <view
+                      v-for="(val, ci) in row"
+                      :key="heightRanges[ri].label + '-' + weightCols[ci]"
+                      class="t-cell"
+                      :class="{ hit: ri === heightIndex && ci === weightIndex && val != null, empty: val == null }"
+                    >{{ val == null ? '—' : val }}</view>
+                  </view>
+                </view>
+              </scroll-view>
+            </view>
+          </view>
+
+          <!-- 精准测量 -->
+          <view v-else class="wrist-panel">
+            <view class="wrist-alert">
+              <text>⚠️ 无需自行加松量，报净手围即可</text>
+              <text>⚠️ 测量时请贴紧皮肤，不要刻意勒紧</text>
+            </view>
+
+            <view class="measure-card">
+              <text class="block-title">什么是净手围？</text>
+              <text class="measure-p">手腕最细处、软尺贴紧皮肤一圈的周长。没有软尺可用细线绕一圈，再量线长。</text>
+              <view class="measure-rule">
+                <text class="rule-em">按净手围下单，手链会做成比净手围大约 1–2cm</text>
+                <text class="rule-line">13.5–14.4 → 选 14　　14.5–15.4 → 选 15</text>
+                <text class="rule-line">15.5–16.4 → 选 16　　以此类推</text>
+              </view>
+            </view>
+
+            <view class="measure-card">
+              <text class="block-title">纸币估算（无软尺时）</text>
+              <view class="money-grid">
+                <view v-for="m in moneyRefs" :key="m.note" class="money-item">
+                  <text class="money-note">{{ m.note }}</text>
+                  <text class="money-cm">{{ m.cm }}cm</text>
+                </view>
+              </view>
+              <text class="measure-p subtle">用对应面额纸币绕腕一圈对照长度</text>
+            </view>
+
+            <view class="measure-card soft">
+              <text class="measure-p">测量结果仅供参考，特殊体型建议联系客服协助确认尺寸。</text>
+            </view>
+          </view>
+        </scroll-view>
+
+        <view class="wrist-footer">
+          <button class="wrist-go-diy" @click="goDiyFromWrist">去设计手串</button>
+        </view>
+      </view>
+    </view>
   </view>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { getBannerList, getProductList, userGet, userSet, loginWithWeixinCode } from '../../api/index.js'
 import { resolveImageUrl } from '../../utils/imageHelper.js'
@@ -163,6 +293,92 @@ const showEditProfile = ref(false)
 const tempAvatarUrl = ref('')
 const tempNickname = ref('')
 
+const showWristGuide = ref(false)
+const wristTab = ref('estimate')
+const heightIndex = ref(2) // 默认 160-165
+const weightIndex = ref(2) // 默认 50kg → 14.5
+
+const heightRanges = [
+  { label: '150-155', min: 150, max: 155 },
+  { label: '155-160', min: 155, max: 160 },
+  { label: '160-165', min: 160, max: 165 },
+  { label: '165-170', min: 165, max: 170 },
+  { label: '170-175', min: 170, max: 175 },
+  { label: '175-180', min: 175, max: 180 },
+  { label: '180-185', min: 180, max: 185 },
+  { label: '185-190', min: 185, max: 190 }
+]
+const weightCols = [40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100]
+const heightLabels = heightRanges.map((h) => `${h.label} cm`)
+const weightLabels = weightCols.map((w) => `${w} kg`)
+
+/**
+ * 客户提供的身高×体重手围参考表（空位 null = 无参考值）
+ * 行：150-155 … 185-190；列：40 … 100 kg
+ */
+const estimateMatrix = [
+  [13.5, 14, 15, 15.5, 16, 16, null, null, null, null, null, null, null],
+  [14, 14, 14, 15, 15.5, 16, 17, 17.5, 18, null, null, null, null],
+  [null, 14, 14.5, 15, 15.5, 17, 17.5, 18, 18, 18.5, 19, 19, 19],
+  [null, null, 15, 15, 15.5, 16, 16.5, 17, 17.5, 18, 19, 19, 19],
+  [null, null, null, 15.5, 16, 16.5, 17, 17.5, 18, 18, 19, 19.5, 19.5],
+  [null, null, null, 16, 17, 17.5, 17.5, 18, 18, 18.5, 18.5, 19, 19.5],
+  [null, null, null, null, null, 17, 17.5, 18, 18, 18.5, 18.5, 19, 19.5],
+  [null, null, null, null, null, null, 17, 17.5, 18, 18.5, 19, 20, 21]
+]
+
+/** 在同一身高行内，取最近有值的体重格 */
+function lookupWristSize(ri, ci) {
+  const row = estimateMatrix[ri]
+  if (!row) return null
+  if (row[ci] != null) return row[ci]
+  for (let d = 1; d < row.length; d++) {
+    if (ci - d >= 0 && row[ci - d] != null) return row[ci - d]
+    if (ci + d < row.length && row[ci + d] != null) return row[ci + d]
+  }
+  return null
+}
+
+const moneyRefs = [
+  { note: '1元', cm: '13' },
+  { note: '5元', cm: '13.5' },
+  { note: '10元', cm: '14' },
+  { note: '20元', cm: '14.5' },
+  { note: '50元', cm: '15' },
+  { note: '100元', cm: '15.5' }
+]
+
+const estimatedSize = computed(() => {
+  const v = lookupWristSize(heightIndex.value, weightIndex.value)
+  return v == null ? '--' : v
+})
+
+const estimateHint = computed(() => {
+  const row = estimateMatrix[heightIndex.value]
+  const exact = row && row[weightIndex.value] != null
+  if (!exact && estimatedSize.value !== '--') {
+    return '该身高体重无精确格，已就近取值；建议以净手围为准'
+  }
+  return '下单选此尺寸即可，成品会再放大 1–2cm 松量'
+})
+
+const openWristGuide = () => {
+  wristTab.value = 'estimate'
+  showWristGuide.value = true
+}
+const closeWristGuide = () => {
+  showWristGuide.value = false
+}
+const onHeightPick = (e) => {
+  heightIndex.value = Number(e.detail.value) || 0
+}
+const onWeightPick = (e) => {
+  weightIndex.value = Number(e.detail.value) || 0
+}
+const goDiyFromWrist = () => {
+  showWristGuide.value = false
+  uni.switchTab({ url: '/pages/design/index' })
+}
 const loadBanners = async () => {
   try {
     const list = await getBannerList()
@@ -247,19 +463,15 @@ const performLogin = (userInfo) => {
 }
 
 const onBannerClick = (item) => {
-  if (!item.link) return
-  const tabbarPages = [
-    '/pages/index/index',
-    '/pages/square/index',
-    '/pages/design/index',
-    '/pages/cart/index',
-    '/pages/mine/index'
-  ]
-  if (tabbarPages.includes(item.link)) {
-    uni.switchTab({ url: item.link })
-  } else {
-    uni.navigateTo({ url: item.link })
-  }
+  const urls = banners.value
+    .map((b) => b.imageUrl)
+    .filter(Boolean)
+  if (!urls.length) return
+  const current = item?.imageUrl || urls[0]
+  uni.previewImage({
+    urls,
+    current
+  })
 }
 
 const goDesign = () => uni.switchTab({ url: '/pages/design/index' })
@@ -529,7 +741,7 @@ onMounted(() => {
 
 .banner-section { margin-bottom: 24rpx; }
 .banner-swiper {
-  height: 280rpx;
+  height: 340rpx;
   border-radius: 28rpx;
   overflow: hidden;
   box-shadow: $shadow-card;
@@ -677,4 +889,333 @@ onMounted(() => {
   color: $text-sub;
   font-size: 24rpx;
 }
+
+/* —— 手维测算弹层 —— */
+.wrist-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 12, 40, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+}
+.wrist-sheet {
+  width: 100%;
+  max-height: 86vh;
+  background: linear-gradient(180deg, #FBF8FF 0%, #FFFFFF 28%);
+  border-radius: 32rpx 32rpx 0 0;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  box-shadow: 0 -12rpx 40rpx rgba(90, 50, 160, 0.12);
+}
+.wrist-handle {
+  width: 72rpx;
+  height: 8rpx;
+  border-radius: 999rpx;
+  background: rgba(139, 92, 246, 0.22);
+  margin: 14rpx auto 8rpx;
+}
+.wrist-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 8rpx 32rpx 16rpx;
+}
+.wrist-title {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: $text-main;
+  letter-spacing: 1rpx;
+}
+.wrist-sub {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: $text-sub;
+}
+.wrist-close {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: rgba(139, 92, 246, 0.08);
+  color: $primary;
+  font-size: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wrist-tabs {
+  display: flex;
+  margin: 0 32rpx 12rpx;
+  padding: 6rpx;
+  background: rgba(139, 92, 246, 0.08);
+  border-radius: 999rpx;
+}
+.wrist-tab {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx 0;
+  font-size: 26rpx;
+  color: $text-sub;
+  border-radius: 999rpx;
+  font-weight: 500;
+}
+.wrist-tab.active {
+  background: #fff;
+  color: $primary;
+  font-weight: 700;
+  box-shadow: 0 4rpx 14rpx rgba(90, 50, 160, 0.1);
+}
+.wrist-body {
+  flex: 1;
+  height: 0;
+  min-height: 520rpx;
+  max-height: 58vh;
+  padding: 0 32rpx;
+  box-sizing: border-box;
+}
+.wrist-panel { padding-bottom: 24rpx; }
+
+.wrist-tip-banner {
+  background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+  border-radius: 20rpx;
+  padding: 22rpx 24rpx;
+  margin-bottom: 20rpx;
+}
+.tip-strong {
+  display: block;
+  color: #fff;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+.tip-light {
+  display: block;
+  margin-top: 8rpx;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 22rpx;
+}
+
+.est-card {
+  display: flex;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+.est-field {
+  flex: 1;
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 18rpx 20rpx;
+  border: 1rpx solid rgba(139, 92, 246, 0.12);
+  box-shadow: $shadow-card-soft;
+}
+.est-label {
+  display: block;
+  font-size: 22rpx;
+  color: $text-sub;
+  margin-bottom: 10rpx;
+}
+.est-picker {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: $text-main;
+}
+.est-arrow { color: $primary; font-size: 32rpx; }
+
+.est-result {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 28rpx 24rpx;
+  text-align: center;
+  margin-bottom: 24rpx;
+  border: 2rpx solid rgba(139, 92, 246, 0.18);
+  box-shadow: 0 10rpx 28rpx rgba(90, 50, 160, 0.08);
+}
+.est-result-label {
+  display: block;
+  font-size: 24rpx;
+  color: $text-sub;
+}
+.est-result-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6rpx;
+  margin: 10rpx 0 12rpx;
+}
+.est-size {
+  font-size: 72rpx;
+  font-weight: 800;
+  color: $primary;
+  line-height: 1;
+}
+.est-unit {
+  font-size: 28rpx;
+  color: $primary;
+  font-weight: 600;
+}
+.est-result-hint {
+  display: block;
+  font-size: 22rpx;
+  color: $text-sub;
+  line-height: 1.5;
+}
+
+.block-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: $text-main;
+  margin-bottom: 14rpx;
+}
+.table-block { margin-bottom: 12rpx; }
+.table-note {
+  display: block;
+  font-size: 20rpx;
+  color: $text-hint;
+  margin: -6rpx 0 12rpx;
+}
+.table-scroll { width: 100%; }
+.wrist-table {
+  display: inline-flex;
+  flex-direction: column;
+  min-width: 100%;
+  background: #1a1228;
+  border-radius: 16rpx;
+  overflow: hidden;
+  padding: 8rpx;
+}
+.t-row { display: flex; }
+.t-cell {
+  width: 72rpx;
+  height: 52rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18rpx;
+  color: rgba(255, 255, 255, 0.88);
+  border: 1rpx solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+.t-corner, .t-height {
+  width: 110rpx;
+  font-size: 16rpx;
+  color: rgba(255, 255, 255, 0.65);
+  background: rgba(255, 255, 255, 0.04);
+}
+.t-head .t-cell {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 16rpx;
+  background: rgba(139, 92, 246, 0.2);
+}
+.t-cell.hit {
+  background: $primary;
+  color: #fff;
+  font-weight: 700;
+  border-color: $primary;
+}
+.t-cell.empty {
+  color: rgba(255, 255, 255, 0.28);
+}
+
+.wrist-alert {
+  background: #FFF5F5;
+  border: 1rpx solid rgba(229, 77, 66, 0.2);
+  border-radius: 18rpx;
+  padding: 18rpx 20rpx;
+  margin-bottom: 18rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  font-size: 24rpx;
+  color: #C0392B;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.measure-card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 22rpx;
+  margin-bottom: 16rpx;
+  border: 1rpx solid rgba(139, 92, 246, 0.1);
+  box-shadow: $shadow-card-soft;
+}
+.measure-card.soft {
+  background: rgba(139, 92, 246, 0.05);
+  box-shadow: none;
+}
+.measure-p {
+  display: block;
+  font-size: 24rpx;
+  color: $text-main;
+  line-height: 1.6;
+}
+.measure-p.subtle {
+  margin-top: 12rpx;
+  color: $text-sub;
+  font-size: 22rpx;
+}
+.measure-rule {
+  margin-top: 16rpx;
+  background: linear-gradient(135deg, rgba(255, 214, 102, 0.35), rgba(255, 236, 179, 0.45));
+  border-radius: 14rpx;
+  padding: 16rpx;
+}
+.rule-em {
+  display: block;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #8A5A00;
+  margin-bottom: 10rpx;
+  line-height: 1.45;
+}
+.rule-line {
+  display: block;
+  font-size: 22rpx;
+  color: #6B4E16;
+  line-height: 1.55;
+}
+.money-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12rpx;
+}
+.money-item {
+  background: rgba(139, 92, 246, 0.06);
+  border-radius: 14rpx;
+  padding: 16rpx 8rpx;
+  text-align: center;
+}
+.money-note {
+  display: block;
+  font-size: 22rpx;
+  color: $text-sub;
+}
+.money-cm {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: $primary;
+}
+
+.wrist-footer {
+  padding: 12rpx 32rpx 0;
+}
+.wrist-go-diy {
+  margin: 0;
+  height: 84rpx;
+  line-height: 84rpx;
+  background: $gradient-primary;
+  color: #fff;
+  border-radius: $radius-pill;
+  font-size: 28rpx;
+  font-weight: 600;
+  box-shadow: $shadow-btn;
+}
+.wrist-go-diy::after { border: none; }
 </style>
