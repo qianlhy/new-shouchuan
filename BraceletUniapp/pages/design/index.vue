@@ -662,95 +662,22 @@ function isSpacerOrSeparator(bead) {
   return spacerKeywords.some(keyword => title.includes(keyword))
 }
 
-/** 布局常量：mm→rpx、穿串间隙 */
+/** 布局常量：mm→rpx */
 const BEAD_MM_TO_RPX = 7
-/** 紧凑穿串：珠间固定小缝（rpx，约 0.7mm），一个挨一个、不太远也不太近 */
-const FIXED_BEAD_GAP_RPX = 5
-/** 扁平/宽扁配饰沿绳子的占位放大（真实宽度常大于标称直径） */
-const WIDE_CHARM_ARC_FACTOR = 1.2
-const WIDE_CHARM_KEYWORDS = [
-  '蝴蝶结', '蝴蝶', '花朵', '花瓣', '翅膀', '流苏',
-  '皇冠', '雪花', '铃铛', '爱心', '星星', '月亮'
-]
-
-function isWideCharm(bead) {
-  const title = String(bead?.title || '')
-  return WIDE_CHARM_KEYWORDS.some(keyword => title.includes(keyword))
-}
 
 /**
  * 珠子沿绳子占用的弧长（rpx）
- * - 普通圆珠：sizeMm × 7
- * - 宽扁配饰：略放大，减少视觉重叠
- * - 吊坠/隔片：按标称尺寸的一部分占位（至少 3mm），与实际贴图更接近
+ * - 普通圆珠：按标称直径贴紧
+ * - 吊坠/隔片：只占 3mm，贴图仍按原尺寸画，视觉上成组叠在一起
  */
 function getBeadArcSizeRpx(bead) {
-  const sizeMm = Number(bead?.size || 8)
-
-  if (isPendant(bead) || isSpacerOrSeparator(bead)) {
-    // 贴图仍按全尺寸画，占位不能只用 3mm，否则大吊坠会压到邻珠
-    const layoutMm = Math.max(3, Math.min(sizeMm, sizeMm * 0.5 + 1.5))
-    return layoutMm * BEAD_MM_TO_RPX
-  }
-
-  let arc = sizeMm * BEAD_MM_TO_RPX
-  if (isWideCharm(bead)) {
-    arc *= WIDE_CHARM_ARC_FACTOR
-  }
-  return arc
+  if (isPendant(bead) || isSpacerOrSeparator(bead)) return 3 * BEAD_MM_TO_RPX
+  return Number(bead?.size || 8) * BEAD_MM_TO_RPX
 }
 
 /** 当前珠子总弧长（rpx） */
 function getTotalBeadArcRpx() {
   return beads.value.reduce((s, b) => s + getBeadArcSizeRpx(b), 0)
-}
-
-/**
- * 计算相邻珠间间隙（rpx）
- * - 紧凑（默认）：所有相邻珠固定小缝，一个挨一个、间距一致，不受剩余周长影响
- * - 均匀：珠子铺满整圈时，剩余周长按邻珠尺寸加权分配（大珠旁缝隙略大，观感更匀）
- */
-function computePairGaps(sizes, gapFlags, remainingArc, autoArrange) {
-  const count = sizes.length
-  const gaps = new Array(count).fill(0)
-  if (count === 0) return gaps
-
-  let validGapCount = 0
-  for (let i = 0; i < count; i++) {
-    if (gapFlags[i]) validGapCount++
-  }
-  if (validGapCount <= 0) return gaps
-
-  if (autoArrange) {
-    // 均匀铺满：把剩余周长按两侧珠径均值加权分配
-    if (remainingArc <= 0.5) return gaps
-    const weights = new Array(count).fill(0)
-    let weightSum = 0
-    for (let i = 0; i < count; i++) {
-      if (!gapFlags[i]) continue
-      const next = (i + 1) % count
-      const w = (sizes[i] + sizes[next]) / 2
-      weights[i] = Math.max(w, 1)
-      weightSum += weights[i]
-    }
-    if (weightSum <= 0) return gaps
-    for (let i = 0; i < count; i++) {
-      if (gapFlags[i]) {
-        gaps[i] = remainingArc * (weights[i] / weightSum)
-      }
-    }
-    return gaps
-  }
-
-  // 紧凑：固定小缝，一个挨一个；周长不够时按比例收窄，保证不重叠
-  let gap = FIXED_BEAD_GAP_RPX
-  if (remainingArc < gap * validGapCount) {
-    gap = Math.max(0, remainingArc / validGapCount)
-  }
-  for (let i = 0; i < count; i++) {
-    if (gapFlags[i]) gaps[i] = gap
-  }
-  return gaps
 }
 
 // 目标珠子数
@@ -849,54 +776,52 @@ const canvasScale = computed(() => {
   return autoScale * manualScale.value
 })
 
-// 计算珠子布局：紧凑=带呼吸缝的成串；均匀=剩余周长加权铺满手围圆
+// 计算珠子布局：紧凑从顶点顺时针贴紧成串；均匀才把剩余周长分给普通珠之间
 const beadLayouts = computed(() => {
   const count = beads.value.length
   if (!count) return []
-  
+
   const radius = layoutRadius.value
   if (radius <= 0) return []
 
-  const sizes = beads.value.map(b => getBeadArcSizeRpx(b))
-  const totalBeadArc = sizes.reduce((s, v) => s + v, 0)
+  let totalBeadArc = 0
+  beads.value.forEach(b => {
+    totalBeadArc += getBeadArcSizeRpx(b)
+  })
+
   const circumference = 2 * Math.PI * radius
-  const remainingArc = circumference - totalBeadArc
+  let gap = 0
+  const startAngle = -Math.PI / 2
 
-  // 吊坠/隔片两侧不主动拉开（成组贴紧）
-  const gapFlags = []
-  for (let i = 0; i < count; i++) {
-    const curr = beads.value[i]
-    const next = beads.value[(i + 1) % count]
-    const currIsSpecial = isPendant(curr) || isSpacerOrSeparator(curr)
-    const nextIsSpecial = isPendant(next) || isSpacerOrSeparator(next)
-    gapFlags.push(!currIsSpecial && !nextIsSpecial)
-  }
-
-  const gaps = computePairGaps(sizes, gapFlags, remainingArc, isAutoArranged.value)
-
-  // 每段：从当前珠心到下一珠心的弧长（含最后一颗回到第一颗）
-  const segmentArcs = []
-  for (let i = 0; i < count; i++) {
-    const next = (i + 1) % count
-    segmentArcs.push(sizes[i] / 2 + sizes[next] / 2 + gaps[i])
-  }
-
-  // 紧凑模式：整串绕顶点居中，左右对称更好看；均匀模式仍从顶点起顺时针铺满
-  let startAngle = -Math.PI / 2
-  if (!isAutoArranged.value && count > 0) {
-    let chainArc = 0
-    for (let i = 0; i < count - 1; i++) {
-      chainArc += segmentArcs[i]
+  if (isAutoArranged.value) {
+    const remainingArc = circumference - totalBeadArc
+    let validGapCount = 0
+    for (let i = 0; i < count; i++) {
+      const curr = beads.value[i]
+      const next = beads.value[(i + 1) % count]
+      const currIsSpecial = isPendant(curr) || isSpacerOrSeparator(curr)
+      const nextIsSpecial = isPendant(next) || isSpacerOrSeparator(next)
+      if (!currIsSpecial && !nextIsSpecial) validGapCount++
     }
-    // 链长对应的圆心角一半，使串在 12 点两侧对称展开
-    startAngle = -Math.PI / 2 - (chainArc / radius) / 2
+    gap = validGapCount > 0 ? remainingArc / validGapCount : 0
   }
 
-  let currentAngle = startAngle
   const layouts = []
+  let currentAngle = startAngle
   for (let i = 0; i < count; i++) {
+    if (i === 0) {
+      layouts.push({ angle: currentAngle })
+      continue
+    }
+    const prevBead = beads.value[i - 1]
+    const currBead = beads.value[i]
+    const prevSize = getBeadArcSizeRpx(prevBead)
+    const currSize = getBeadArcSizeRpx(currBead)
+    const prevIsSpecial = isPendant(prevBead) || isSpacerOrSeparator(prevBead)
+    const currIsSpecial = isPendant(currBead) || isSpacerOrSeparator(currBead)
+    const applyGap = (!prevIsSpecial && !currIsSpecial) ? gap : 0
+    currentAngle += ((prevSize / 2) + (currSize / 2) + applyGap) / radius
     layouts.push({ angle: currentAngle })
-    currentAngle += segmentArcs[i] / radius
   }
 
   return layouts
